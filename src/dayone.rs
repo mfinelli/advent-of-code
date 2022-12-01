@@ -38,7 +38,7 @@ pub fn dayone(input: &str, top: u32) -> u32 {
     let mut heap = BinaryHeap::new();
 
     for line in lines {
-        if line == "" {
+        if line.is_empty() {
             // when we get a blank line "commit" the result to the heap
             heap.push(current);
             current = 0;
