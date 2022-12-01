@@ -2,8 +2,10 @@ use std::collections::BinaryHeap;
 use std::fs;
 
 fn main() {
-    let r = day1();
+    let r = day1(1);
+    let q = day1(3);
     println!("{}", r);
+    println!("{}", q);
 }
 
 // The request for this challenge is to simply know the total amount of
@@ -13,7 +15,7 @@ fn main() {
 // then when we hit a newline we'll "commit" this total to the heap. We then
 // do one more commit at the end since the file doesn't have an extra trailing
 // newline.
-fn day1() -> u32 {
+fn day1(top: u32) -> u32 {
     let contents = fs::read_to_string("src/input/day1.txt")
         .expect("Unable to open input file.");
 
@@ -38,5 +40,13 @@ fn day1() -> u32 {
         heap.push(current);
     }
 
-    *heap.peek().unwrap()
+    let mut sum = 0;
+
+    for i in 0..top {
+        sum += heap.pop().unwrap();
+    }
+
+    sum
+
+    // *heap.peek().unwrap()
 }
