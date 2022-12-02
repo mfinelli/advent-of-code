@@ -26,10 +26,8 @@ use std::collections::HashMap;
 /// assert_eq!(daytwo(input, 2), 4);
 /// ```
 pub fn daytwo(input: &str, part: u32) -> u32 {
-    let matchups: HashMap<&str, u32>;
-
-    if part == 1 {
-        matchups = HashMap::from([
+    let matchups: HashMap<&str, u32> = if part == 1 {
+        HashMap::from([
             ("A X", 4), // rock v. rock (1) / draw (3)
             ("A Y", 8), // rock v. paper (2) / win (6)
             ("A Z", 3), // rock v. scissors (3) / lose (0)
@@ -39,9 +37,9 @@ pub fn daytwo(input: &str, part: u32) -> u32 {
             ("C X", 7), // scissors v. rock (1) / win (6)
             ("C Y", 2), // scissors v. paper (2) / lose (0)
             ("C Z", 6), // scissors v. scissors (3) / draw (3)
-        ]);
+        ])
     } else {
-        matchups = HashMap::from([
+        HashMap::from([
             ("A X", 3), // rock v. lose (scissors): 0 + 3 = 3
             ("A Y", 4), // rock v. draw (rock): 3 + 1 = 4
             ("A Z", 8), // rock v. win (paper): 6 + 2 = 8
@@ -51,8 +49,8 @@ pub fn daytwo(input: &str, part: u32) -> u32 {
             ("C X", 2), // scissors v. lose (paper): 0 + 2 = 2
             ("C Y", 6), // scissors v. draw (scissors): 3 + 3 = 6
             ("C Z", 7), // scissors v. win (rock): 6 + 1 = 7
-        ]);
-    }
+        ])
+    };
 
     let lines: Vec<_> = input.lines().collect();
     let mut total = 0;
