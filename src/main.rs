@@ -15,4 +15,7 @@ fn main() {
 
     let r = daytwo::daytwo(&contents);
     println!("{}", r);
+
+    let q = daytwo::daytwo_parttwo(&contents);
+    println!("{}", q);
 }

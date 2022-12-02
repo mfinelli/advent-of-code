@@ -29,9 +29,25 @@ pub fn daytwo(input: &str) -> u32 {
     total
 }
 
-// fn sumline(line: &str, points: &HashMap<&str, u32>) -> u32 {
-//     let plays: Vec<&str> = line.split_whitespace().collect();
+pub fn daytwo_parttwo(input: &str) -> u32 {
+    let matchups = HashMap::from([
+        ("A X", 3), // rock v. lose (scissors): 0 + 3 = 3
+        ("A Y", 4), // rock v. draw (rock): 3 + 1 = 4
+        ("A Z", 8), // rock v. win (paper): 6 + 2 = 8
+        ("B X", 1), // paper v. lose (rock): 0 + 1 = 1
+        ("B Y", 5), // paper v. draw (paper): 3 + 2 = 5
+        ("B Z", 9), // paper v. win (scissors): 6 + 3 = 9
+        ("C X", 2), // scissors v. lose (paper): 0 + 2 = 2
+        ("C Y", 6), // scissors v. draw (scissors): 3 + 3 = 6
+        ("C Z", 7), // scissors v. win (rock): 6 + 1 = 7
+    ]);
 
-//     let mut sum = points.get(plays[1]).unwrap();
-//     *sum
-// }
+    let lines: Vec<_> = input.lines().collect();
+    let mut total = 0;
+
+    for line in lines {
+        total += matchups.get(line).unwrap();
+    }
+
+    total
+}
