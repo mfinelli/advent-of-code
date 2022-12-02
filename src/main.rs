@@ -13,24 +13,30 @@
  * limitations under the License.
  */
 
-use std::fs;
+use std::{env, fs};
 
-// use aoc::dayone;
+use aoc::dayone;
 use aoc::daytwo;
 
 fn main() {
-    // let contents = fs::read_to_string("src/input/day1.txt").expect("Unable to open input file.");
-    let contents = fs::read_to_string("src/input/day2.txt").expect("Unable to open input file.");
+    let args: Vec<String> = env::args().collect();
 
-    // let r = dayone::dayone(&contents, 1);
-    // println!("{}", r);
+    if args.len() != 3 {
+        println!("usage: {} yXXdYY ./path/to/input", args[0]);
+        return;
+    }
 
-    // let q = dayone::dayone(&contents, 3);
-    // println!("{}", q);
+    let input = fs::read_to_string(&args[2]).expect("Unable to open input.");
 
-    let r = daytwo::daytwo(&contents, 1);
-    println!("{}", r);
-
-    let q = daytwo::daytwo(&contents, 2);
-    println!("{}", q);
+    match args[1].as_str() {
+        "y22d01" => {
+            println!("Part 1: {}", dayone::dayone(&input, 1));
+            println!("Part 2: {}", dayone::dayone(&input, 3));
+        }
+        "y22d02" => {
+            println!("Part 1: {}", daytwo::daytwo(&input, 1));
+            println!("Part 2: {}", daytwo::daytwo(&input, 2));
+        }
+        _ => panic!("Unable to find year/day match."),
+    };
 }
