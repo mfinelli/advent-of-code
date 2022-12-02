@@ -1,6 +1,6 @@
 use std::fs;
 
-use aoc::dayone;
+// use aoc::dayone;
 use aoc::daytwo;
 
 fn main() {
@@ -13,9 +13,9 @@ fn main() {
     // let q = dayone::dayone(&contents, 3);
     // println!("{}", q);
 
-    let r = daytwo::daytwo(&contents);
+    let r = daytwo::daytwo(&contents, 1);
     println!("{}", r);
 
-    let q = daytwo::daytwo_parttwo(&contents);
+    let q = daytwo::daytwo(&contents, 2);
     println!("{}", q);
 }
