@@ -43,7 +43,7 @@ use std::collections::HashSet;
 const PRIORITY: &str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 /// The solution for the day three challenge. In reality calls a second
-/// function based on the second argument (part `1` or part `2).
+/// function based on the second argument (part `1` or part `2`).
 ///
 /// For part one given the input as a string we loop through the characters in
 /// each line. If we're in the first half we add them to the set, if we're in
