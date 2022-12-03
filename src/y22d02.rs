@@ -35,7 +35,7 @@ use std::collections::HashMap;
 ///
 /// # Example
 /// ```rust
-/// # use aoc::daytwo::daytwo;
+/// # use aoc::y22d02::daytwo;
 /// let input = "A X\nB X"; // probably read this from the input file...
 /// assert_eq!(daytwo(input, 1), 5);
 /// assert_eq!(daytwo(input, 2), 4);

@@ -41,7 +41,7 @@ use std::collections::BinaryHeap;
 ///
 /// # Example
 /// ```rust
-/// # use aoc::dayone::dayone;
+/// # use aoc::y22d01::dayone;
 /// let input = "1\n2\n\n3\n"; // probably read this from the input file...
 /// assert_eq!(dayone(input, 1), 3);
 /// assert_eq!(dayone(input, 2), 6);
