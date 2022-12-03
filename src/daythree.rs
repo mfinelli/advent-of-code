@@ -1,8 +1,17 @@
 use std::collections::HashSet;
 
-pub fn daythree(input: &str) -> u32 {
+const PRIORITY: &str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+pub fn y22d03(input: &str, part: u32) -> u32 {
+    if part == 1 {
+        y22d03p1(&input)
+    } else {
+        y22d03p2(&input)
+    }
+}
+
+fn y22d03p1(input: &str) -> u32 {
     let lines: Vec<_> = input.lines().collect();
-    let priorities = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     let mut sum = 0;
 
@@ -17,12 +26,30 @@ pub fn daythree(input: &str) -> u32 {
             } else {
                 // if set contains ch then add priority to sum and break
                 if set.contains(&ch) {
-                    sum += priorities.find(ch).unwrap() as u32 + 1;
+                    sum += PRIORITY.find(ch).unwrap() as u32 + 1;
                     break;
                     // sum += priorities.chars().position(|c| c== ch).unwrap();
                 }
             }
             i += 1;
+        }
+    }
+
+    sum
+}
+
+fn y22d03p2(input: &str) -> u32 {
+    let lines: Vec<_> = input.lines().collect();
+    let groups = lines.len() / 3;
+
+    let mut sum = 0;
+
+    for gi in 0..groups {
+        for c in lines[gi * 3 + 2].chars() {
+            if lines[gi * 3].contains(c) && lines[gi * 3 + 1].contains(c) {
+                sum += PRIORITY.find(c).unwrap() as u32 + 1;
+                break;
+            }
         }
     }
 
@@ -36,27 +63,27 @@ mod tests {
     #[test]
     fn it_works() {
         let mut input = "cDeFeg";
-        assert_eq!(daythree(input), 5);
+        assert_eq!(y22d03p1(input), 5);
 
         input = "ABBCaaDEEF\nHabcHdef\n";
-        assert_eq!(daythree(input), 35);
+        assert_eq!(y22d03p1(input), 35);
 
         input = "vJrwpWtwJgWrhcsFMMfFFhFp";
-        assert_eq!(daythree(input), 16);
+        assert_eq!(y22d03p1(input), 16);
 
         input = "jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL";
-        assert_eq!(daythree(input), 38);
+        assert_eq!(y22d03p1(input), 38);
 
         input = "PmmdzqPrVvPwwTWBwg";
-        assert_eq!(daythree(input), 42);
+        assert_eq!(y22d03p1(input), 42);
 
         input = "wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn";
-        assert_eq!(daythree(input), 22);
+        assert_eq!(y22d03p1(input), 22);
 
         input = "ttgJtRGJQctTZtZT";
-        assert_eq!(daythree(input), 20);
+        assert_eq!(y22d03p1(input), 20);
 
         input = "CrZsJsPPZsGzwwsLwLmpwMDw";
-        assert_eq!(daythree(input), 19);
+        assert_eq!(y22d03p1(input), 19);
     }
 }
