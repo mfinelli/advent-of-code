@@ -87,11 +87,9 @@ fn y22d03p1(input: &str) -> u32 {
         for ch in line.chars() {
             if i <= half {
                 set.insert(ch);
-            } else {
-                if set.contains(&ch) {
-                    sum += PRIORITY.find(ch).unwrap() as u32 + 1;
-                    break;
-                }
+            } else if set.contains(&ch) {
+                sum += PRIORITY.find(ch).unwrap() as u32 + 1;
+                break;
             }
             i += 1;
         }
