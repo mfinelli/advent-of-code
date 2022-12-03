@@ -28,7 +28,7 @@ use std::collections::HashMap;
 ///
 /// Given the input as a string, it splits by lines and then creates a running
 /// tally as it loops through them as each possible outcome is stored in a
-/// HashMap with its value.
+/// [`std::collections::HashMap`] with its value.
 ///
 /// The second argument simply decides whether we should use the what to _play_
 /// method (part `1`) or the what to _do_ method (part `2`).
