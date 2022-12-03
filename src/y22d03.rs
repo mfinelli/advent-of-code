@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-//! Advent of Code 22 Day 3: <https://adventofcode.com/2022/day/3>
+//! Advent of Code 2022 Day 3: <https://adventofcode.com/2022/day/3>
 //!
 //! The day three challenge basically amounts to finding characters in
 //! strings.
