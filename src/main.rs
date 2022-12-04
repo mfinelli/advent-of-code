@@ -18,6 +18,7 @@ use std::{env, fs};
 use aoc::y22d01;
 use aoc::y22d02;
 use aoc::y22d03;
+use aoc::y22d04;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -41,6 +42,9 @@ fn main() {
         "y22d03" => {
             println!("Part 1: {}", y22d03::y22d03(&input, 1));
             println!("Part 2: {}", y22d03::y22d03(&input, 2));
+        }
+        "y22d04" => {
+            println!("Part 1: {}", y22d04::y22d04(&input));
         }
         _ => panic!("Unable to find year/day match."),
     };
