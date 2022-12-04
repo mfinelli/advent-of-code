@@ -18,8 +18,8 @@ pub fn y22d04(input: &str, part: u32) -> u32 {
                 sum += 1;
             }
         } else {
-            for i in first_range[0]..(first_range[1]+1) {
-                if (second_range[0]..(second_range[1]+1)).contains(&i) {
+            for i in first_range[0]..(first_range[1] + 1) {
+                if (second_range[0]..(second_range[1] + 1)).contains(&i) {
                     sum += 1;
                     break;
                 }
