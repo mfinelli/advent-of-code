@@ -44,7 +44,8 @@ fn main() {
             println!("Part 2: {}", y22d03::y22d03(&input, 2));
         }
         "y22d04" => {
-            println!("Part 1: {}", y22d04::y22d04(&input));
+            println!("Part 1: {}", y22d04::y22d04(&input, 1));
+            println!("Part 2: {}", y22d04::y22d04(&input, 2));
         }
         _ => panic!("Unable to find year/day match."),
     };
