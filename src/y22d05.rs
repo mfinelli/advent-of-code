@@ -1,12 +1,36 @@
-pub fn y22d05(input: &str) -> &str {
+pub fn y22d05(input: &str) -> String {
     let lines: Vec<_> = input.lines().collect();
 
-    let mut state = parse_initial_state(lines);
+    let mut state = parse_initial_state(&lines);
+    let mut in_moves = false;
+    let mut output = String::new();
 
-    ""
+    for line in lines {
+        if in_moves {
+            let text: Vec<&str> = line.split_whitespace().collect();
+            let how_many_to_move = text[1].parse().unwrap();
+            let from_index: u32 = text[3].parse().unwrap();
+            let to_index: u32 = text[5].parse().unwrap();
+
+            for _ in 0..how_many_to_move {
+                let from: &mut Vec<String> = &mut state[(from_index-1) as usize];
+                let to_move = from.pop().unwrap();
+                let to: &mut Vec<String> = &mut state[(to_index-1) as usize];
+                to.push(to_move);
+            }
+        } else if line.is_empty() {
+            in_moves = true;
+        }
+    }
+
+    for mut stack in state {
+        output += &stack.pop().unwrap();
+    }
+
+    output
 }
 
-fn parse_initial_state(lines: Vec<&str>) -> Vec<Vec<String>> {
+fn parse_initial_state(lines: &Vec<&str>) -> Vec<Vec<String>> {
     // let mut state_lines: Vec<&str> = Vec::Vec<&str>::new();
     let mut state_lines: Vec<&str> = Vec::new();
     let mut state: Vec<Vec<String>> = Vec::new();
