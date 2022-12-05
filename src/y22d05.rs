@@ -1,4 +1,4 @@
-pub fn y22d05(input: &str) -> String {
+pub fn y22d05(input: &str, part: u32) -> String {
     let lines: Vec<_> = input.lines().collect();
 
     let mut state = parse_initial_state(&lines);
@@ -12,11 +12,26 @@ pub fn y22d05(input: &str) -> String {
             let from_index: u32 = text[3].parse().unwrap();
             let to_index: u32 = text[5].parse().unwrap();
 
-            for _ in 0..how_many_to_move {
+            if part == 1 {
+                for _ in 0..how_many_to_move {
+                    let from: &mut Vec<String> = &mut state[(from_index-1) as usize];
+                    let to_move = from.pop().unwrap();
+                    let to: &mut Vec<String> = &mut state[(to_index-1) as usize];
+                    to.push(to_move);
+                }
+            } else {
+                let mut holding: Vec<String> = Vec::new();
                 let from: &mut Vec<String> = &mut state[(from_index-1) as usize];
-                let to_move = from.pop().unwrap();
+                for _ in 0..how_many_to_move {
+                    let to_move = from.pop().unwrap();
+                    holding.push(to_move);
+                }
+
+
                 let to: &mut Vec<String> = &mut state[(to_index-1) as usize];
-                to.push(to_move);
+                for to_move in holding.into_iter().rev() {
+                    to.push(to_move);
+                }
             }
         } else if line.is_empty() {
             in_moves = true;
@@ -24,6 +39,7 @@ pub fn y22d05(input: &str) -> String {
     }
 
     for mut stack in state {
+        // TODO: add test for empty column
         output += &stack.pop().unwrap();
     }
 
@@ -72,6 +88,7 @@ fn parse_initial_state(lines: &Vec<&str>) -> Vec<Vec<String>> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::fs;
 
     #[test]
     fn test_parse_initial_state() {
@@ -84,13 +101,22 @@ mod tests {
             "we don't care about this...\n",
             "or this...\n",
         );
+        let lines = input.lines().collect();
 
-        assert_eq!(parse_initial_state(input.lines().collect()), vec![
+        assert_eq!(parse_initial_state(&lines), vec![
                    vec!["G", "C", "A"],
                    vec!["H", "D"],
                    vec!["I", "E", "B"],
                    vec!["J", "F"],
                    vec!["K"],
         ]);
+    }
+
+    #[test]
+    fn the_solution() {
+        let contents = fs::read_to_string("input/2022/day05.txt").unwrap();
+
+        assert_eq!(y22d05(&contents, 1), "QMBMJDFTD");
+        assert_eq!(y22d05(&contents, 2), "NBTVTJNFJ");
     }
 }
