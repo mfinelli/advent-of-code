@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-use std::{env, fs};
+use std::{env, fs, io, io::Read};
 
 use aoc::y22d01;
 use aoc::y22d02;
@@ -29,7 +29,11 @@ fn main() {
         return;
     }
 
-    let input = fs::read_to_string(&args[2]).expect("Unable to open input.");
+    let input = if args[2] == "-" {
+        read_from_stdin()
+    } else {
+        fs::read_to_string(&args[2]).unwrap()
+    };
 
     match args[1].as_str() {
         "y22d01" => {
@@ -54,4 +58,10 @@ fn main() {
         }
         _ => panic!("Unable to find year/day match."),
     };
+}
+
+fn read_from_stdin() -> String {
+    let mut input = String::new();
+    io::stdin().read_to_string(&mut input).unwrap();
+    input
 }
