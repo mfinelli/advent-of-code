@@ -21,7 +21,7 @@ jobs:
           cp -r target/doc .
           rm -rf doc/.lock
           tar acvf advent-of-code_${{ github.ref_name }}.tar.zst \
-            LICENSE aoc doc input
+            LICENSE README.md aoc doc input
       - uses: ncipollo/release-action@v1
         with:
           artifacts: advent-of-code_*.tar.*
