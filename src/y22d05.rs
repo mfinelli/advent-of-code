@@ -74,7 +74,7 @@ pub fn y22d05(input: &str, part: u32) -> String {
 
     for line in lines {
         if in_moves {
-            // "move X from Y to Z": X is index 0, Y is index 3, Z is index 5
+            // "move X from Y to Z": X is index 1, Y is index 3, Z is index 5
             let text: Vec<&str> = line.split_whitespace().collect();
             let how_many_to_move = text[1].parse().unwrap();
             let from_index: u32 = text[3].parse().unwrap();
@@ -110,7 +110,6 @@ pub fn y22d05(input: &str, part: u32) -> String {
     }
 
     for mut stack in state {
-        // TODO: add test for empty column
         output += match &stack.pop() {
             Some(item) => item,
             None => " ",
