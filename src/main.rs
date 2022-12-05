@@ -19,6 +19,7 @@ use aoc::y22d01;
 use aoc::y22d02;
 use aoc::y22d03;
 use aoc::y22d04;
+use aoc::y22d05;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -46,6 +47,9 @@ fn main() {
         "y22d04" => {
             println!("Part 1: {}", y22d04::y22d04(&input, 1));
             println!("Part 2: {}", y22d04::y22d04(&input, 2));
+        }
+        "y22d05" => {
+            println!("Part 1: {}", y22d05::y22d05(&input));
         }
         _ => panic!("Unable to find year/day match."),
     };
