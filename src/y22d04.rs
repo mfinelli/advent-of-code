@@ -104,7 +104,7 @@ mod tests {
 
     #[test]
     fn the_solution() {
-        let contents = fs::read_to_string("src/input/day4.txt").unwrap();
+        let contents = fs::read_to_string("input/2022/day04.txt").unwrap();
 
         assert_eq!(y22d04(&contents, 1), 448);
         assert_eq!(y22d04(&contents, 2), 794);
