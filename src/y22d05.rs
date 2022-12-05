@@ -1,3 +1,18 @@
+/* Copyright 2022 Mario Finelli
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 pub fn y22d05(input: &str, part: u32) -> String {
     let lines: Vec<_> = input.lines().collect();
 
@@ -14,21 +29,23 @@ pub fn y22d05(input: &str, part: u32) -> String {
 
             if part == 1 {
                 for _ in 0..how_many_to_move {
-                    let from: &mut Vec<String> = &mut state[(from_index-1) as usize];
+                    let from: &mut Vec<String> =
+                        &mut state[(from_index - 1) as usize];
                     let to_move = from.pop().unwrap();
-                    let to: &mut Vec<String> = &mut state[(to_index-1) as usize];
+                    let to: &mut Vec<String> =
+                        &mut state[(to_index - 1) as usize];
                     to.push(to_move);
                 }
             } else {
                 let mut holding: Vec<String> = Vec::new();
-                let from: &mut Vec<String> = &mut state[(from_index-1) as usize];
+                let from: &mut Vec<String> =
+                    &mut state[(from_index - 1) as usize];
                 for _ in 0..how_many_to_move {
                     let to_move = from.pop().unwrap();
                     holding.push(to_move);
                 }
 
-
-                let to: &mut Vec<String> = &mut state[(to_index-1) as usize];
+                let to: &mut Vec<String> = &mut state[(to_index - 1) as usize];
                 for to_move in holding.into_iter().rev() {
                     to.push(to_move);
                 }
@@ -55,7 +72,8 @@ fn parse_initial_state(lines: &Vec<&str>) -> Vec<Vec<String>> {
         if line.is_empty() {
             // state_lines.remove(state_lines.len() - 1);
             let columns = state_lines.pop().unwrap();
-            let number_of_columns: u32 = columns.split_whitespace().last().unwrap().parse().unwrap();
+            let number_of_columns: u32 =
+                columns.split_whitespace().last().unwrap().parse().unwrap();
 
             for _ in 0..number_of_columns {
                 state.push(Vec::new());
@@ -65,7 +83,6 @@ fn parse_initial_state(lines: &Vec<&str>) -> Vec<Vec<String>> {
         }
 
         state_lines.push(line);
-
     }
 
     for line in state_lines.iter().rev() {
@@ -73,7 +90,8 @@ fn parse_initial_state(lines: &Vec<&str>) -> Vec<Vec<String>> {
         let mut column = 0;
         for i in 0..number_of_columns {
             if line.chars().nth(i * 4).unwrap() == '[' {
-                state[column].push(line.chars().nth(i * 4 + 1).unwrap().to_string());
+                state[column]
+                    .push(line.chars().nth(i * 4 + 1).unwrap().to_string());
             }
             column += 1;
         }
@@ -103,13 +121,16 @@ mod tests {
         );
         let lines = input.lines().collect();
 
-        assert_eq!(parse_initial_state(&lines), vec![
-                   vec!["G", "C", "A"],
-                   vec!["H", "D"],
-                   vec!["I", "E", "B"],
-                   vec!["J", "F"],
-                   vec!["K"],
-        ]);
+        assert_eq!(
+            parse_initial_state(&lines),
+            vec![
+                vec!["G", "C", "A"],
+                vec!["H", "D"],
+                vec!["I", "E", "B"],
+                vec!["J", "F"],
+                vec!["K"],
+            ]
+        );
     }
 
     #[test]
