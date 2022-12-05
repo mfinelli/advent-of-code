@@ -35,12 +35,12 @@ use std::collections::HashMap;
 ///
 /// # Example
 /// ```rust
-/// # use aoc::y22d02::daytwo;
+/// # use aoc::y22d02::y22d02;
 /// let input = "A X\nB X"; // probably read this from the input file...
-/// assert_eq!(daytwo(input, 1), 5);
-/// assert_eq!(daytwo(input, 2), 4);
+/// assert_eq!(y22d02(input, 1), 5);
+/// assert_eq!(y22d02(input, 2), 4);
 /// ```
-pub fn daytwo(input: &str, part: u32) -> u32 {
+pub fn y22d02(input: &str, part: u32) -> u32 {
     let matchups: HashMap<&str, u32> = if part == 1 {
         HashMap::from([
             ("A X", 4), // rock v. rock (1) / draw (3)
@@ -85,19 +85,19 @@ mod tests {
     #[test]
     fn it_works() {
         let mut input = "A X\nA Y\n";
-        assert_eq!(daytwo(input, 1), 12);
-        assert_eq!(daytwo(input, 2), 7);
+        assert_eq!(y22d02(input, 1), 12);
+        assert_eq!(y22d02(input, 2), 7);
 
         input = "A Z\nB X\nC Y";
-        assert_eq!(daytwo(input, 1), 6);
-        assert_eq!(daytwo(input, 2), 15);
+        assert_eq!(y22d02(input, 1), 6);
+        assert_eq!(y22d02(input, 2), 15);
     }
 
     #[test]
     fn the_solution() {
         let contents = fs::read_to_string("input/2022/day02.txt").unwrap();
 
-        assert_eq!(daytwo(&contents, 1), 15691);
-        assert_eq!(daytwo(&contents, 2), 12989);
+        assert_eq!(y22d02(&contents, 1), 15691);
+        assert_eq!(y22d02(&contents, 2), 12989);
     }
 }

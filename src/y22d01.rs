@@ -41,12 +41,12 @@ use std::collections::BinaryHeap;
 ///
 /// # Example
 /// ```rust
-/// # use aoc::y22d01::dayone;
+/// # use aoc::y22d01::y22d01;
 /// let input = "1\n2\n\n3\n"; // probably read this from the input file...
-/// assert_eq!(dayone(input, 1), 3);
-/// assert_eq!(dayone(input, 2), 6);
+/// assert_eq!(y22d01(input, 1), 3);
+/// assert_eq!(y22d01(input, 2), 6);
 /// ```
-pub fn dayone(input: &str, top: u32) -> u32 {
+pub fn y22d01(input: &str, top: u32) -> u32 {
     let lines: Vec<_> = input.lines().collect();
 
     let mut current = 0;
@@ -88,27 +88,27 @@ mod tests {
     #[test]
     fn it_works() {
         let mut input = "1\n2\n\n3\n4\n\n5";
-        assert_eq!(dayone(input, 1), 7);
+        assert_eq!(y22d01(input, 1), 7);
 
         input = "1\n2\n\n3\n4\n\n5\n";
-        assert_eq!(dayone(input, 1), 7);
-        assert_eq!(dayone(input, 2), 12);
+        assert_eq!(y22d01(input, 1), 7);
+        assert_eq!(y22d01(input, 2), 12);
 
         input = "1\n2\n\n3";
-        assert_eq!(dayone(input, 1), 3);
-        assert_eq!(dayone(input, 2), 6);
+        assert_eq!(y22d01(input, 1), 3);
+        assert_eq!(y22d01(input, 2), 6);
 
         input = "1\n2\n\n3\n\n4";
-        assert_eq!(dayone(input, 1), 4);
+        assert_eq!(y22d01(input, 1), 4);
         input = "1\n2\n\n3\n\n4\n";
-        assert_eq!(dayone(input, 1), 4);
+        assert_eq!(y22d01(input, 1), 4);
     }
 
     #[test]
     fn the_solution() {
         let contents = fs::read_to_string("input/2022/day01.txt").unwrap();
 
-        assert_eq!(dayone(&contents, 1), 69528);
-        assert_eq!(dayone(&contents, 3), 206152);
+        assert_eq!(y22d01(&contents, 1), 69528);
+        assert_eq!(y22d01(&contents, 3), 206152);
     }
 }

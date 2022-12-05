@@ -37,12 +37,12 @@ fn main() {
 
     match args[1].as_str() {
         "y22d01" => {
-            println!("Part 1: {}", y22d01::dayone(&input, 1));
-            println!("Part 2: {}", y22d01::dayone(&input, 3));
+            println!("Part 1: {}", y22d01::y22d01(&input, 1));
+            println!("Part 2: {}", y22d01::y22d01(&input, 3));
         }
         "y22d02" => {
-            println!("Part 1: {}", y22d02::daytwo(&input, 1));
-            println!("Part 2: {}", y22d02::daytwo(&input, 2));
+            println!("Part 1: {}", y22d02::y22d02(&input, 1));
+            println!("Part 2: {}", y22d02::y22d02(&input, 2));
         }
         "y22d03" => {
             println!("Part 1: {}", y22d03::y22d03(&input, 1));
