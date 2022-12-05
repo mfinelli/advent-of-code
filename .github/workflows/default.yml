@@ -14,8 +14,8 @@ jobs:
       - run: cargo check
       - run: cargo clippy
       - run: cargo test
-      - run: cargo doc
       - run: cargo build --locked --release --verbose
+      - run: cargo doc --release
 
       - name: add index redirect
         run: make target/doc/index.html
