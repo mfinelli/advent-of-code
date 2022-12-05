@@ -13,13 +13,8 @@
  * limitations under the License.
  */
 
+use aoc::*;
 use std::{env, fs, io, io::Read};
-
-use aoc::y22d01;
-use aoc::y22d02;
-use aoc::y22d03;
-use aoc::y22d04;
-use aoc::y22d05;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
