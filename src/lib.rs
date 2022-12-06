@@ -18,6 +18,7 @@
 //! Advent of Code 2022 solutions
 
 pub mod y15d01;
+pub mod y15d02;
 
 pub mod y22d01;
 pub mod y22d02;
