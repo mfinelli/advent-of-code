@@ -32,7 +32,8 @@ fn main() {
 
     match args[1].as_str() {
         "y15d01" => {
-            println!("Part 1: {}", y15d01::y15d01(&input));
+            println!("Part 1: {}", y15d01::y15d01p1(&input));
+            println!("Part 2: {}", y15d01::y15d01p2(&input).unwrap());
         }
         "y22d01" => {
             println!("Part 1: {}", y22d01::y22d01(&input, 1));
