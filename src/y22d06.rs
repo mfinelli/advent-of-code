@@ -1,18 +1,50 @@
+/* Copyright 2022 Mario Finelli
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+//! Advent of Code 2022 Day 6: <https://adventofcode.com/2022/day/6>
+//!
+//! This challenge essentially boils down to checking if (sliding) windows of
+//! `n` size are distinct. A start of packet/message starts when the preceding
+//! `n` characters are distinct. The solution is therefore to look at each
+//! window and add the elements to a [`std::collections::HashSet`]. If after
+//! adding all of the elements the size of the set is the size of the window
+//! then all elements are distinct then we've found the "start" and return the
+//! current counter plus the size as an offset to account for the `size`
+//! characters at the beginning of the string.
+
 use std::collections::HashSet;
 
-pub fn y22d06(input: &str, size: u32) -> u32 {
-    // let size = 4;
+/// The solution for the day six challenge.
+///
+/// Given the input as a string it splits it into characters and then evaluates
+/// each window of `size` characters while maintaining a counter of the current
+/// window. Once all of the elements are distinct then we return the counter
+/// plus the `size` offset.
+pub fn y22d06(input: &str, size: usize) -> u32 {
     let chars: Vec<_> = input.trim().chars().collect();
-    for (i, window) in chars.windows(size as usize).enumerate() {
+    for (i, window) in chars.windows(size).enumerate() {
         let mut set = HashSet::new();
         for c in window {
             set.insert(c);
         }
-        if set.len() == size as usize {
-            return (i + size as usize) as u32;
+        if set.len() == size {
+            return (i + size) as u32;
         }
     }
 
+    // we didn't find a match; return an impossible value
     0
 }
 
