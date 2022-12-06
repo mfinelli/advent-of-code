@@ -20,7 +20,7 @@
 //! `n` characters are distinct. The solution is therefore to look at each
 //! window and add the elements to a [`std::collections::HashSet`]. If after
 //! adding all of the elements the size of the set is the size of the window
-//! then all elements are distinct then we've found the "start" and return the
+//! then all elements are distinct and we've found the "start" and return the
 //! current counter plus the size as an offset to account for the `size`
 //! characters at the beginning of the string.
 
@@ -32,6 +32,13 @@ use std::collections::HashSet;
 /// each window of `size` characters while maintaining a counter of the current
 /// window. Once all of the elements are distinct then we return the counter
 /// plus the `size` offset.
+///
+/// # Example
+/// ```rust
+/// # use aoc::y22d06::y22d06;
+/// let input = "abbccdefghij\n"; // probably read this from the input file...
+/// assert_eq!(y22d06(&input, 4), 8);
+/// ```
 pub fn y22d06(input: &str, size: usize) -> u32 {
     let chars: Vec<_> = input.trim().chars().collect();
     for (i, window) in chars.windows(size).enumerate() {
