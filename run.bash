@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -ex
+set -e
 
 if [[ $# -ne 0 ]]; then
   echo >&2 "usage: $(basename "$0")"
@@ -16,6 +16,7 @@ if [[ ! -f $INPUT ]]; then
   exit 1
 fi
 
+echo "+ cargo run -- y${YEAR:2}d${DAY} $INPUT"
 cargo run -- "y${YEAR:2}d${DAY}" "$INPUT"
 
 exit 0
