@@ -26,7 +26,7 @@
 
 /// The solution for part one of the day one challenge.
 ///
-/// Given the input as a string we loop through the caracters and either add
+/// Given the input as a string we loop through the characters and either add
 /// one or subtract one from a counter that starts at zero depending on if the
 /// character is a `(`, or a `)`, respectively.
 ///
