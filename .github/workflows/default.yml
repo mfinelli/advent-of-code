@@ -20,6 +20,7 @@ jobs:
       - name: add index redirect
         run: make target/doc/index.html
       - run: rm -rf target/doc/.lock
+      - run: find target/debug -name '*.lock' -exec rm {} \;
       - uses: actions/upload-pages-artifact@v1
         with:
           path: target/doc/
