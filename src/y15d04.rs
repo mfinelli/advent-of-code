@@ -1,10 +1,16 @@
-use md5::{Md5, Digest};
+use md5::{Digest, Md5};
 
 pub fn y15d04(input: &str, leading_zeros: u32) -> Option<u64> {
     let check = "0".repeat(leading_zeros as usize);
     let bytes = input.trim().as_bytes();
     for i in 1..u64::MAX {
-        let hash = format!("{:x}", Md5::new().chain_update(bytes).chain_update(i.to_string().as_bytes()).finalize());
+        let hash = format!(
+            "{:x}",
+            Md5::new()
+                .chain_update(bytes)
+                .chain_update(i.to_string().as_bytes())
+                .finalize()
+        );
         if hash.get(0..leading_zeros as usize).unwrap() == check {
             return Some(i);
         }
