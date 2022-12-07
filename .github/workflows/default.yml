@@ -20,7 +20,7 @@ jobs:
       - run: cargo fmt -- --check
       - run: cargo check
       - run: cargo clippy
-      - run: cargo test -- --ignored
+      - run: cargo test -- --include-ignored
       - run: cargo build --locked --release --verbose
       - run: cargo doc --release
 
