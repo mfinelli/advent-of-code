@@ -3,6 +3,8 @@ name: CI/CD
 on:
   push:
     branches: [master]
+  pull_request:
+    branches: [master]
 
 jobs:
   main:
@@ -22,6 +24,7 @@ jobs:
       - run: rm -rf target/doc/.lock
       - run: find target/debug -name '*.lock' -exec rm {} \;
       - uses: actions/upload-pages-artifact@v1
+        if: github.event_name != 'pull_request'
         with:
           path: target/doc/
 
@@ -29,6 +32,7 @@ jobs:
     name: CD
     runs-on: ubuntu-latest
     needs: [main]
+    if: github.event_name != 'pull_request'
     permissions:
       pages: write
       id-token: write
