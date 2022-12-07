@@ -15,7 +15,7 @@
 
 #![warn(missing_docs)]
 
-//! Advent of Code 2022 solutions
+//! Advent of Code solutions
 
 pub mod y15d01;
 pub mod y15d02;
