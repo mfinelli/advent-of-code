@@ -25,6 +25,7 @@ mod tests {
     use std::fs;
 
     #[test]
+    #[ignore]
     fn it_works() {
         let mut input = "abcdef\n";
         assert_eq!(y15d04(input, 5), Some(609043));
@@ -34,6 +35,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn the_solution() {
         let contents = fs::read_to_string("input/2015/day04.txt").unwrap();
 
