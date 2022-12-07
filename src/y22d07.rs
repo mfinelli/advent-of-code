@@ -1,9 +1,10 @@
+use std::cmp::Reverse;
+use std::collections::BinaryHeap;
 use std::collections::HashMap;
 use std::path::PathBuf;
 
-pub fn y22d07(input: &str) -> u32 {
+pub fn y22d07(input: &str, part: u32) -> u32 {
     let lines: Vec<_> = input.lines().collect();
-    let mut total = 0;
 
     // we assume that the first line/command is to change into the root
     let mut current_path = PathBuf::new().join("/");
@@ -45,14 +46,12 @@ pub fn y22d07(input: &str) -> u32 {
                 }
             } else {
                 let fsize: u32 = parts[0].parse().unwrap();
-                println!("found file {} with size {}", name, fsize);
 
                 sizes
                     .entry(current_path.to_str().unwrap().to_string())
                     .and_modify(|size| *size += fsize);
                 let mut paths = current_path.clone();
                 while paths.pop() {
-                    println!("add {} to {}", fsize, paths.display());
                     sizes
                         .entry(paths.to_str().unwrap().to_string())
                         .and_modify(|size| *size += fsize);
@@ -61,13 +60,31 @@ pub fn y22d07(input: &str) -> u32 {
         }
     }
 
-    for (dir, size) in sizes {
-        if size <= 100000 {
-            total += size;
-        }
-    }
+    if part == 1 {
+        let mut total = 0;
 
-    total
+        for (dir, size) in sizes {
+            if size <= 100000 {
+                total += size;
+            }
+        }
+
+        return total;
+    } else {
+        let total_disk_space = 70000000;
+        let required_disk_space = 30000000;
+        let current_free_space = total_disk_space - sizes.get("/").unwrap();
+        let mut heap = BinaryHeap::new();
+
+        for (dir, size) in sizes {
+            if size + current_free_space >= required_disk_space {
+                heap.push(Reverse(size))
+            }
+        }
+
+        let Reverse(smallest) = heap.pop().unwrap();
+        return smallest;
+    }
 }
 
 #[cfg(test)]
@@ -103,13 +120,15 @@ mod tests {
             "7214296 k\n",
         );
 
-        assert_eq!(y22d07(input), 95437);
+        assert_eq!(y22d07(input, 1), 95437);
+        assert_eq!(y22d07(input, 2), 24933642);
     }
 
     #[test]
     fn the_solution() {
         let contents = fs::read_to_string("input/2022/day07.txt").unwrap();
 
-        assert_eq!(y22d07(&contents), 1582412);
+        assert_eq!(y22d07(&contents, 1), 1582412);
+        assert_eq!(y22d07(&contents, 2), 3696336);
     }
 }
