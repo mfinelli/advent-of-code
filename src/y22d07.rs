@@ -1,6 +1,5 @@
 use std::cmp::Reverse;
-use std::collections::BinaryHeap;
-use std::collections::HashMap;
+use std::collections::{BinaryHeap, HashMap};
 use std::path::PathBuf;
 
 pub fn y22d07(input: &str, part: u32) -> u32 {
@@ -41,7 +40,7 @@ pub fn y22d07(input: &str, part: u32) -> u32 {
                 let fulldir =
                     current_path.join(name).to_str().unwrap().to_string();
                 let status = sizes.insert(fulldir, 0);
-                if !status.is_none() {
+                if status.is_some() {
                     panic!("Tried to insert a directory that already exists");
                 }
             } else {
@@ -63,27 +62,27 @@ pub fn y22d07(input: &str, part: u32) -> u32 {
     if part == 1 {
         let mut total = 0;
 
-        for (dir, size) in sizes {
+        for (_dir, size) in sizes {
             if size <= 100000 {
                 total += size;
             }
         }
 
-        return total;
+        total
     } else {
         let total_disk_space = 70000000;
         let required_disk_space = 30000000;
         let current_free_space = total_disk_space - sizes.get("/").unwrap();
         let mut heap = BinaryHeap::new();
 
-        for (dir, size) in sizes {
+        for (_dir, size) in sizes {
             if size + current_free_space >= required_disk_space {
                 heap.push(Reverse(size))
             }
         }
 
         let Reverse(smallest) = heap.pop().unwrap();
-        return smallest;
+        smallest
     }
 }
 
