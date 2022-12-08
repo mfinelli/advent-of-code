@@ -1,99 +1,108 @@
 pub fn y22d08(input: &str) -> u32 {
-    let lines: Vec<_> = input.lines().collect();
-    let mut total = 0;
+    let grid = parse_input(input);
 
-    let width = lines[0].len() - 1;
-    let height = lines.len() - 1;
+    // calculate the outer edge which is always visible
+    let mut total = 2 * grid.len() as u32 + 2 * (grid[0].len() as u32 - 2);
 
-    for (y, line) in lines.iter().enumerate() {
-        if y == 0{
-            total += line.len() as u32;
-            continue;
-        } else if y == height {
-            total += line.len() as u32;
-            continue;
-        }
+    for y in 1..grid.len() - 1 {
+        for x in 1..grid[0].len() - 1 {
+            println!("considering {},{}: {}", x, y, grid[y][x]);
 
-        let chars: Vec<_> = line.chars().collect();
-
-        for (x, ch) in chars.iter().enumerate() {
-            if x == 0 {
-                total += 1;
-                continue;
-            } else if x == width {
-                total += 1;
-                continue;
-            }
-
-            let tree: u32 = ch.to_string().parse().unwrap();
             let mut visible = true;
-
             for left in 0..x {
-                let left_tree: u32 = chars[left].to_string().parse().unwrap();
-                if left_tree >= tree {
-                    println!("tree in position {}, {} ({}) is not visible because tree to the left {}, {} ({}) is taller", x+1, y+1, tree, left+1, y+1, left_tree);
+                println!("comparing to the left {},{}: {}", left, y, grid[y][left]);
+                if grid[y][left] >= grid[y][x] {
+                    println!("not visible from the left");
                     visible = false;
                     break;
                 }
             }
 
             if visible {
-                println!("tree in position {}, {} is visible from the left", x+1, y+1);
                 total += 1;
+                println!("visible from the left");
+                println!("");
                 continue;
             }
 
-            for right in x+1..width {
-                let right_tree: u32 = chars[right].to_string().parse().unwrap();
-                if right_tree >= tree {
-                    // println!("tree in position {}, {} is not visible because tree to the right ({}) is taller: {} >= {}", x+1, y+1, right+1, right_tree, tree);
-                    println!("tree in position {}, {} ({}) is not visible because tree to the right {}, {} ({}) is taller", x+2, y+1, tree, right+1, y+1, right_tree);
+            visible = true;
+            for right in x+1..grid[0].len() {
+                println!("comparing to the right {},{}: {}", right, y, grid[y][right]);
+                if grid[y][right] >= grid[y][x] {
+                    println!("not visible from the right");
                     visible = false;
                     break;
                 }
             }
 
             if visible {
-                println!("tree in position {}, {} is visible from the right", x+1, y+1);
                 total += 1;
+                println!("visible from the right");
+                println!("");
                 continue;
             }
 
+            visible = true;
             for top in 0..y {
-                let top_tree: u32 = lines[top].chars().collect::<Vec<_>>()[y].to_string().parse().unwrap();
-                if top_tree >= tree {
-                    // println!("tree in position {}, {} is not visible because tree to the top ({}) is taller: {} >= {}", x+1, y+1, top+1, top_tree, tree);
-                    println!("tree in position {}, {} ({}) is not visible because tree to the top {}, {} ({}) is taller", x+1, y+1, tree, x+1, top+1, top_tree);
+                println!("comparing to the top {},{}: {}", x, top, grid[top][x]);
+                if grid[top][x] >= grid[y][x] {
+                    println!("not visible from the top");
                     visible = false;
                     break;
                 }
             }
 
             if visible {
-                println!("tree in position {}, {} is visible from the top", x+1, y+1);
                 total += 1;
+                println!("visible from the top");
+                println!("");
                 continue;
             }
 
-            for bottom in y..height {
-                let bottom_tree: u32 = lines[bottom].chars().collect::<Vec<_>>()[y].to_string().parse().unwrap();
-                if bottom_tree >= tree {
-                    // println!("tree in position {}, {} is not visible because tree to the bottom ({}) is taller: {} >= {}", x+1, y+1, bottom+1, bottom_tree, tree);
-                    println!("tree in position {}, {} ({}) is not visible because tree to the bottom {}, {} ({}) is taller", x+1, y+1, tree, x+1, bottom+1, bottom_tree);
+            visible = true;
+            for bottom in y+1..grid.len() {
+                println!("comparing to the bottom {},{}: {}", x, bottom, grid[bottom][x]);
+                if grid[bottom][x] >= grid[y][x] {
+                    println!("not visible from the bottom");
                     visible = false;
                     break;
                 }
             }
 
             if visible {
-                println!("tree in position {}, {} is visible from the bottom", x+1, y+1);
                 total += 1;
-                // continue;
+                println!("visible from the bottom");
+                println!("");
+                continue;
             }
+
+            println!("not visible");
+            println!("");
         }
     }
 
     total
+}
+
+/// Parsing the input requires an extra n^2 time complexity since we need to
+/// loop through every element, but I think it should save time overall as
+/// otherwise we need to parse the character every time we do a check.
+fn parse_input(input: &str) -> Vec<Vec<u32>> {
+    let mut grid = Vec::new();
+    let lines: Vec<_> = input.lines().collect();
+    for line in lines {
+        let mut trees = Vec::new();
+        let chars: Vec<_> = line.chars().collect();
+
+        for c in chars {
+            let height: u32 = c.to_string().parse().unwrap();
+            trees.push(height);
+        }
+
+        grid.push(trees);
+    }
+
+    grid
 }
 
 #[cfg(test)]
