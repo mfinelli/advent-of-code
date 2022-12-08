@@ -15,7 +15,10 @@ pub fn y22d08(input: &str, part: u32) -> u32 {
             let mut visible_from_left = true;
             let mut visible_to_left = 0;
             for left in (0..x).rev() {
-                println!("comparing to the left {},{}: {}", left, y, grid[y][left]);
+                println!(
+                    "comparing to the left {},{}: {}",
+                    left, y, grid[y][left]
+                );
                 visible_to_left += 1;
                 if grid[y][left] >= grid[y][x] {
                     println!("not visible from the left");
@@ -34,8 +37,11 @@ pub fn y22d08(input: &str, part: u32) -> u32 {
 
             let mut visible_from_right = true;
             let mut visible_to_right = 0;
-            for right in x+1..grid[0].len() {
-                println!("comparing to the right {},{}: {}", right, y, grid[y][right]);
+            for right in x + 1..grid[0].len() {
+                println!(
+                    "comparing to the right {},{}: {}",
+                    right, y, grid[y][right]
+                );
                 visible_to_right += 1;
                 if grid[y][right] >= grid[y][x] {
                     println!("not visible from the right");
@@ -55,7 +61,10 @@ pub fn y22d08(input: &str, part: u32) -> u32 {
             let mut visible_from_top = true;
             let mut visible_to_top = 0;
             for top in (0..y).rev() {
-                println!("comparing to the top {},{}: {}", x, top, grid[top][x]);
+                println!(
+                    "comparing to the top {},{}: {}",
+                    x, top, grid[top][x]
+                );
                 visible_to_top += 1;
                 if grid[top][x] >= grid[y][x] {
                     println!("not visible from the top");
@@ -74,9 +83,12 @@ pub fn y22d08(input: &str, part: u32) -> u32 {
 
             let mut visible_from_bottom = true;
             let mut visible_to_bottom = 0;
-            for bottom in y+1..grid.len() {
-                println!("comparing to the bottom {},{}: {}", x, bottom, grid[bottom][x]);
-                visible_to_bottom +=1;
+            for bottom in y + 1..grid.len() {
+                println!(
+                    "comparing to the bottom {},{}: {}",
+                    x, bottom, grid[bottom][x]
+                );
+                visible_to_bottom += 1;
                 if grid[bottom][x] >= grid[y][x] {
                     println!("not visible from the bottom");
                     visible_from_bottom = false;
@@ -84,7 +96,11 @@ pub fn y22d08(input: &str, part: u32) -> u32 {
                 }
             }
 
-            if !visible_from_left && !visible_from_right && !visible_from_top && visible_from_bottom {
+            if !visible_from_left
+                && !visible_from_right
+                && !visible_from_top
+                && visible_from_bottom
+            {
                 total += 1;
                 println!("visible from the bottom");
                 // continue;
@@ -94,7 +110,10 @@ pub fn y22d08(input: &str, part: u32) -> u32 {
 
             println!("not visible");
 
-            let scenic_score = visible_to_left * visible_to_right * visible_to_top * visible_to_bottom;
+            let scenic_score = visible_to_left
+                * visible_to_right
+                * visible_to_top
+                * visible_to_bottom;
             println!("scenic score: {}", scenic_score);
 
             println!("");
@@ -138,13 +157,8 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let input = concat!(
-            "30373\n",
-            "25512\n",
-            "65332\n",
-            "33549\n",
-            "35390",
-        );
+        let input =
+            concat!("30373\n", "25512\n", "65332\n", "33549\n", "35390",);
 
         assert_eq!(y22d08(input, 1), 21);
         assert_eq!(y22d08(input, 2), 8);
