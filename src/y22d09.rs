@@ -1,5 +1,60 @@
+/* Copyright 2022 Mario Finelli
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+//! Advent of Code 2022 Day 9: <https://adventofcode.com/2022/day/9>
+//!
+//! The logic in this solution is a bit verbose and could probably be
+//! consolidated some, but it's easier for me to grok expanded out. I
+//! generalized the solution to operate on an arbitrary number of knots, as
+//! part one of the challenge can be thought of as a rope with only two knots.
+//! Obviously, this doesn't work if the number of knots is less than two.
+//!
+//! To keep track of which positions the tail knot has visited we use a
+//! [`std::collections::HashSet`] with tuples of `x`,`y` coordinates so that
+//! at the end we can just return the size of the set to get the total number
+//! of locations visited.
+
 use std::collections::HashSet;
 
+/// The solution for the day nine challenge.
+///
+/// We expect the input as a string and the number of knots in the rope (as
+/// described above the minimum number of knots is `2`).
+///
+/// We start by initializing a vector that contains tuples of coordinates for
+/// each knot in the rope; each knot starts at coordinates `(0, 0)`. We also
+/// add the starting position to the visited set. Then we loop over the
+/// instructions (lines). We do the following process `x` times where `x` is
+/// the number of moves that the instruction specified. We loop through all of
+/// the knots and if we're on the first knot then we apply the specified move.
+/// Then for every knot _except_ the actual tail knot (and including the head
+/// knot) we need to reconcile the position of the knot directly following the
+/// current knot. As described in the challenge prompt the two knots must
+/// always be touching (including diagonally) which amounts to doing some
+/// simple checks on the positions of the two knots and adjusting the tail knot
+/// accordingly. If we're on the final (tail) knot then we just need to insert
+/// it's current position into the set. Finally, after looping through all of
+/// the instructions we can return the length of the set to get our answer.
+///
+/// # Example
+/// ```rust
+/// # use aoc::y22d09::y22d09;
+/// // probably read this from the input file...
+/// let input = "U 2\nR 2\nU 2\nD 3\nL 4";
+/// assert_eq!(y22d09(input, 3), 4);
+/// ```
 pub fn y22d09(input: &str, number_of_knots: u32) -> u32 {
     let lines: Vec<_> = input.lines().collect();
     let mut visited = HashSet::new();
