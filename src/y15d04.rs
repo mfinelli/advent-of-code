@@ -39,28 +39,34 @@ use std::thread;
 /// ```rust
 /// # use aoc::y15d04::y15d04;
 /// let input = "a"; // probably read this from the input file...
-/// assert_eq!(y15d04(input, 1), Some(27));
+/// assert_eq!(y15d04(input.to_string(), 1), Some(27));
 /// ```
 pub fn y15d04(input: String, leading_zeros: u32) -> Option<u64> {
     let check = "0".repeat(leading_zeros as usize);
     let bytes = input.trim().as_bytes();
     // let trimmed_input = input.trim();
     let threads = thread::available_parallelism().unwrap().get();
-    let chunks = 10000/threads as u64;
+    let chunks = 10000 / threads as u64;
     let actual_chunks = chunks * threads as u64;
     let mut results = Vec::new();
 
     let mut i = 1;
     while i < u64::MAX {
         let mut handles = Vec::new();
-        for j in 0..threads as u64{
+        for j in 0..threads as u64 {
             let this_start = i + j * chunks;
             let this_check = check.clone();
             let this_input = input.clone();
             // let this_input = trimmed_input.clone();
             // let this_bytes = bytes.clone();
             handles.push(thread::spawn(move || {
-                return do_work(&this_input, this_start, this_start + chunks + 1, leading_zeros as usize, &this_check);
+                return do_work(
+                    &this_input,
+                    this_start,
+                    this_start + chunks + 1,
+                    leading_zeros as usize,
+                    &this_check,
+                );
             }));
         }
 
@@ -79,7 +85,6 @@ pub fn y15d04(input: String, leading_zeros: u32) -> Option<u64> {
         i += actual_chunks;
     }
 
-
     // for i in 1..u64::MAX {
     //     let hash = format!(
     //         "{:x}",
@@ -96,8 +101,13 @@ pub fn y15d04(input: String, leading_zeros: u32) -> Option<u64> {
     None
 }
 
-
-fn do_work(input: &str, start: u64, end: u64, leading_zeros: usize, check: &str) -> Option<u64> {
+fn do_work(
+    input: &str,
+    start: u64,
+    end: u64,
+    leading_zeros: usize,
+    check: &str,
+) -> Option<u64> {
     // TODO: ensure end+1 when passed in
     for i in start..end {
         let hash = format!(
@@ -124,10 +134,10 @@ mod tests {
     #[ignore]
     fn it_works() {
         let mut input = "abcdef\n";
-        assert_eq!(y15d04(input, 5), Some(609043));
+        assert_eq!(y15d04(input.to_string(), 5), Some(609043));
 
         input = "pqrstuv";
-        assert_eq!(y15d04(input, 5), Some(1048970));
+        assert_eq!(y15d04(input.to_string(), 5), Some(1048970));
     }
 
     #[test]
@@ -135,7 +145,7 @@ mod tests {
     fn the_solution() {
         let contents = fs::read_to_string("input/2015/day04.txt").unwrap();
 
-        assert_eq!(y15d04(&contents, 5).unwrap(), 254575);
-        assert_eq!(y15d04(&contents, 6).unwrap(), 1038736);
+        assert_eq!(y15d04(contents.clone(), 5).unwrap(), 254575);
+        assert_eq!(y15d04(contents.clone(), 6).unwrap(), 1038736);
     }
 }
