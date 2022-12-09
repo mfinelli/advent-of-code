@@ -61,6 +61,7 @@ use std::collections::BinaryHeap;
 /// let input = "33333\n34223\n32123\n32223\n33333\n";
 /// assert_eq!(y22d08(input, 1), 17);
 /// assert_eq!(y22d08(input, 2), 9);
+/// ```
 pub fn y22d08(input: &str, part: u32) -> u32 {
     let grid = parse_input(input);
     let mut scenic_scores = BinaryHeap::new();
