@@ -1,31 +1,47 @@
 use std::collections::HashSet;
 
-pub fn y22d09(input: &str) -> u32 {
+pub fn y22d09(input: &str, number_of_knots: u32) -> u32 {
     let lines: Vec<_> = input.lines().collect();
     let mut visited = HashSet::new();
+    let mut knots = Vec::new();
 
     // set starting position
-    let mut hx = 0;
-    let mut hy = 0;
-    let mut tx = 0;
-    let mut ty = 0;
-    visited.insert((tx, ty));
+    for _ in 0..number_of_knots {
+        knots.push((0, 0));
+    }
+    let tail_index = knots.len() - 1;
+    visited.insert(knots[tail_index]);
 
     for line in lines {
         let parts: Vec<&str> = line.split_whitespace().collect();
         let steps: u32 = parts[1].parse().unwrap();
 
         for _ in 0..steps {
-            match parts[0] {
-                "U" => hy += 1,
-                "D" => hy -= 1,
-                "L" => hx -= 1,
-                "R" => hx += 1,
-                _ => panic!("Invalid direction!"),
-            }
+            for i in 0..knots.len() {
+                let (mut hx, mut hy) = knots[i];
 
-            (tx, ty) = reconcile_tail(hx, hy, tx, ty);
-            visited.insert((tx, ty));
+                if i == 0 {
+                    match parts[0] {
+                        "U" => hy += 1,
+                        "D" => hy -= 1,
+                        "L" => hx -= 1,
+                        "R" => hx += 1,
+                        _ => panic!("Invalid direction!"),
+                    }
+
+                    knots[i] = (hx, hy);
+                }
+
+                if i != tail_index {
+                    let (mut tx, mut ty) = knots[i + 1];
+                    (tx, ty) = reconcile_tail(hx, hy, tx, ty);
+                    knots[i + 1] = (tx, ty);
+                }
+
+                if i == tail_index {
+                    visited.insert(knots[i]);
+                }
+            }
         }
     }
 
@@ -101,14 +117,19 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let input = "R 4\nU 4\nL 3\nD 1\nR 4\nD 1\nL 5\nR 2\n";
-        assert_eq!(y22d09(input), 13);
+        let mut input = "R 4\nU 4\nL 3\nD 1\nR 4\nD 1\nL 5\nR 2\n";
+        assert_eq!(y22d09(input, 2), 13);
+        assert_eq!(y22d09(input, 10), 1);
+
+        input = "R 5\nU 8\nL 8\nD 3\nR 17\nD 10\nL 25\nU 20";
+        assert_eq!(y22d09(input, 10), 36);
     }
 
     #[test]
     fn the_solution() {
         let contents = fs::read_to_string("input/2022/day09.txt").unwrap();
 
-        assert_eq!(y22d09(&contents), 6243);
+        assert_eq!(y22d09(&contents, 2), 6243);
+        assert_eq!(y22d09(&contents, 10), 2630);
     }
 }
