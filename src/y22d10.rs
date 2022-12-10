@@ -1,26 +1,11 @@
-pub fn y22d10(input: &str) -> i32 {
+pub fn y22d10p1(input: &str) -> i32 {
     let lines: Vec<_> = input.lines().collect();
-    let mut x = 1;
-    let mut cycles = Vec::new();
-    cycles.push(x);
-
-    for line in lines {
-        if line == "noop" {
-            cycles.push(x);
-        } else {
-            let parts: Vec<_> = line.split_whitespace().collect();
-            let addx: i32 = parts[1].parse().unwrap();
-
-            cycles.push(x);
-            x += addx;
-            cycles.push(x);
-        }
-    }
+    let cycles = compute_cycles(lines);
 
     if cycles.len() < 20 {
         return 0;
     } else if cycles.len() == 20 {
-        return cycles.pop().unwrap() * 20;
+        return cycles[19] * 20;
     }
 
     println!("{:?}", cycles);
@@ -38,6 +23,56 @@ pub fn y22d10(input: &str) -> i32 {
 
 
     signal_strength
+}
+
+pub fn y22d10p2(input: &str) -> String {
+    let lines: Vec<_> = input.lines().collect();
+    let cycles = compute_cycles(lines);
+
+    if cycles.len() != 241 {
+        panic!("Input is wrong size!");
+    }
+
+    let mut output = String::new();
+
+    for row in 0..6 {
+        for column in 0..40 {
+            // let x = cycles[column];
+            // if column
+            // println!("row {}, col {}, cycle {}", row, column, cycles[column]);
+            // if column as i32 >= cycles[column] -1 || column as i32 <= cycles[column] + 1 {
+            if column as i32 -1 == cycles[row * 40 + column] || column as i32 == cycles[row * 40 + column] || column as i32 + 1 == cycles[row * 40 +column] {
+                output += "#";
+            } else {
+                output += ".";
+            }
+        }
+        output += "\n";
+    }
+
+
+    output
+}
+
+fn compute_cycles(lines: Vec<&str>) -> Vec<i32> {
+    let mut x = 1;
+    let mut cycles = Vec::new();
+    cycles.push(x);
+
+    for line in lines {
+        if line == "noop" {
+            cycles.push(x);
+        } else {
+            let parts: Vec<_> = line.split_whitespace().collect();
+            let addx: i32 = parts[1].parse().unwrap();
+
+            cycles.push(x);
+            x += addx;
+            cycles.push(x);
+        }
+    }
+
+    cycles
 }
 
 #[cfg(test)]
@@ -69,13 +104,33 @@ mod tests {
             "addx 2\naddx -6\naddx -11\nnoop\nnoop\nnoop\n",
             );
 
-        assert_eq!(y22d10(input), 13140);
+        let p2output = concat!(
+            "##..##..##..##..##..##..##..##..##..##..\n",
+            "###...###...###...###...###...###...###.\n",
+            "####....####....####....####....####....\n",
+            "#####.....#####.....#####.....#####.....\n",
+            "######......######......######......####\n",
+            "#######.......#######.......#######.....\n",
+            );
+
+        assert_eq!(y22d10p1(input), 13140);
+        assert_eq!(y22d10p2(input), p2output);
     }
 
     #[test]
     fn the_solution() {
         let contents = fs::read_to_string("input/2022/day10.txt").unwrap();
 
-        assert_eq!(y22d10(&contents), 14560);
+        let p2output = concat!(
+            "####.#..#.###..#..#.####.###..#..#.####.\n",
+            "#....#.#..#..#.#..#.#....#..#.#..#....#.\n",
+            "###..##...#..#.####.###..#..#.#..#...#..\n",
+            "#....#.#..###..#..#.#....###..#..#..#...\n",
+            "#....#.#..#.#..#..#.#....#....#..#.#....\n",
+            "####.#..#.#..#.#..#.####.#.....##..####.\n",
+            );
+
+        assert_eq!(y22d10p1(&contents), 14560);
+        assert_eq!(y22d10p2(&contents), p2output);
     }
 }
