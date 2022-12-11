@@ -24,7 +24,7 @@
 //! to use the [md-5](https://docs.rs/md-5/latest/md5/) crate.
 
 use md5::{Digest, Md5};
-use std::thread;
+use std::{sync::Arc, thread};
 
 /// The solution for the day four challenge.
 ///
@@ -35,16 +35,14 @@ use std::thread;
 /// integer size without finding a match).
 ///
 /// # Example
-///
 /// ```rust
 /// # use aoc::y15d04::y15d04;
 /// let input = "a"; // probably read this from the input file...
 /// assert_eq!(y15d04(input.to_string(), 1), Some(27));
 /// ```
 pub fn y15d04(input: String, leading_zeros: u32) -> Option<u64> {
-    let check = "0".repeat(leading_zeros as usize);
-    let bytes = input.trim().as_bytes();
-    // let trimmed_input = input.trim();
+    let check = Arc::new("0".repeat(leading_zeros as usize));
+    // let bytes = Arc::new(input.trim().as_bytes());
     let threads = thread::available_parallelism().unwrap().get();
     let chunks = 10000 / threads as u64;
     let actual_chunks = chunks * threads as u64;
@@ -54,18 +52,17 @@ pub fn y15d04(input: String, leading_zeros: u32) -> Option<u64> {
     while i < u64::MAX {
         let mut handles = Vec::new();
         for j in 0..threads as u64 {
-            let this_start = i + j * chunks;
-            let this_check = check.clone();
-            let this_input = input.clone();
-            // let this_input = trimmed_input.clone();
-            // let this_bytes = bytes.clone();
+            // let bytes = Arc::clone(&bytes);
+            let input = input.clone();
+            let check = Arc::clone(&check);
+            let start = i + j * chunks;
             handles.push(thread::spawn(move || {
                 return do_work(
-                    &this_input,
-                    this_start,
-                    this_start + chunks + 1,
+                    input,
+                    start,
+                    start + chunks + 1,
                     leading_zeros as usize,
-                    &this_check,
+                    check,
                 );
             }));
         }
@@ -85,30 +82,16 @@ pub fn y15d04(input: String, leading_zeros: u32) -> Option<u64> {
         i += actual_chunks;
     }
 
-    // for i in 1..u64::MAX {
-    //     let hash = format!(
-    //         "{:x}",
-    //         Md5::new()
-    //             .chain_update(bytes)
-    //             .chain_update(i.to_string().as_bytes())
-    //             .finalize()
-    //     );
-    //     if hash.get(0..leading_zeros as usize).unwrap() == check {
-    //         return Some(i);
-    //     }
-    // }
-
     None
 }
 
 fn do_work(
-    input: &str,
+    input: String,
     start: u64,
     end: u64,
     leading_zeros: usize,
-    check: &str,
+    check: Arc<String>,
 ) -> Option<u64> {
-    // TODO: ensure end+1 when passed in
     for i in start..end {
         let hash = format!(
             "{:x}",
@@ -117,7 +100,7 @@ fn do_work(
                 .chain_update(i.to_string().as_bytes())
                 .finalize()
         );
-        if hash.get(0..leading_zeros).unwrap() == check {
+        if hash.get(0..leading_zeros).unwrap() == *check {
             return Some(i);
         }
     }
