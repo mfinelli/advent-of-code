@@ -14,8 +14,34 @@
  */
 
 //! Advent of Code 2015 Day 5: <https://adventofcode.com/2015/day/5>
+//!
+//! This challenge is relatively straightforward, it just needs to compare
+//! various substrings to check for matches and other conditions.
 
 /// The solution for the day five challenge.
+///
+/// We expect the input as a string and either part `1` or part `2` to decide
+/// which ruleset to use to determine "nice" strings.
+///
+/// In part one nice strings contain at least three vowels (`aeiou` only),
+/// contains at least one letter that appears twice in a row, and does _not_
+/// contain any of these substrings: `ab`, `cd`, `pq`, or `xy`. The final rule
+/// takes precedence over the first two, that is if a string meets the first
+/// two criteria but has one of the forbidden substrings then it is still
+/// naughty.
+///
+/// In part two the rules are slightly different. A nice string contains at
+/// least one pair of non-overlapping (in position in the string) characters
+/// and at least one character that repeats after one other character.
+///
+/// # Example
+/// ```rust
+/// # use aoc::y15d05::y15d05;
+/// // probably read this from the input file...
+/// let input = "abc\naeidd\nxxxxyx";
+/// assert_eq!(y15d05(input, 1), 1);
+/// assert_eq!(y15d05(input, 2), 1);
+/// ```
 pub fn y15d05(input: &str, part: u32) -> u32 {
     let lines: Vec<_> = input.lines().collect();
     let mut nice_strings = 0;
@@ -29,7 +55,10 @@ pub fn y15d05(input: &str, part: u32) -> u32 {
     nice_strings
 }
 
+/// Evaluates the part one rules for the given string and returns true or
+/// false if the string is nice or not.
 fn is_nice_p1(s: &str) -> bool {
+    // these bad strings are immediately disqualifying so check them first
     let bad_strings = ["ab", "cd", "pq", "xy"];
     for bad_string in bad_strings {
         if s.contains(bad_string) {
@@ -45,10 +74,13 @@ fn is_nice_p1(s: &str) -> bool {
             vowels += 1;
         }
 
+        // if we're not on the last character we can check if the next
+        // character is the same
         if i < chars.len() - 1 && c == &chars[i + 1] {
             double = true;
         }
 
+        // we can stop checking as soon as we meet all of the conditions
         if double && vowels >= 3 {
             return true;
         }
@@ -57,14 +89,23 @@ fn is_nice_p1(s: &str) -> bool {
     false
 }
 
+/// Evaluates the part two rules for the given string and returns true or
+/// false if the string is nice or not.
 fn is_nice_p2(s: &str) -> bool {
     let chars: Vec<_> = s.chars().collect();
 
     let mut non_overlapping_pair = false;
     let mut repeat_with_middle = false;
     for i in 0..chars.len() {
+        // if we're not on the last character (windows are two characters long
+        // and we check the current character plus the next one) then we can
+        // evaluate the other character windows
         if i != chars.len() - 1 {
             for (j, window) in chars.windows(2).enumerate() {
+                // if we're in a window that overlaps with the current window
+                // then skip it (note the last condition checks to make sure
+                // we're on at least the second character before trying to
+                // discard previous windows that can't exist)
                 if i == j || i + 1 == j || (i >= 1 && i - 1 == j) {
                     continue;
                 }
@@ -75,10 +116,14 @@ fn is_nice_p2(s: &str) -> bool {
             }
         }
 
+        // if we're not on the penultimate character we can look ahead two
+        // characters to see if it matches the current character
         if i < chars.len() - 2 && chars[i] == chars[i + 2] {
             repeat_with_middle = true;
         }
 
+        // like in part one we can stop evaluating as soon as we meet all of
+        // the conditions
         if non_overlapping_pair && repeat_with_middle {
             return true;
         }
