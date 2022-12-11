@@ -14,6 +14,7 @@
  */
 
 use aoc::*;
+use std::time::Instant;
 use std::{env, fs, io, io::Read};
 
 fn main() {
@@ -29,6 +30,8 @@ fn main() {
     } else {
         fs::read_to_string(&args[2]).unwrap()
     };
+
+    let start = Instant::now();
 
     match args[1].as_str() {
         "y15d01" => {
@@ -73,6 +76,8 @@ fn main() {
         }
         _ => panic!("Unable to find year/day match."),
     };
+
+    println!("\nRun time: {}μs", start.elapsed().as_micros());
 }
 
 fn read_from_stdin() -> String {
