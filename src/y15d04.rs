@@ -20,6 +20,23 @@
 //! results has the desired number of leading `0`s then you're done,
 //! otherwise increment the counter and try again.
 //!
+//! A second attempt to improve the runtime of this solution maintains the
+//! same general logic as above but splits the work into parallel threads.
+//! On my machine this saw time improvements from about 10-11 seconds down to
+//! 2.5 to 3.5 seconds to compute both prefixes independently. There are
+//! probably other improvements that could be made to speed this up further
+//! (such as running both prefixes together so that we don't have to recompute
+//! so many hashes that we know aren't long enough, but I prefer to have each
+//! part distinct). The way that I implemented it is to spawn threads and have
+//! them work on 10,000 hashes at a time. This could (maybe) be improved by
+//! instead having a solution found mutex and having each thread work
+//! independently until it finds a solution or until the solution mutex is
+//! set or something similar. Obviously, the way I have currently done it,
+//! there is a decent amount of wasted compute if the resulting number is very
+//! small (e.g., answers less than 10,000 x number of threads) or even if we
+//! could find an answer early in any batch of work we could return instantly
+//! but instead need to wait for all of the threads to finish.
+//!
 //! I didn't try to implement the `MD5` algorithm myself and instead decided
 //! to use the [md-5](https://docs.rs/md-5/latest/md5/) crate.
 
@@ -28,11 +45,19 @@ use std::{sync::Arc, thread};
 
 /// The solution for the day four challenge.
 ///
-/// The function takes the input string and the number of leading zeros to
-/// find as arguments. The logic is otherwise very simple, combine the input
-/// string and counter and compute the `MD5` has until you've found the
-/// desired number of leading zeros (or `None` if we get to the maximum
-/// integer size without finding a match).
+/// This function takes the input string and the number of leading zeros to
+/// find as arguments. The logic is otherwise fairly simple, as described
+/// above we batch the work into threads. Each thread works on 10,000 numbers
+/// combining the input string and each number one after the other to compute
+/// the `MD5` hash until it either finds a hash that has the correct number of
+/// leading zeros or it exhausts its numbers. After all threads have finished
+/// we check to see if any results were found and if so we add them to a
+/// vector, sort it, and return the smallest value (this is important because
+/// in theory two threads could find a number that results in a has with the
+/// correct number of leading zeros and we want the smallest of those numbers).
+/// If no answer was found we spawn another batch of the threads and continue
+/// in this way until we either find a match or reach the maximum integer size
+/// (in which case we will return `None`).
 ///
 /// # Example
 /// ```rust
