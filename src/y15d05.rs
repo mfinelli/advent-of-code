@@ -21,9 +21,7 @@ pub fn y15d05(input: &str, part: u32) -> u32 {
     let mut nice_strings = 0;
 
     for line in lines {
-        if part == 1 && is_nice_p1(line) {
-            nice_strings += 1;
-        } else if part == 2 && is_nice_p2(line) {
+        if (part == 1 && is_nice_p1(line)) || (part == 2 && is_nice_p2(line)) {
             nice_strings += 1;
         }
     }
@@ -47,10 +45,8 @@ fn is_nice_p1(s: &str) -> bool {
             vowels += 1;
         }
 
-        if i < chars.len() - 1 {
-            if c == &chars[i + 1] {
-                double = true;
-            }
+        if i < chars.len() - 1 && c == &chars[i + 1] {
+            double = true;
         }
 
         if double && vowels >= 3 {
@@ -137,6 +133,7 @@ mod tests {
         assert_eq!(y15d05(input, 2), 2);
     }
 
+    #[test]
     fn the_solution() {
         let contents = fs::read_to_string("input/2015/day05.txt").unwrap();
 
