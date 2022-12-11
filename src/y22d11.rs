@@ -11,8 +11,8 @@ enum OperationType {
 #[derive(Debug)]
 struct Monkey {
     name: u32,
-    inspections: u32,
-    items: VecDeque<u32>,
+    inspections: u64,
+    items: VecDeque<u64>,
     operation_type: OperationType,
     operation_value: u32,
     test: u32,
@@ -20,7 +20,7 @@ struct Monkey {
     if_false: usize,
 }
 
-pub fn y22d11(input: &str) -> u32 {
+pub fn y22d11(input: &str, rounds: u32, relief: bool) -> u64 {
     let lines: Vec<_> = input.lines().collect();
     let mut monkeys = Vec::new();
 
@@ -35,12 +35,14 @@ pub fn y22d11(input: &str) -> u32 {
             for item in items_parts.iter().skip(2) {
                 // let value: u32 = item.trim_end_matches(',').parse().unwrap();
                 // println!("{}", value);
-                items.push_back(item.trim_end_matches(',').parse().unwrap());
+                let parsed: u64 = item.trim_end_matches(',').parse().unwrap();
+                items.push_back(parsed);
             }
         }
         // println!("{:?}", items_parts);
 
-        let operation_parts: Vec<_> = monkey_defn[2].split_whitespace().collect();
+        let operation_parts: Vec<_> =
+            monkey_defn[2].split_whitespace().collect();
         let operation_type: OperationType;
         let operation_value: u32;
         // let operation_type = if operation_parts[4] == "+" {
@@ -82,40 +84,65 @@ pub fn y22d11(input: &str) -> u32 {
             if_true: true_parts[5].parse().unwrap(),
             if_false: false_parts[5].parse().unwrap(),
         });
-
     }
 
+    let mut lcm = 1;
+    for monkey in &monkeys {
+        lcm = lcm * monkey.test;
+    }
 
-    for round in 0..20 {
+    // println!("{:?}", lcm);
+
+    for round in 0..rounds {
         for monkey_index in 0..monkeys.len() {
             if monkeys[monkey_index].items.is_empty() {
                 continue;
             }
 
             while let Some(mut item) = monkeys[monkey_index].items.pop_front() {
+                // let original = item;
+
                 // first the monkey inspects the item
                 match monkeys[monkey_index].operation_type {
                     OperationType::AdditionSelf => item += item,
-                    OperationType::Addition => item += monkeys[monkey_index].operation_value,
+                    OperationType::Addition => {
+                        item += monkeys[monkey_index].operation_value as u64
+                    }
                     OperationType::MultiplicationSelf => item = item * item,
-                    OperationType::Multiplication => item = item * monkeys[monkey_index].operation_value,
+                    OperationType::Multiplication => {
+                        item =
+                            item * monkeys[monkey_index].operation_value as u64
+                    }
                 }
 
                 // increment the monkey's inspection counter
                 monkeys[monkey_index].inspections += 1;
 
-                // then we do the relief modifier
-                item = item / 3;
+                if relief {
+                    // then we do the relief modifier
+                    // item = (item / 3.0).floor();
+                    item = item / 3;
+                    // item.div_assign(3);
+                } else {
+                    // item.div_assign(19);
+                    // let times_divisible = item / original;
+                    // let remainder = item % lcm;
+                    // item = item / times_divisible + remainder;
+                    // item = item / lcm + remainder;
+                    if item > lcm as u64 {
+                        item = item % lcm as u64;
+                        // println!("did the modulo, new item is {}", item);
+                    }
+                }
 
                 // finally throw (assign) the item to a new monkey
-                if item % monkeys[monkey_index].test == 0 {
+                if item % monkeys[monkey_index].test as u64 == 0 {
                     let new_monkey_index = monkeys[monkey_index].if_true;
                     monkeys[new_monkey_index].items.push_back(item);
                 } else {
                     let new_monkey_index = monkeys[monkey_index].if_false;
                     monkeys[new_monkey_index].items.push_back(item);
                 }
-
 
                 // println!("{}", item);
             }
@@ -167,13 +194,16 @@ mod tests {
             "    If false: throw to monkey 1\n",
         );
 
-        assert_eq!(y22d11(input), 10605);
+        assert_eq!(y22d11(input, 20, true), 10605);
+        assert_eq!(y22d11(input, 1000, false), 27019168);
+        assert_eq!(y22d11(input, 10000, false), 2713310158);
     }
 
     #[test]
     fn the_solution() {
         let contents = fs::read_to_string("input/2022/day11.txt").unwrap();
 
-        assert_eq!(y22d11(&contents), 50830);
+        assert_eq!(y22d11(&contents, 20, true), 50830);
+        assert_eq!(y22d11(&contents, 10000, false), 14399640002);
     }
 }
