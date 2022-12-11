@@ -81,13 +81,7 @@ pub fn y15d04(input: String, leading_zeros: u32) -> Option<u64> {
             let check = Arc::clone(&check);
             let start = i + j * chunks;
             handles.push(thread::spawn(move || {
-                return do_work(
-                    input,
-                    start,
-                    start + chunks + 1,
-                    leading_zeros as usize,
-                    check,
-                );
+                return do_work(input, start, start + chunks + 1, check);
             }));
         }
 
@@ -109,13 +103,19 @@ pub fn y15d04(input: String, leading_zeros: u32) -> Option<u64> {
     None
 }
 
+/// This is the function that actually runs in the thread. It takes the input,
+/// start and end ranges, and the string of leading zeros to check againtst
+/// and then computes the associated `MD5` has for every integer in its
+/// range. It will stop early if it finds a match and return it otherwise it
+/// will return `None`.
 fn do_work(
     input: String,
     start: u64,
     end: u64,
-    leading_zeros: usize,
     check: Arc<String>,
 ) -> Option<u64> {
+    let leading_zeros = check.len();
+
     for i in start..end {
         let hash = format!(
             "{:x}",
