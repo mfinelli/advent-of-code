@@ -42,7 +42,7 @@ use std::{sync::Arc, thread};
 /// ```
 pub fn y15d04(input: String, leading_zeros: u32) -> Option<u64> {
     let check = Arc::new("0".repeat(leading_zeros as usize));
-    // let bytes = Arc::new(input.trim().as_bytes());
+    let input = input.trim().to_string();
     let threads = thread::available_parallelism().unwrap().get();
     let chunks = 10000 / threads as u64;
     let actual_chunks = chunks * threads as u64;
@@ -52,7 +52,6 @@ pub fn y15d04(input: String, leading_zeros: u32) -> Option<u64> {
     while i < u64::MAX {
         let mut handles = Vec::new();
         for j in 0..threads as u64 {
-            // let bytes = Arc::clone(&bytes);
             let input = input.clone();
             let check = Arc::clone(&check);
             let start = i + j * chunks;
@@ -96,7 +95,7 @@ fn do_work(
         let hash = format!(
             "{:x}",
             Md5::new()
-                .chain_update(input.trim().as_bytes())
+                .chain_update(input.as_bytes())
                 .chain_update(i.to_string().as_bytes())
                 .finalize()
         );
