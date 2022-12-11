@@ -14,8 +14,7 @@
  */
 
 use aoc::*;
-use std::time::Instant;
-use std::{env, fs, io, io::Read};
+use std::{env, fs, io, io::Read, time::Instant};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
