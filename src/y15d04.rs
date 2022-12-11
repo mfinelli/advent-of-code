@@ -81,18 +81,18 @@ pub fn y15d04(input: String, leading_zeros: u32) -> Option<u64> {
             let check = Arc::clone(&check);
             let start = i + j * chunks;
             handles.push(thread::spawn(move || {
-                return compute_hashes(input, start, start + chunks + 1, check);
+                compute_hashes(input, start, start + chunks + 1, check)
             }));
         }
 
         for handle in handles {
             let result = handle.join().unwrap();
-            if result.is_some() {
-                results.push(result.unwrap());
+            if let Some(answer) = result {
+                results.push(answer);
             }
         }
 
-        if results.len() >= 1 {
+        if !results.is_empty() {
             results.sort();
             return Some(results[0]);
         }
