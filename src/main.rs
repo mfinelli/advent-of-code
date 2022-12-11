@@ -49,6 +49,9 @@ fn main() {
             println!("Part 1: {}", y15d04::y15d04(input.clone(), 5).unwrap());
             println!("Part 2: {}", y15d04::y15d04(input, 6).unwrap());
         }
+        "y15d05" => {
+            println!("Part 1: {}", y15d05::y15d05(&input));
+        }
         "y22d01" => {
             println!("Part 1: {}", y22d01::y22d01(&input, 1));
             println!("Part 2: {}", y22d01::y22d01(&input, 3));
