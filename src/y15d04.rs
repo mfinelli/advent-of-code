@@ -28,14 +28,14 @@
 //! (such as running both prefixes together so that we don't have to recompute
 //! so many hashes that we know aren't long enough, but I prefer to have each
 //! part distinct). The way that I implemented it is to spawn threads and have
-//! them work on 10,000 hashes at a time. This could (maybe) be improved by
+//! them work on 100,000 hashes at a time. This could (maybe) be improved by
 //! instead having a solution found mutex and having each thread work
 //! independently until it finds a solution or until the solution mutex is
 //! set or something similar. Obviously, the way I have currently done it,
 //! there is a decent amount of wasted compute if the resulting number is very
-//! small (e.g., answers less than 10,000 x number of threads) or even if we
-//! could find an answer early in any batch of work we could return instantly
-//! but instead need to wait for all of the threads to finish.
+//! small (e.g., answers less than 100,000) or even if we could find an answer
+//! early in any batch of work we could return instantly but instead need to
+//! wait for all of the threads to finish.
 //!
 //! I didn't try to implement the `MD5` algorithm myself and instead decided
 //! to use the [md-5](https://docs.rs/md-5/latest/md5/) crate.
@@ -47,17 +47,17 @@ use std::{sync::Arc, thread};
 ///
 /// This function takes the input string and the number of leading zeros to
 /// find as arguments. The logic is otherwise fairly simple, as described
-/// above we batch the work into threads. Each thread works on 10,000 numbers
-/// combining the input string and each number one after the other to compute
-/// the `MD5` hash until it either finds a hash that has the correct number of
-/// leading zeros or it exhausts its numbers. After all threads have finished
-/// we check to see if any results were found and if so we add them to a
-/// vector, sort it, and return the smallest value (this is important because
-/// in theory two threads could find a number that results in a has with the
-/// correct number of leading zeros and we want the smallest of those numbers).
-/// If no answer was found we spawn another batch of the threads and continue
-/// in this way until we either find a match or reach the maximum integer size
-/// (in which case we will return `None`).
+/// above we batch the work into threads. Each thread works on its chunk of
+/// 100,000 numbers combining the input string and each number one after the
+/// other to compute the `MD5` hash until it either finds a hash that has the
+/// correct number of leading zeros or it exhausts its numbers. After all
+/// threads have finished we check to see if any results were found and if so
+/// we add them to a vector, sort it, and return the smallest value (this is
+/// important because in theory two threads could find a number that results
+/// in a has with the correct number of leading zeros and we want the smallest
+/// of those numbers). If no answer was found we spawn another batch of the
+/// threads and continue in this way until we either find a match or reach the
+/// maximum integer size (in which case we will return `None`).
 ///
 /// # Example
 /// ```rust
@@ -69,7 +69,7 @@ pub fn y15d04(input: String, leading_zeros: u32) -> Option<u64> {
     let check = Arc::new("0".repeat(leading_zeros as usize));
     let input = input.trim().to_string();
     let threads = thread::available_parallelism().unwrap().get();
-    let chunks = 10000 / threads as u64;
+    let chunks = 100000 / threads as u64;
     let actual_chunks = chunks * threads as u64;
     let mut results = Vec::new();
 
