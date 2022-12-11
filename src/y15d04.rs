@@ -81,7 +81,7 @@ pub fn y15d04(input: String, leading_zeros: u32) -> Option<u64> {
             let check = Arc::clone(&check);
             let start = i + j * chunks;
             handles.push(thread::spawn(move || {
-                return do_work(input, start, start + chunks + 1, check);
+                return compute_hashes(input, start, start + chunks + 1, check);
             }));
         }
 
@@ -108,7 +108,7 @@ pub fn y15d04(input: String, leading_zeros: u32) -> Option<u64> {
 /// and then computes the associated `MD5` has for every integer in its
 /// range. It will stop early if it finds a match and return it otherwise it
 /// will return `None`.
-fn do_work(
+fn compute_hashes(
     input: String,
     start: u64,
     end: u64,
