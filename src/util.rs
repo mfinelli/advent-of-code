@@ -36,9 +36,9 @@ where
     T: PartialEq + Rem<Output = T> + From<u8> + Copy,
 {
     if b == 0u8.into() {
-        return a;
+        a
     } else {
-        return gcd(b, a % b);
+        gcd(b, a % b)
     }
 }
 
