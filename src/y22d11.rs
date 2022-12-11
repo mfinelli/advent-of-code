@@ -1,3 +1,20 @@
+/* Copyright 2022 Mario Finelli
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+//! Advent of Code 2022 Day 11: <https://adventofcode.com/2022/day/11>
+
 use std::collections::VecDeque;
 
 #[derive(Debug)]
@@ -10,7 +27,6 @@ enum OperationType {
 
 #[derive(Debug)]
 struct Monkey {
-    name: u32,
     inspections: u64,
     items: VecDeque<u64>,
     operation_type: OperationType,
@@ -20,53 +36,46 @@ struct Monkey {
     if_false: usize,
 }
 
+/// The solution for the day eleven challenge.
+///
+/// # Example
+/// ```rust
+/// ```
 pub fn y22d11(input: &str, rounds: u32, relief: bool) -> u64 {
     let lines: Vec<_> = input.lines().collect();
     let mut monkeys = Vec::new();
 
     for monkey_defn in lines.chunks(7) {
-        let name_parts: Vec<_> = monkey_defn[0].split_whitespace().collect();
-        // println!("{:?}", monkey);
         let mut items = VecDeque::new();
 
-        // split_whitespace automatically strips leading whitespace
+        // split_whitespace() automatically strips leading whitespace
         let items_parts: Vec<_> = monkey_defn[1].split_whitespace().collect();
         if items_parts.len() > 2 {
             for item in items_parts.iter().skip(2) {
-                // let value: u32 = item.trim_end_matches(',').parse().unwrap();
-                // println!("{}", value);
-                let parsed: u64 = item.trim_end_matches(',').parse().unwrap();
-                items.push_back(parsed);
+                items.push_back(item.trim_end_matches(',').parse().unwrap());
             }
         }
-        // println!("{:?}", items_parts);
 
         let operation_parts: Vec<_> =
             monkey_defn[2].split_whitespace().collect();
         let operation_type: OperationType;
         let operation_value: u32;
-        // let operation_type = if operation_parts[4] == "+" {
-        //     OperationType::Addition
-        // } else {
-        //     OperationType::Multiplication
-        // };
-        //
 
-        if operation_parts[4] == "+" {
-            if operation_parts[5] == "old" {
+        if operation_parts[5] == "old" {
+            operation_value = 0;
+
+            if operation_parts[4] == "+" {
                 operation_type = OperationType::AdditionSelf;
-                operation_value = 0;
             } else {
-                operation_type = OperationType::Addition;
-                operation_value = operation_parts[5].parse().unwrap();
+                operation_type = OperationType::MultiplicationSelf;
             }
         } else {
-            if operation_parts[5] == "old" {
-                operation_type = OperationType::MultiplicationSelf;
-                operation_value = 0;
+            operation_value = operation_parts[5].parse().unwrap();
+
+            if operation_parts[4] == "+" {
+                operation_type = OperationType::Addition;
             } else {
                 operation_type = OperationType::Multiplication;
-                operation_value = operation_parts[5].parse().unwrap();
             }
         }
 
@@ -75,11 +84,10 @@ pub fn y22d11(input: &str, rounds: u32, relief: bool) -> u64 {
         let false_parts: Vec<_> = monkey_defn[5].split_whitespace().collect();
 
         monkeys.push(Monkey {
-            name: name_parts[1].strip_suffix(':').unwrap().parse().unwrap(),
             inspections: 0,
-            items: items,
-            operation_type: operation_type,
-            operation_value: operation_value,
+            items,
+            operation_type,
+            operation_value,
             test: test_parts[3].parse().unwrap(),
             if_true: true_parts[5].parse().unwrap(),
             if_false: false_parts[5].parse().unwrap(),
@@ -88,30 +96,28 @@ pub fn y22d11(input: &str, rounds: u32, relief: bool) -> u64 {
 
     let mut lcm = 1;
     for monkey in &monkeys {
-        lcm = lcm * monkey.test;
+        lcm *= u64::from(monkey.test);
     }
 
-    // println!("{:?}", lcm);
-
-    for round in 0..rounds {
+    for _ in 0..rounds {
         for monkey_index in 0..monkeys.len() {
+            // if the monkey doesn't have any items then their turn is over
             if monkeys[monkey_index].items.is_empty() {
                 continue;
             }
 
             while let Some(mut item) = monkeys[monkey_index].items.pop_front() {
-                // let original = item;
-
                 // first the monkey inspects the item
                 match monkeys[monkey_index].operation_type {
                     OperationType::AdditionSelf => item += item,
                     OperationType::Addition => {
-                        item += monkeys[monkey_index].operation_value as u64
+                        item +=
+                            u64::from(monkeys[monkey_index].operation_value);
                     }
                     OperationType::MultiplicationSelf => item = item * item,
                     OperationType::Multiplication => {
-                        item =
-                            item * monkeys[monkey_index].operation_value as u64
+                        item *=
+                            u64::from(monkeys[monkey_index].operation_value);
                     }
                 }
 
@@ -119,41 +125,26 @@ pub fn y22d11(input: &str, rounds: u32, relief: bool) -> u64 {
                 monkeys[monkey_index].inspections += 1;
 
                 if relief {
-                    // then we do the relief modifier
-                    // item = (item / 3.0).floor();
-                    item = item / 3;
-                    // item.div_assign(3);
+                    item /= 3;
                 } else {
-                    // item.div_assign(19);
-                    // let times_divisible = item / original;
-                    // let remainder = item % lcm;
-                    // item = item / times_divisible + remainder;
-                    // item = item / lcm + remainder;
-                    if item > lcm as u64 {
-                        item = item % lcm as u64;
-                        // println!("did the modulo, new item is {}", item);
+                    if item > lcm {
+                        item %= lcm;
                     }
                 }
 
                 // finally throw (assign) the item to a new monkey
-                if item % monkeys[monkey_index].test as u64 == 0 {
+                if item % u64::from(monkeys[monkey_index].test) == 0 {
                     let new_monkey_index = monkeys[monkey_index].if_true;
                     monkeys[new_monkey_index].items.push_back(item);
                 } else {
                     let new_monkey_index = monkeys[monkey_index].if_false;
                     monkeys[new_monkey_index].items.push_back(item);
                 }
-
-                // println!("{}", item);
             }
         }
     }
 
     monkeys.sort_by(|a, b| a.inspections.cmp(&b.inspections));
-
-    println!("{:?}", monkeys);
-
-    // 0
     monkeys.pop().unwrap().inspections * monkeys.pop().unwrap().inspections
 }
 
