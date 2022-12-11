@@ -22,7 +22,7 @@ jobs:
       - run: cargo clippy
       - run: cargo test -- --include-ignored
       - run: cargo build --locked --release --verbose
-      - run: cargo doc --release
+      - run: cargo doc --locked --release --no-deps
 
       - name: add index redirect
         run: make target/doc/index.html
