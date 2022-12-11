@@ -14,7 +14,7 @@
  */
 
 use aoc::*;
-use std::{env, fs, io, io::Read};
+use std::{env, fs, io, io::Read, time::Instant};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -30,6 +30,8 @@ fn main() {
         fs::read_to_string(&args[2]).unwrap()
     };
 
+    let start = Instant::now();
+
     match args[1].as_str() {
         "y15d01" => {
             println!("Part 1: {}", y15d01::y15d01p1(&input));
@@ -42,6 +44,10 @@ fn main() {
         "y15d03" => {
             println!("Part 1: {}", y15d03::y15d03(&input, 1));
             println!("Part 2: {}", y15d03::y15d03(&input, 2));
+        }
+        "y15d04" => {
+            println!("Part 1: {}", y15d04::y15d04(input.clone(), 5).unwrap());
+            println!("Part 2: {}", y15d04::y15d04(input.clone(), 6).unwrap());
         }
         "y22d01" => {
             println!("Part 1: {}", y22d01::y22d01(&input, 1));
@@ -89,6 +95,8 @@ fn main() {
         }
         _ => panic!("Unable to find year/day match."),
     };
+
+    println!("\nRun time: {}μs", start.elapsed().as_micros());
 }
 
 fn read_from_stdin() -> String {

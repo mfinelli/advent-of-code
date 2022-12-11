@@ -14,14 +14,15 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: cargo build --locked --release --verbose
-      - run: cargo doc --locked --release
+      - run: cargo doc --locked --no-deps --release
+      - run: cargo vendor --locked
       - run: |
           cp target/release/aoc .
           make target/doc/index.html
           cp -r target/doc .
           rm -rf doc/.lock
           tar acvf advent-of-code_${{ github.ref_name }}.tar.zst \
-            LICENSE README.md aoc doc input
+            LICENSE README.md aoc doc input vendor
       - uses: ncipollo/release-action@v1
         with:
           artifacts: advent-of-code_*.tar.*
