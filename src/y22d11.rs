@@ -16,8 +16,8 @@ struct Monkey {
     operation_type: OperationType,
     operation_value: u32,
     test: u32,
-    if_true: u32,
-    if_false: u32,
+    if_true: usize,
+    if_false: usize,
 }
 
 pub fn y22d11(input: &str) -> u32 {
@@ -85,9 +85,49 @@ pub fn y22d11(input: &str) -> u32 {
 
     }
 
+
+    for round in 0..20 {
+        for monkey_index in 0..monkeys.len() {
+            if monkeys[monkey_index].items.is_empty() {
+                continue;
+            }
+
+            while let Some(mut item) = monkeys[monkey_index].items.pop_front() {
+                // first the monkey inspects the item
+                match monkeys[monkey_index].operation_type {
+                    OperationType::AdditionSelf => item += item,
+                    OperationType::Addition => item += monkeys[monkey_index].operation_value,
+                    OperationType::MultiplicationSelf => item = item * item,
+                    OperationType::Multiplication => item = item * monkeys[monkey_index].operation_value,
+                }
+
+                // increment the monkey's inspection counter
+                monkeys[monkey_index].inspections += 1;
+
+                // then we do the relief modifier
+                item = item / 3;
+
+                // finally throw (assign) the item to a new monkey
+                if item % monkeys[monkey_index].test == 0 {
+                    let new_monkey_index = monkeys[monkey_index].if_true;
+                    monkeys[new_monkey_index].items.push_back(item);
+                } else {
+                    let new_monkey_index = monkeys[monkey_index].if_false;
+                    monkeys[new_monkey_index].items.push_back(item);
+                }
+
+
+                // println!("{}", item);
+            }
+        }
+    }
+
+    monkeys.sort_by(|a, b| a.inspections.cmp(&b.inspections));
+
     println!("{:?}", monkeys);
 
-    0
+    // 0
+    monkeys.pop().unwrap().inspections * monkeys.pop().unwrap().inspections
 }
 
 #[cfg(test)]
@@ -134,6 +174,6 @@ mod tests {
     fn the_solution() {
         let contents = fs::read_to_string("input/2022/day11.txt").unwrap();
 
-        assert_eq!(y22d11(&contents), 0);
+        assert_eq!(y22d11(&contents), 50830);
     }
 }
