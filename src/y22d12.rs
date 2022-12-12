@@ -1,11 +1,12 @@
 use std::cmp::Reverse;
 use std::collections::{BinaryHeap, HashMap};
 
-pub fn y22d12(input: &str) -> Option<u32> {
+pub fn y22d12(input: &str, part: u32) -> Option<u32> {
     let lines: Vec<_> = input.lines().collect();
     let mut grid = HashMap::new();
     let mut edges = HashMap::new();
-    // let mut shortest_path = u32::MAX;
+    // let mut shortest_paths = BinaryHeap::new();
+    let mut shortest_path: Option<u32> = None;
     let mut start_position: (usize, usize) = (0,0);
     let mut end_position: (usize, usize) = (0,0);
 
@@ -53,114 +54,154 @@ pub fn y22d12(input: &str) -> Option<u32> {
         }
     }
 
-    let mut distances = HashMap::new();
-    let mut visited = Vec::new();
-    let mut to_visit = Vec::new();
-
-    let (start_x, start_y) = start_position;
-
-    // search_path(start_position, end_position, &grid, Vec::new(), &mut shortest_path);
-    for ((x,y), height) in &grid {
-        // println!("{:?},{:?}: {}", x, y, height);
-        // let ((x,y), height) = node;
-        let mut node_edges = Vec::new();
-        if *x > 0 {
-            if let Some(left) = grid.get(&(x-1, *y)) {
-                if *left <= height + 1 {
-                    node_edges.push((x-1, *y));
-                }
+    let mut search_spots = Vec::new();
+    if part == 1 {
+        search_spots.push(start_position);
+    } else {
+        for ((x,y), height) in &grid {
+            if *height == 0 {
+                search_spots.push((*x,*y));
             }
         }
-        if *y > 0 {
-            if let Some(top) = grid.get(&(*x, y-1)) {
-                if *top <= height + 1 {
-                    node_edges.push((*x, y-1));
-                }
-            }
-        }
-        if let Some(right) = grid.get(&(x+1, *y)) {
-            if *right <= height + 1 {
-                node_edges.push((x+1, *y));
-            }
-        }
-        if let Some(bottom) = grid.get(&(*x, y+1)) {
-            if *bottom <= height + 1 {
-                node_edges.push((*x, y+1));
-            }
-        }
-        if (x,y) == (&start_x, &start_y) {
-            distances.insert((*x,*y), Some(0));
-        } else {
-            distances.insert((*x,*y), None);
-        }
-        edges.insert((x,y), node_edges);
     }
 
-    to_visit.push((start_x, start_y));
-    // visited.push(start_position);
-    // let start_edges = edges.get(&(&start_x, &start_y)).unwrap();
-    // for edge in start_edges {
-        // to_visit.push(edge);
-    // }
+    // println!("search spots: {:?}", search_spots);
+    println!("search spots: {:?}", search_spots);
+    println!("grid elements: {:?}", grid.len());
 
-    while let Some(edge) = to_visit.pop() {
-        println!("checking node: {:?}", edge);
-        visited.push(edge);
-        let (x, y) = edge;
+    let mut i = 1;
+    let len = search_spots.len();
+    for search_start in search_spots {
+        println!("searching {:?} ({}/{:?})", search_start, i, len);
 
-        let current_distance = *distances.get(&edge).unwrap();
-        println!("current distance: {:?}", current_distance);
-        println!("comparing edges: {:?}", edges.get(&(&x, &y)).unwrap());
+        let mut distances = HashMap::new();
+        let mut visited = Vec::new();
+        let mut to_visit = Vec::new();
 
-        for node_edge in edges.get(&(&x, &y)).unwrap() {
-            // let (node_x, node_y) = node_edge;
-            println!("checking edge {:?}", node_edge);
-            let new_distance = current_distance.unwrap()+ 1;
-            match distances.get(&node_edge).unwrap() {
-                None => {
-                    println!("no existing distance, inserting {}", new_distance);
-                    distances.insert(*node_edge, Some(new_distance));
-                    // if !visited.contains(node_edge) {
-                        to_visit.push(*node_edge);
-                    // }
+        let (start_x, start_y) = search_start;
+
+        // search_path(start_position, end_position, &grid, Vec::new(), &mut shortest_path);
+        for ((x,y), height) in &grid {
+            // println!("{:?},{:?}: {}", x, y, height);
+            // let ((x,y), height) = node;
+            let mut node_edges = Vec::new();
+            if *x > 0 {
+                if let Some(left) = grid.get(&(x-1, *y)) {
+                    if *left <= height + 1 {
+                        node_edges.push((x-1, *y));
+                    }
                 }
-                Some(distance) => {
-                    println!("there is an existing distance {}", distance);
-                    if &new_distance < distance {
-                        println!("new distance is less than existing distance {}", new_distance);
+            }
+            if *y > 0 {
+                if let Some(top) = grid.get(&(*x, y-1)) {
+                    if *top <= height + 1 {
+                        node_edges.push((*x, y-1));
+                    }
+                }
+            }
+            if let Some(right) = grid.get(&(x+1, *y)) {
+                if *right <= height + 1 {
+                    node_edges.push((x+1, *y));
+                }
+            }
+            if let Some(bottom) = grid.get(&(*x, y+1)) {
+                if *bottom <= height + 1 {
+                    node_edges.push((*x, y+1));
+                }
+            }
+            if (x,y) == (&start_x, &start_y) {
+                distances.insert((*x,*y), Some(0));
+            } else {
+                distances.insert((*x,*y), None);
+            }
+            edges.insert((x,y), node_edges);
+        }
+
+        to_visit.push((start_x, start_y));
+        // visited.push(start_position);
+        // let start_edges = edges.get(&(&start_x, &start_y)).unwrap();
+        // for edge in start_edges {
+            // to_visit.push(edge);
+        // }
+
+        while let Some(edge) = to_visit.pop() {
+            // println!("checking node: {:?}", edge);
+            visited.push(edge);
+            let (x, y) = edge;
+
+            let current_distance = *distances.get(&edge).unwrap();
+            // println!("current distance: {:?}", current_distance);
+            // println!("comparing edges: {:?}", edges.get(&(&x, &y)).unwrap());
+
+            for node_edge in edges.get(&(&x, &y)).unwrap() {
+                // let (node_x, node_y) = node_edge;
+                // println!("checking edge {:?}", node_edge);
+                let new_distance = current_distance.unwrap()+ 1;
+                match distances.get(&node_edge).unwrap() {
+                    None => {
+                        // println!("no existing distance, inserting {}", new_distance);
                         distances.insert(*node_edge, Some(new_distance));
-                        to_visit.push(*node_edge);
+                        // if !visited.contains(node_edge) {
+                            to_visit.push(*node_edge);
+                        // }
+                    }
+                    Some(distance) => {
+                        // println!("there is an existing distance {}", distance);
+                        if &new_distance < distance {
+                            // println!("new distance is less than existing distance {}", new_distance);
+                            distances.insert(*node_edge, Some(new_distance));
+                            to_visit.push(*node_edge);
+                        }
+                    }
+                }
+            }
+
+
+        }
+
+        // if let Some(shortest_path) = distances.get(&end_position).unwrap(){
+        //     shortest_paths.push(Reverse(shortest_path));
+        // }
+        if let Some(steps) = distances.get(&end_position).unwrap() {
+            match shortest_path {
+                None => shortest_path = Some(*steps),
+                Some(old_steps) => {
+                    if steps < &old_steps {
+                        shortest_path = Some(*steps);
                     }
                 }
             }
         }
 
+        i +=1;
 
-    //     let (x,y) = edge;
-
-    //     match distances.get((*x, *y)) {
-    //         None => distances.insert(
-
-    //     if distances.get(
     }
 
 
-    println!("start: {:?}", start_position);
-    println!("end: {:?}", end_position);
-    println!("grid: {:?}", grid);
-    println!("edges: {:?}", edges);
-    println!("distances: {:?}", distances);
-    println!("visited: {:?}", visited);
-    println!("to visit: {:?}", to_visit);
+    // println!("start: {:?}", start_position);
+    // println!("end: {:?}", end_position);
+    // println!("grid: {:?}", grid);
+    // println!("edges: {:?}", edges);
+    // println!("distances: {:?}", distances);
+    // println!("visited: {:?}", visited);
+    // println!("to visit: {:?}", to_visit);
 
-    let shortest_path = distances.get(&end_position).unwrap();
-    println!("shortest path: {:?}", shortest_path);
+    // let shortest_path = distances.get(&end_position).unwrap();
+    // println!("shortest path: {:?}", shortest_path);
 
 
 
     // // let Reverse(shortest_path) = paths.pop().unwrap();
     // shortest_path
-    *shortest_path
+    // *shortest_path
+    // match shortest_paths.pop() {
+    //     None => None,
+    //     Some(v) => {
+    //         let Reverse(shortest_path) = v;
+    //         Some(v)
+    //     }
+    // }
+    shortest_path
 }
 
 fn search_path(next_node: (usize, usize), end: (usize, usize), grid: &HashMap<(usize, usize), u32>, mut visited: Vec<(usize, usize)>, shortest_path: &mut u32) {
@@ -287,15 +328,17 @@ mod tests {
         // let input = "Saa\nddb\nffE";
         // abcdef ghijkl mnopqr stuvwx yEzzzz zzzzzz
         let mut input = "Sbcdef\nlkjihg\nmnopqr\nxwvuts\nyEzzzz\nzzzzzz";
-        assert_eq!(y22d12(input), Some(25));
+        assert_eq!(y22d12(input, 1), Some(25));
         let input = "Sabqponm\nabcryxxl\naccszExk\nacctuvwj\nabdefghi\n";
-        assert_eq!(y22d12(input), Some(31));
+        assert_eq!(y22d12(input, 1), Some(31));
+        assert_eq!(y22d12(input, 2), Some(29));
     }
 
     #[test]
     fn the_solution() {
         let contents = fs::read_to_string("input/2022/day12.txt").unwrap();
 
-        // assert_eq!(y22d12(&contents), 0);
+        assert_eq!(y22d12(&contents, 1).unwrap(), 370);
+        assert_eq!(y22d12(&contents, 1).unwrap(), 363);
     }
 }
