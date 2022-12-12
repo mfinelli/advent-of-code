@@ -26,8 +26,8 @@ jobs:
 
       - name: add index redirect
         run: make target/doc/index.html
-      - run: rm -rf target/doc/.lock
-      - run: find target/debug -name '*.lock' -exec rm {} \;
+      - run: rm -rfv target/doc/.lock
+      - run: find target/debug -name '*.lock' -exec rm -v {} \;
       - uses: actions/upload-pages-artifact@v1
         if: github.event_name != 'pull_request'
         with:

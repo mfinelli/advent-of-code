@@ -20,7 +20,7 @@ jobs:
           cp target/release/aoc .
           make target/doc/index.html
           cp -r target/doc .
-          rm -rf doc/.lock
+          rm -rfv doc/.lock
           tar acvf advent-of-code_${{ github.ref_name }}.tar.zst \
             LICENSE README.md aoc doc input vendor
       - uses: ncipollo/release-action@v1
