@@ -17,7 +17,7 @@
 //!
 //! TODO
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet, VecDeque};
 
 /// The solution for the day twelve challenge.
 ///
@@ -35,24 +35,40 @@ pub fn y22d12(input: &str, part: u32) -> Option<u32> {
     let lines: Vec<_> = input.lines().collect();
     let mut grid = HashMap::new();
     let mut edges = HashMap::new();
-    let mut shortest_path: Option<u32> = None;
+
+    let mut end_positions = Vec::new();
+    let mut to_visit = VecDeque::new();
+    let mut visited = HashSet::new();
+    let mut distances = HashMap::new();
+
     let mut start_position: (usize, usize) = (0, 0);
-    let mut end_position: (usize, usize) = (0, 0);
 
     for (y, line) in lines.iter().enumerate() {
         let chars: Vec<_> = line.chars().collect();
         for (x, c) in chars.iter().enumerate() {
             if c == &'S' {
-                start_position = (x, y);
+                if part == 1 {
+                    start_position = (x, y);
+                } else {
+                    end_positions.push((x, y));
+                }
                 grid.insert((x, y), 0);
             } else if c == &'E' {
-                end_position = (x, y);
+                if part == 1 {
+                    end_positions.push((x, y));
+                } else {
+                    start_position = (x, y);
+                }
                 grid.insert((x, y), 25);
+            } else if c == &'a' {
+                if part == 2 {
+                    end_positions.push((x, y));
+                }
+                grid.insert((x, y), 0);
             } else {
                 grid.insert(
                     (x, y),
                     match c {
-                        'a' => 0,
                         'b' => 1,
                         'c' => 2,
                         'd' => 3,
@@ -85,102 +101,73 @@ pub fn y22d12(input: &str, part: u32) -> Option<u32> {
         }
     }
 
-    let mut search_spots = Vec::new();
-    if part == 1 {
-        search_spots.push(start_position);
-    } else {
-        for ((x, y), height) in &grid {
-            if *height == 0 {
-                search_spots.push((*x, *y));
+    let (start_x, start_y) = start_position;
+
+    for ((x, y), height) in &grid {
+        let mut node_edges = Vec::new();
+        if *x > 0 {
+            if let Some(left) = grid.get(&(x - 1, *y)) {
+                if (part == 1 && *left <= height + 1)
+                    || (part == 2 && *left >= height - 1)
+                {
+                    node_edges.push((x - 1, *y));
+                }
             }
         }
+        if *y > 0 {
+            if let Some(top) = grid.get(&(*x, y - 1)) {
+                if (part == 1 && *top <= height + 1)
+                    || (part == 2 && *top >= height - 1)
+                {
+                    node_edges.push((*x, y - 1));
+                }
+            }
+        }
+        if let Some(right) = grid.get(&(x + 1, *y)) {
+            if (part == 1 && *right <= height + 1)
+                || (part == 2 && *right >= height - 1)
+            {
+                node_edges.push((x + 1, *y));
+            }
+        }
+        if let Some(bottom) = grid.get(&(*x, y + 1)) {
+            if (part == 1 && *bottom <= height + 1)
+                || (part == 2 && *bottom >= height - 1)
+            {
+                node_edges.push((*x, y + 1));
+            }
+        }
+        if (x, y) == (&start_x, &start_y) {
+            distances.insert((*x, *y), Some(0));
+        } else {
+            distances.insert((*x, *y), None);
+        }
+        edges.insert((x, y), node_edges);
     }
 
-    let mut i = 1;
-    let len = search_spots.len();
-    for search_start in search_spots {
-        println!("searching {:?} ({}/{:?})", search_start, i, len);
+    to_visit.push_back((start_x, start_y));
+    while let Some(edge) = to_visit.pop_front() {
+        let (x, y) = edge;
+        let distance = *distances.get(&edge).unwrap();
 
-        let mut distances = HashMap::new();
-        let mut visited = Vec::new();
-        let mut to_visit = Vec::new();
-
-        let (start_x, start_y) = search_start;
-
-        for ((x, y), height) in &grid {
-            let mut node_edges = Vec::new();
-            if *x > 0 {
-                if let Some(left) = grid.get(&(x - 1, *y)) {
-                    if *left <= height + 1 {
-                        node_edges.push((x - 1, *y));
-                    }
-                }
-            }
-            if *y > 0 {
-                if let Some(top) = grid.get(&(*x, y - 1)) {
-                    if *top <= height + 1 {
-                        node_edges.push((*x, y - 1));
-                    }
-                }
-            }
-            if let Some(right) = grid.get(&(x + 1, *y)) {
-                if *right <= height + 1 {
-                    node_edges.push((x + 1, *y));
-                }
-            }
-            if let Some(bottom) = grid.get(&(*x, y + 1)) {
-                if *bottom <= height + 1 {
-                    node_edges.push((*x, y + 1));
-                }
-            }
-            if (x, y) == (&start_x, &start_y) {
-                distances.insert((*x, *y), Some(0));
-            } else {
-                distances.insert((*x, *y), None);
-            }
-            edges.insert((x, y), node_edges);
+        if end_positions.contains(&edge) {
+            return distance;
         }
 
-        to_visit.push((start_x, start_y));
-
-        while let Some(edge) = to_visit.pop() {
-            visited.push(edge);
-            let (x, y) = edge;
-
-            let current_distance = *distances.get(&edge).unwrap();
+        if !visited.contains(&edge) {
+            visited.insert(edge);
 
             for node_edge in edges.get(&(&x, &y)).unwrap() {
-                let new_distance = current_distance.unwrap() + 1;
-                match distances.get(node_edge).unwrap() {
-                    None => {
-                        distances.insert(*node_edge, Some(new_distance));
-                        to_visit.push(*node_edge);
-                    }
-                    Some(distance) => {
-                        if &new_distance < distance {
-                            distances.insert(*node_edge, Some(new_distance));
-                            to_visit.push(*node_edge);
-                        }
-                    }
+                if !visited.contains(node_edge) {
+                    let new_distance = distance.unwrap() + 1;
+                    distances.insert(*node_edge, Some(new_distance));
+                    to_visit.push_back(*node_edge);
                 }
             }
         }
-
-        if let Some(steps) = distances.get(&end_position).unwrap() {
-            match shortest_path {
-                None => shortest_path = Some(*steps),
-                Some(old_steps) => {
-                    if steps < &old_steps {
-                        shortest_path = Some(*steps);
-                    }
-                }
-            }
-        }
-
-        i += 1;
     }
 
-    shortest_path
+    None
 }
 
 #[cfg(test)]
@@ -196,7 +183,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn the_solution() {
         let contents = fs::read_to_string("input/2022/day12.txt").unwrap();
 
