@@ -27,24 +27,30 @@ pub fn y22d13(input: &str) -> u32 {
         // let captures = r.captures(first_packet_raw)
 
 
-        let fp = parse_packet(first_packet_raw);
-        let sp = parse_packet(second_packet_raw);
         println!("{:?}", packet_pair[0]);
+        let fp = parse_packet(first_packet_raw);
         println!("{:?}", fp);
+        println!("done first");
 
         println!("{:?}", packet_pair[1]);
+        let sp = parse_packet(second_packet_raw);
         println!("{:?}", sp);
+        println!("done second");
 
 
 
         if tmp == 1 {
-            // break;
+            break;
         }
         tmp += 1;
     }
 
     0
 }
+
+// fn in_order(a: Vec<Thing>, b: Vec<Thing) -> bool {
+//     false
+// }
 
 fn parse_packet(chars: Vec<char>) -> Thing {
     // let r = Regex::new(r"^\[(.*)\]$").unwrap();
@@ -55,12 +61,15 @@ fn parse_packet(chars: Vec<char>) -> Thing {
 
     for c in chars {
         if c == '[' {
+            println!("started array");
             vecs.push(arrbuilder);
             arrbuilder = Thing::V(Vec::new());
+            println!("{:?}", vecs);
+            println!("{:?}", arrbuilder);
         } else if c == ']' {
             if numbuilder != "" {
                 let num: u32 = numbuilder.parse().unwrap();
-                // println!("found number {}", num);
+                println!("found number {}", num);
                 numbuilder = String::new();
 
                 let v = if let Thing::V(ref mut v) = arrbuilder { v } else { panic!("Must be a vector") };
@@ -74,22 +83,28 @@ fn parse_packet(chars: Vec<char>) -> Thing {
                 v.push(finished_arr);
 
             }
+            println!("closed array");
+            println!("{:?}", vecs);
+            println!("{:?}", arrbuilder);
         } else if c == ',' {
             if numbuilder != "" {
                 let num: u32 = numbuilder.parse().unwrap();
-                // println!("found number {}", num);
+                println!("found number {}", num);
                 numbuilder = String::new();
 
                 let v = if let Thing::V(ref mut v) = arrbuilder { v } else { panic!("Must be a vector") };
                 v.push(Thing::N(num));
             } else {
+                // println!("closed
                 // found the end of an array inside an array
-                let finished_arr = arrbuilder;
-                arrbuilder = vecs.pop().unwrap();
+                // let finished_arr = arrbuilder;
+                // arrbuilder = vecs.pop().unwrap();
 
-                let v = if let Thing::V(ref mut v) = arrbuilder { v } else { panic!("Must be a vector") };
-                v.push(finished_arr);
+                // let v = if let Thing::V(ref mut v) = arrbuilder { v } else { panic!("Must be a vector") };
+                // v.push(finished_arr);
             }
+            println!("{:?}", vecs);
+            println!("{:?}", arrbuilder);
        } else {
             numbuilder += &c.to_string();
         }
