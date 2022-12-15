@@ -90,37 +90,37 @@ mod tests {
     #[test]
     fn it_works() {
         let mut input = "(())";
-        assert_eq!(y15d01p1(&input), 0);
+        assert_eq!(y15d01p1(input), 0);
 
         input = "()()\n";
-        assert_eq!(y15d01p1(&input), 0);
+        assert_eq!(y15d01p1(input), 0);
 
         input = "(((";
-        assert_eq!(y15d01p1(&input), 3);
+        assert_eq!(y15d01p1(input), 3);
 
         input = "(()(()(\n";
-        assert_eq!(y15d01p1(&input), 3);
+        assert_eq!(y15d01p1(input), 3);
 
         input = "))(((((\n";
-        assert_eq!(y15d01p1(&input), 3);
+        assert_eq!(y15d01p1(input), 3);
 
         input = "())";
-        assert_eq!(y15d01p1(&input), -1);
+        assert_eq!(y15d01p1(input), -1);
 
         input = "))(\n";
-        assert_eq!(y15d01p1(&input), -1);
+        assert_eq!(y15d01p1(input), -1);
 
         input = ")))";
-        assert_eq!(y15d01p1(&input), -3);
+        assert_eq!(y15d01p1(input), -3);
 
         input = ")())())\n";
-        assert_eq!(y15d01p1(&input), -3);
+        assert_eq!(y15d01p1(input), -3);
 
         input = ")";
-        assert_eq!(y15d01p2(&input), Some(1));
+        assert_eq!(y15d01p2(input), Some(1));
 
         input = "()())\n";
-        assert_eq!(y15d01p2(&input), Some(5));
+        assert_eq!(y15d01p2(input), Some(5));
     }
 
     #[test]

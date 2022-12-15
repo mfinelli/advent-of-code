@@ -92,17 +92,14 @@ pub fn y22d14(input: &str, part: u32) -> u32 {
                 break;
             }
 
-            // NB clippy suggests using find instead of filter().next() but
-            // HashSet doesn't implement find...
             if part == 1
-                && occupied
+                && !occupied
                     .iter()
-                    .filter(|o| {
+                    .any(|o| {
                         let (ox, oy) = o;
                         ox == &x && oy > &y
                     })
-                    .next()
-                    .is_none()
+                    // }).is_none()
             {
                 // sand falls forever; we're done
                 stop = true;

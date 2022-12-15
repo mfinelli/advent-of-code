@@ -153,6 +153,6 @@ mod tests {
         let contents = fs::read_to_string("input/2015/day04.txt").unwrap();
 
         assert_eq!(y15d04(contents.clone(), 5).unwrap(), 254575);
-        assert_eq!(y15d04(contents.clone(), 6).unwrap(), 1038736);
+        assert_eq!(y15d04(contents, 6).unwrap(), 1038736);
     }
 }
