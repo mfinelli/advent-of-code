@@ -1,8 +1,9 @@
-use std::collections::HashSet;
+use std::collections::{BinaryHeap, HashSet};
 
-pub fn y22d14(input: &str) -> u32 {
+pub fn y22d14(input: &str, part: u32) -> u32 {
     let lines: Vec<_> = input.lines().collect();
     let mut occupied = HashSet::new();
+    let mut lowest = BinaryHeap::new();
 
     for line in lines {
         let parts: Vec<_> = line.split_whitespace().collect();
@@ -10,6 +11,7 @@ pub fn y22d14(input: &str) -> u32 {
         let coordinates: Vec<_> = parts[0].split(',').collect();
         let mut start_x: usize = coordinates[0].parse().unwrap();
         let mut start_y: usize = coordinates[1].parse().unwrap();
+        lowest.push(start_y);
 
         for part in parts.iter().skip(1) {
             if part == &"->" {
@@ -19,6 +21,7 @@ pub fn y22d14(input: &str) -> u32 {
             let coordinates: Vec<_> = part.split(',').collect();
             let mut end_x: usize = coordinates[0].parse().unwrap();
             let mut end_y: usize = coordinates[1].parse().unwrap();
+            lowest.push(end_y);
 
             // println!("{:?}", coordinates);
             // println!("{:?} {:?} {:?} {:?}", start_x, start_y, end_x, end_y);
@@ -42,6 +45,13 @@ pub fn y22d14(input: &str) -> u32 {
 
     // println!("{:?}", occupied);
 
+    let floor = if part ==1 {
+        lowest.pop().unwrap()
+    } else {
+        lowest.pop().unwrap() + 2
+    };
+
+    // println!("floor is: {:?}", floor);
     let mut stop = false;
     let mut total = 0;
     while !stop {
@@ -50,21 +60,46 @@ pub fn y22d14(input: &str) -> u32 {
         loop {
             let (x, y) = sand;
 
-            let below: Vec<_> = occupied.iter().filter(|o| {
-                let (ox, oy) = o;
-                // println!("ox: {:?}, oy: {:?}, x: {:?}, y: {:?}", ox, oy, x, y);
-                ox == &x && oy > &y
-            }).collect();
+            if y > floor {
+                occupied.insert((x, floor));
+                occupied.insert((x-1, floor));
+                occupied.insert((x+1, floor));
+                total -= 1;
+                break;
+            }
+
+            if part == 1 {
+                let below: Vec<_> = occupied.iter().filter(|o| {
+                    let (ox, oy) = o;
+                    // println!("ox: {:?}, oy: {:?}, x: {:?}, y: {:?}", ox, oy, x, y);
+                    ox == &x && oy > &y
+                }).collect();
+
+                if below.is_empty() {
+                    // sand falls forever; we're done
+                    // println!("sand is {:?} and it will fall forever", sand);
+                    stop = true;
+                    break;
+                }
+            }
+
 
             // println!("{:?}", occupied);
             // println!("{:?}", below);
 
-            if below.is_empty() {
-                // sand falls forever; we're done
-                println!("sand is {:?} and it will fall forever", sand);
-                stop = true;
-                break;
-            }
+            // if below.is_empty() {
+            //     if part == 1 {
+            //         // sand falls forever; we're done
+            //         // println!("sand is {:?} and it will fall forever", sand);
+            //         stop = true;
+            //         break;
+            //     } else {
+            //         // add the floor and keep going
+            //         occupied.insert((x, floor));
+            //         occupied.insert((x-1, floor));
+            //         occupied.insert((x+1, floor));
+            //     }
+            // }
 
             if !occupied.contains(&(x, y+1)) {
                 sand = (x,y+1);
@@ -73,8 +108,14 @@ pub fn y22d14(input: &str) -> u32 {
             } else if !occupied.contains(&(x+1,y+1)) {
                 sand = (x+1, y+1);
             } else {
+                // println!("sand stopped at: {:?}", sand);
                 break;
             }
+        }
+
+        if part == 2 && sand == (500, 0) {
+            // the sand didn't move; we're done
+            break;
         }
 
         occupied.insert(sand);
@@ -82,7 +123,11 @@ pub fn y22d14(input: &str) -> u32 {
     }
 
 
-    total -1
+    if part == 1{
+        total -1
+    } else {
+        total +1
+    }
 }
 
 #[cfg(test)]
@@ -97,13 +142,15 @@ mod tests {
             "503,4 -> 502,4 -> 502,9 -> 494,9\n"
             );
 
-        assert_eq!(y22d14(input), 24);
+        assert_eq!(y22d14(input, 1), 24);
+        assert_eq!(y22d14(input, 2), 93);
     }
 
     #[test]
     fn the_solution() {
         let contents = fs::read_to_string("input/2022/day14.txt").unwrap();
 
-        // assert_eq!(y22d14(&contents), 0);
+        assert_eq!(y22d14(&contents, 1), 698);
+        assert_eq!(y22d14(&contents, 1), 28594);
     }
 }
