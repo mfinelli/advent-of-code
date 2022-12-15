@@ -1,6 +1,5 @@
-// use std::any::Any;
 use std::collections::VecDeque;
-use regex::Regex;
+use std::cmp::Ordering;
 
 #[derive(Debug, PartialEq)]
 enum Thing {
@@ -9,23 +8,16 @@ enum Thing {
 }
 
 
-pub fn y22d13(input: &str) -> u32 {
+pub fn y22d13(input: &str, part: u32) -> u32 {
     let lines: Vec<_> = input.lines().collect();
-    let mut sum = 0;
-
-    // let mut tmp = 1;
+    let mut things = Vec::new();
+    let mut result = 0;
 
     for (i,packet_pair) in lines.chunks(3).enumerate() {
+        things.push(packet_pair[0]);
+        things.push(packet_pair[1]);
         let first_packet_raw: Vec<_> = packet_pair[0].chars().collect();
         let second_packet_raw: Vec<_> = packet_pair[1].chars().collect();
-        // println!("{:?}", first_packet_raw);
-        // println!("{:?}", second_packet_raw);
-
-        // let r = Regex::new(r"^\[(.*)\]$").unwrap();
-
-        // let mut first_packet: Vec<Thing> = Vec::new();
-        // println!("{:?}", r.captures(first_packet_raw));
-        // let captures = r.captures(first_packet_raw)
 
 
         // println!("{:?}", packet_pair[0]);
@@ -38,13 +30,15 @@ pub fn y22d13(input: &str) -> u32 {
         // println!("{:?}", sp);
         // println!("done second");
 
-        match in_order(fp, sp) {
-            Some(b) => {
-                if b {
-                    sum += i as u32 + 1;
-                }
-            },
-            None => panic!("Couldn't reach a decision!"),
+        if part == 1 {
+            match in_order(fp, sp) {
+                Some(b) => {
+                    if b {
+                        result += i as u32 + 1;
+                    }
+                },
+                None => panic!("Couldn't reach a decision!"),
+            }
         }
         // if in_order(fp, sp) {
         //     sum += i as u32 + 1;
@@ -60,20 +54,64 @@ pub fn y22d13(input: &str) -> u32 {
     }
 
     // 0
-    sum
+    if part == 1 {
+        return result;
+    }
+
+    // we're strictly in part two here
+    // let packet_two = parse_packet("[[2]]".chars().collect());
+    // let packet_six = parse_packet("[[6]]".chars().collect());
+    things.push("[[2]]");
+    things.push("[[6]]");
+
+    // // things.sort_by(|a, b| in_order_cmp(a, b));
+
+    // insertion sort is O(n^2) but we have such a small dataset it's fine
+    for i in 1..things.len() {
+        let mut j = i;
+        while j > 0 && !in_order(parse_packet(things[j-1].chars().collect()), parse_packet(things[j].chars().collect())).unwrap() {
+            things.swap(j-1, j);
+            j -= 1;
+        }
+    }
+
+    println!("{:?}", things);
+    result = 1;
+    for (i, thing) in things.iter().enumerate() {
+        if thing == &"[[2]]" || thing == &"[[6]]" {
+            result *= (i as u32) + 1;
+        }
+
+
+    }
+    println!("{:?}", things);
+
+    result
 }
+
+// fn in_order_cmp(a: &Thing, b: &Thing) -> Ordering {
+//     match in_order(a, b) {
+//         Some(r) => {
+//             if r {
+//                 return Ordering::Less;
+//             } else {
+//                 return Ordering::Greater;
+//             }
+//         },
+//         None => return Ordering::Equal,
+// }
 
 fn in_order(a: Thing, b: Thing) -> Option<bool> {
     match a {
         Thing::V(mut a) => {
             match b {
                 Thing::V(mut b) => {
-                    println!("a and b are both lists");
+                    // println!("a and b are both lists");
                     while true {
                         let a_item = a.pop_front();
                         let b_item = b.pop_front();
 
-                        println!("comparing {:?} to {:?}", a_item, b_item);
+                        // println!("comparing {:?} to {:?}", a_item, b_item);
 
                         match a_item {
                             Some(a_item) => {
@@ -334,13 +372,15 @@ mod tests {
             "[1,[2,[3,[4,[5,6,0]]]],8,9]",
             );
 
-        assert_eq!(y22d13(input), 13);
+        assert_eq!(y22d13(input, 1), 13);
+        assert_eq!(y22d13(input, 2), 140);
     }
 
     #[test]
     fn the_solution() {
         let contents = fs::read_to_string("input/2022/day13.txt").unwrap();
 
-        assert_eq!(y22d13(&contents), 6395);
+        assert_eq!(y22d13(&contents, 1), 6395);
+        assert_eq!(y22d13(&contents, 2), 24921);
     }
 }
