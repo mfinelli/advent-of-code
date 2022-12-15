@@ -1,5 +1,5 @@
-use std::collections::VecDeque;
 use std::cmp::Ordering;
+use std::collections::VecDeque;
 
 #[derive(Debug, PartialEq)]
 enum Thing {
@@ -7,28 +7,20 @@ enum Thing {
     N(u32),
 }
 
-
 pub fn y22d13(input: &str, part: u32) -> u32 {
     let lines: Vec<_> = input.lines().collect();
     let mut things = Vec::new();
     let mut result = 0;
 
-    for (i,packet_pair) in lines.chunks(3).enumerate() {
-        things.push(packet_pair[0]);
-        things.push(packet_pair[1]);
+    for (i, packet_pair) in lines.chunks(3).enumerate() {
         let first_packet_raw: Vec<_> = packet_pair[0].chars().collect();
         let second_packet_raw: Vec<_> = packet_pair[1].chars().collect();
 
+        things.push(packet_pair[0]);
+        things.push(packet_pair[1]);
 
-        // println!("{:?}", packet_pair[0]);
         let fp = parse_packet(first_packet_raw);
-        // println!("{:?}", fp);
-        // println!("done first");
-
-        // println!("{:?}", packet_pair[1]);
         let sp = parse_packet(second_packet_raw);
-        // println!("{:?}", sp);
-        // println!("done second");
 
         if part == 1 {
             match in_order(fp, sp) {
@@ -36,245 +28,160 @@ pub fn y22d13(input: &str, part: u32) -> u32 {
                     if b {
                         result += i as u32 + 1;
                     }
-                },
+                }
                 None => panic!("Couldn't reach a decision!"),
             }
         }
-        // if in_order(fp, sp) {
-        //     sum += i as u32 + 1;
-        // }
-
-
-
-
-        // if tmp == 1 {
-        //     // break;
-        // }
-        // tmp += 1;
     }
 
-    // 0
     if part == 1 {
         return result;
     }
 
     // we're strictly in part two here
-    // let packet_two = parse_packet("[[2]]".chars().collect());
-    // let packet_six = parse_packet("[[6]]".chars().collect());
     things.push("[[2]]");
     things.push("[[6]]");
 
-    // // things.sort_by(|a, b| in_order_cmp(a, b));
-
-    // insertion sort is O(n^2) but we have such a small dataset it's fine
+    // insertion sort can be O(n^2) but we have such a small dataset that it's
+    // fine; it's not worth the effort to implement a more efficient sorting
+    // algorithm
     for i in 1..things.len() {
         let mut j = i;
-        while j > 0 && !in_order(parse_packet(things[j-1].chars().collect()), parse_packet(things[j].chars().collect())).unwrap() {
-            things.swap(j-1, j);
+        while j > 0
+            && !in_order(
+                parse_packet(things[j - 1].chars().collect()),
+                parse_packet(things[j].chars().collect()),
+            )
+            .unwrap()
+        {
+            things.swap(j - 1, j);
             j -= 1;
         }
     }
 
-    println!("{:?}", things);
     result = 1;
     for (i, thing) in things.iter().enumerate() {
         if thing == &"[[2]]" || thing == &"[[6]]" {
             result *= (i as u32) + 1;
         }
-
-
     }
-    println!("{:?}", things);
 
     result
 }
 
-// fn in_order_cmp(a: &Thing, b: &Thing) -> Ordering {
-//     match in_order(a, b) {
-//         Some(r) => {
-//             if r {
-//                 return Ordering::Less;
-//             } else {
-//                 return Ordering::Greater;
-//             }
-//         },
-//         None => return Ordering::Equal,
-// }
-
 fn in_order(a: Thing, b: Thing) -> Option<bool> {
     match a {
-        Thing::V(mut a) => {
-            match b {
-                Thing::V(mut b) => {
-                    // println!("a and b are both lists");
-                    while true {
-                        let a_item = a.pop_front();
-                        let b_item = b.pop_front();
+        Thing::V(mut a) => match b {
+            Thing::V(mut b) => loop {
+                let a_item = a.pop_front();
+                let b_item = b.pop_front();
 
-                        // println!("comparing {:?} to {:?}", a_item, b_item);
-
-                        match a_item {
-                            Some(a_item) => {
-                                match b_item {
-                                    Some(b_item) => {
-                                        match in_order(a_item, b_item) {
-                                            Some(v) => return Some(v),
-                                            None => continue,
-                                        }
-                                    },
-                                    None => {
-                                        return Some(false);
-                                    }
-                                }
-                            },
-                            None => {
-                                if b_item.is_some() {
-                                    return Some(true);
-                                } else {
-                                    return None;
-                                }
-                                // return Some(b_item.is_some());
-                            }
+                match a_item {
+                    Some(a_item) => match b_item {
+                        Some(b_item) => match in_order(a_item, b_item) {
+                            Some(v) => return Some(v),
+                            None => continue,
+                        },
+                        None => {
+                            return Some(false);
                         }
-
+                    },
+                    None => {
+                        if b_item.is_some() {
+                            return Some(true);
+                        } else {
+                            return None;
+                        }
                     }
-                },
-                Thing::N(b) => {
-                    let mut b_as_v = VecDeque::new();
-                    b_as_v.push_back(Thing::N(b));
-                    return in_order(Thing::V(a), Thing::V(b_as_v));
-                },
+                }
+            },
+            Thing::N(b) => {
+                let mut b_as_v = VecDeque::new();
+                b_as_v.push_back(Thing::N(b));
+                in_order(Thing::V(a), Thing::V(b_as_v))
             }
         },
-        Thing::N(a) => {
-            match b {
-                Thing::V(b) => {
-                    let mut a_as_v = VecDeque::new();
-                    a_as_v.push_back(Thing::N(a));
-                    return in_order(Thing::V(a_as_v), Thing::V(b));
-                },
-                Thing::N(b) => {
-                    if a < b {
-                        return Some(true);
-                    } else if a > b {
-                        return Some(false);
-                    } else {
-                        return None;
-                    }
-                },
+        Thing::N(a) => match b {
+            Thing::V(b) => {
+                let mut a_as_v = VecDeque::new();
+                a_as_v.push_back(Thing::N(a));
+                in_order(Thing::V(a_as_v), Thing::V(b))
             }
+            Thing::N(b) => match a.cmp(&b) {
+                Ordering::Less => Some(true),
+                Ordering::Greater => Some(false),
+                Ordering::Equal => None,
+            },
         },
     }
-
-    None
-    // Some(false)
-    // false
 }
 
 fn parse_packet(chars: Vec<char>) -> Thing {
-    // let r = Regex::new(r"^\[(.*)\]$").unwrap();
-    // let mut packet = Thing::V(Vec::new());
     let mut numbuilder = String::new();
     let mut vecs: Vec<Thing> = Vec::new();
     let mut arrbuilder = Thing::V(VecDeque::new());
 
     for c in chars.iter().skip(1) {
         if c == &'[' {
-            // println!("started array");
-            // println!("vecs: {:?}", vecs);
-            // println!("arrbuilder: {:?}", arrbuilder);
             vecs.push(arrbuilder);
             arrbuilder = Thing::V(VecDeque::new());
-            // println!("after op");
-            // println!("vecs: {:?}", vecs);
-            // println!("arrbuilder: {:?}", arrbuilder);
         } else if c == &']' {
-            if numbuilder != "" {
+            if !numbuilder.is_empty() {
                 let num: u32 = numbuilder.parse().unwrap();
-                // println!("found number {}", num);
                 numbuilder = String::new();
 
-                let v = if let Thing::V(ref mut v) = arrbuilder { v } else { panic!("Must be a vector") };
+                let v = if let Thing::V(ref mut v) = arrbuilder {
+                    v
+                } else {
+                    panic!("Must be a vector")
+                };
                 v.push_back(Thing::N(num));
             } else {
-                // found the end of an array
-                // println!("closed an array");
-                // println!("vecs: {:?}", vecs);
-                // println!("arrbuilder: {:?}", arrbuilder);
-                // arrbuilder = vecs.pop().unwrap();
                 match vecs.pop() {
                     Some(vv) => {
                         let finished_arr = arrbuilder;
                         arrbuilder = vv;
-                        let v = if let Thing::V(ref mut v) = arrbuilder { v } else { panic!("Must be a vector") };
+                        let v = if let Thing::V(ref mut v) = arrbuilder {
+                            v
+                        } else {
+                            panic!("Must be a vector")
+                        };
                         v.push_back(finished_arr);
-                    },
+                    }
                     None => return arrbuilder,
-                //         arrbuilder = vv;
-                //         let v = if let Thing::V(ref mut v) = arrbuilder { v } else { panic!("Must be a vector") };
-                //         v.push(finished_arr);
-                //     },
-                //     None => return arrbuilder,
                 }
-
             }
-            // println!("after op");
-            // println!("vecs: {:?}", vecs);
-            // println!("arrbuilder: {:?}", arrbuilder);
         } else if c == &',' {
-            if numbuilder != "" {
+            if !numbuilder.is_empty() {
                 let num: u32 = numbuilder.parse().unwrap();
-                // println!("found number {}", num);
                 numbuilder = String::new();
 
-                let v = if let Thing::V(ref mut v) = arrbuilder { v } else { panic!("Must be a vector") };
+                let v = if let Thing::V(ref mut v) = arrbuilder {
+                    v
+                } else {
+                    panic!("Must be a vector")
+                };
                 v.push_back(Thing::N(num));
             } else {
-                // println!("found comma but no number");
-                // println!("vecs: {:?}", vecs);
-                // println!("arrbuilder: {:?}", arrbuilder);
-                // println!("closed
-                // found the end of an array inside an array
                 match vecs.pop() {
                     Some(vv) => {
                         let finished_arr = arrbuilder;
                         arrbuilder = vv;
 
-                        let v = if let Thing::V(ref mut v) = arrbuilder { v } else { panic!("Must be a vector") };
+                        let v = if let Thing::V(ref mut v) = arrbuilder {
+                            v
+                        } else {
+                            panic!("Must be a vector")
+                        };
                         v.push_back(finished_arr);
                     }
                     None => continue, // arrbuilder is already the root
                 }
             }
-            // println!("after op");
-            // println!("vecs: {:?}", vecs);
-            // println!("arrbuilder: {:?}", arrbuilder);
-       } else {
+        } else {
             numbuilder += &c.to_string();
         }
     }
-
-
-    // let c = chars.remove(0);
-    // if c == '[' {
-    //     // TODO
-    // } else if  c == ']' {
-    //     // TODO
-    // } else if c == ','
-
-    // let mut capture = r.captures(line);
-    // while let Some(cap) = capture {
-    //     println!("{:?}", cap.get(1).unwrap().as_str());
-    //     capture = r.captures(cap.get(1).unwrap().as_str());
-    // }
-
-    // let chars: Vec<_> = line.chars().collect();
-    // for c in chars {
-    // }
-
-    // let Thing::V(ref mut p) = packet;
-    // let p = if let Thing::V(ref mut p) = packet { p } else { todo!() };
-    // p.push(Thing::N(1));
 
     arrbuilder
 }
@@ -288,35 +195,59 @@ mod tests {
     fn test_in_order() {
         let mut input_a = "[1,1,3,1,1]".chars().collect();
         let mut input_b = "[1,1,5,1,1]".chars().collect();
-        assert_eq!(in_order(parse_packet(input_a), parse_packet(input_b)), Some(true));
+        assert_eq!(
+            in_order(parse_packet(input_a), parse_packet(input_b)),
+            Some(true)
+        );
 
         let input_a = "[[1],[2,3,4]]".chars().collect();
         let input_b = "[[1],4]".chars().collect();
-        assert_eq!(in_order(parse_packet(input_a), parse_packet(input_b)), Some(true));
+        assert_eq!(
+            in_order(parse_packet(input_a), parse_packet(input_b)),
+            Some(true)
+        );
 
         let input_a = "[9]".chars().collect();
         let input_b = "[[8,7,6]]".chars().collect();
-        assert_eq!(in_order(parse_packet(input_a), parse_packet(input_b)), Some(false));
+        assert_eq!(
+            in_order(parse_packet(input_a), parse_packet(input_b)),
+            Some(false)
+        );
 
         let input_a = "[[4,4],4,4]".chars().collect();
         let input_b = "[[4,4],4,4,4]".chars().collect();
-        assert_eq!(in_order(parse_packet(input_a), parse_packet(input_b)), Some(true));
+        assert_eq!(
+            in_order(parse_packet(input_a), parse_packet(input_b)),
+            Some(true)
+        );
 
         let input_a = "[7,7,7,7]".chars().collect();
         let input_b = "[7,7,7]".chars().collect();
-        assert_eq!(in_order(parse_packet(input_a), parse_packet(input_b)), Some(false));
+        assert_eq!(
+            in_order(parse_packet(input_a), parse_packet(input_b)),
+            Some(false)
+        );
 
         let input_a = "[]".chars().collect();
         let input_b = "[3]".chars().collect();
-        assert_eq!(in_order(parse_packet(input_a), parse_packet(input_b)), Some(true));
+        assert_eq!(
+            in_order(parse_packet(input_a), parse_packet(input_b)),
+            Some(true)
+        );
 
         let input_a = "[[[]]]".chars().collect();
         let input_b = "[[]]".chars().collect();
-        assert_eq!(in_order(parse_packet(input_a), parse_packet(input_b)), Some(false));
+        assert_eq!(
+            in_order(parse_packet(input_a), parse_packet(input_b)),
+            Some(false)
+        );
 
         let input_a = "[1,[2,[3,[4,[5,6,7]]]],8,9]".chars().collect();
         let input_b = "[1,[2,[3,[4,[5,6,0]]]],8,9]".chars().collect();
-        assert_eq!(in_order(parse_packet(input_a), parse_packet(input_b)), Some(false));
+        assert_eq!(
+            in_order(parse_packet(input_a), parse_packet(input_b)),
+            Some(false)
+        );
     }
 
     #[test]
@@ -370,7 +301,7 @@ mod tests {
             "\n",
             "[1,[2,[3,[4,[5,6,7]]]],8,9]\n",
             "[1,[2,[3,[4,[5,6,0]]]],8,9]",
-            );
+        );
 
         assert_eq!(y22d13(input, 1), 13);
         assert_eq!(y22d13(input, 2), 140);
