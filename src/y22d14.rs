@@ -99,7 +99,6 @@ pub fn y22d14(input: &str, part: u32) -> u32 {
                         let (ox, oy) = o;
                         ox == &x && oy > &y
                     })
-                    // }).is_none()
             {
                 // sand falls forever; we're done
                 stop = true;
