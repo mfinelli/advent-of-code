@@ -4,7 +4,8 @@ use regex::Regex;
 
 pub fn y22d15(input: &str, row: i32) -> u32 {
     let lines: Vec<_> = input.lines().collect();
-    let mut sensors: HashMap<(i32, i32), HashSet<(i32, i32)>> = HashMap::new();
+    // let mut sensors: HashMap<(i32, i32), HashSet<(i32, i32)>> = HashMap::new();
+    let mut rows: HashMap<i32, Vec<(i32, i32)>> = HashMap::new();
     let r = Regex::new(r"^Sensor at x=(-?\d+), y=(-?\d+): closest beacon is at x=(-?\d+), y=(-?\d+)$").unwrap();
 
     for line in lines {
@@ -15,24 +16,30 @@ pub fn y22d15(input: &str, row: i32) -> u32 {
         let bx: i32 = captures[3].parse().unwrap();
         let by: i32 = captures[4].parse().unwrap();
 
-        let mut range: HashSet<(i32, i32)> = HashSet::new();
+        // let mut range: HashSet<(i32, i32)> = HashSet::new();
 
         let md = (sx - bx).abs() + (sy - by).abs();
 
         for i in 0..md + 1{
+
             let start_x = sx - md + i as i32;
             let end_x = sx + md - i as i32;
             let up_y = sy + i as i32;
             let down_y = sy - i as i32;
 
+
             // println!("run line from {} to {} on {}", start_x, end_x, up_y);
             // println!("run line from {} to {} on {}", start_x, end_x, down_y);
-            for x in start_x..end_x +1 {
-                range.insert((x, up_y));
+            // for x in start_x..end_x +1 {
+                // range.insert((x, up_y));
+                let mut up_ranges = rows.entry(up_y).or_insert(Vec::new());
+                up_ranges.push((start_x, end_x));
                 if i != 0 {
-                    range.insert((x, down_y));
+                    let mut down_ranges = rows.entry(down_y).or_insert(Vec::new());
+                    down_ranges.push((start_x, end_x));
+                    // range.insert((x, down_y));
                 }
-            }
+            // }
 
         }
         // range.insert((sx,sy));
@@ -77,26 +84,42 @@ pub fn y22d15(input: &str, row: i32) -> u32 {
         // }
 
 
-        sensors.insert((sx, sy), range);
+        // sensors.insert((sx, sy), range);
 
 
-        println!("{:?}", sensors);
+        // println!("{:?}", sensors);
         // break;
 
 
     }
 
-    let mut matches = HashSet::new();
-    for (sensor, range) in sensors {
-        for r in range {
-            let (x,y) = r;
-            if y == row {
-                matches.insert(r);
-            }
+    // println!("{:?}", rows);
+    let row = rows.get(&row).unwrap();
+    let mut matches: HashSet<i32> = HashSet::new();
+    // println!("{:?}", row);
+    for r in row {
+        let (start, end) = r;
+        for x in *start..*end+1 {
+            matches.insert(x);
         }
     }
 
-    matches.len() as u32
+    println!("{:?}", matches);
+
+    // let mut matches = HashSet::new();
+    // for (sensor, range) in sensors {
+    //     for r in range {
+    //         let (x,y) = r;
+    //         if y == row {
+    //             matches.insert(r);
+    //         }
+    //     }
+    // }
+
+    // subtract one to account for the actual beacon
+    // TODO: might actually need to detect all beacons that appear on the line
+    matches.len() as u32 - 1
+    // 0
 }
 
 #[cfg(test)]
