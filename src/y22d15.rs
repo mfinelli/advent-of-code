@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use regex::Regex;
 
-pub fn y22d15(input: &str, row: u32) -> u32 {
+pub fn y22d15(input: &str, row: i32) -> u32 {
     let lines: Vec<_> = input.lines().collect();
     let mut sensors: HashMap<(i32, i32), HashSet<(i32, i32)>> = HashMap::new();
     let r = Regex::new(r"^Sensor at x=(-?\d+), y=(-?\d+): closest beacon is at x=(-?\d+), y=(-?\d+)$").unwrap();
@@ -16,67 +16,65 @@ pub fn y22d15(input: &str, row: u32) -> u32 {
         let by: i32 = captures[4].parse().unwrap();
 
         let mut range: HashSet<(i32, i32)> = HashSet::new();
-        range.insert((sx,sy));
 
-        let mut i = 1;
-        loop {
-            if range.contains(&(bx,by)) {
-                break;
-            }
+        let md = (sx - bx).abs() + (sy - by).abs();
 
-            for (j,x) in (sx..sx+i).enumerate() {
-                // println!("need to write coord {},?", x);
-                for y in sy..sy+i-j as i32 {
-                    // println!("write coord {}, {}", x, y);
-                    range.insert((x, y));
-                }
+        for i in 0..md + 1{
+            let start_x = sx - md + i as i32;
+            let end_x = sx + md - i as i32;
+            let up_y = sy + i as i32;
+            let down_y = sy - i as i32;
 
-                for y in (sy-i+j as i32..sy).rev() {
-                    // println!("write coord {}, {}", x, y);
-                    range.insert((x, y+1));
+            // println!("run line from {} to {} on {}", start_x, end_x, up_y);
+            // println!("run line from {} to {} on {}", start_x, end_x, down_y);
+            for x in start_x..end_x +1 {
+                range.insert((x, up_y));
+                if i != 0 {
+                    range.insert((x, down_y));
                 }
             }
 
-            for (j,x) in (sx-i..sx).rev().enumerate() {
-                // println!("write coord {}, ?", x);
-                for y in sy..sy+i-j as i32 {
-                    // println!("write coord {}, {}", x-1, y);
-                    range.insert((x+1, y));
-                }
-
-                for y in (sy-i+j as i32..sy).rev() {
-                    range.insert((x+1, y+1));
-                }
-            }
-
-
-            // if i == 1 {
-            //     range.insert((sx,sy+1));
-            //     range.insert((sx,sy-1));
-            //     range.insert((sx+1,sy));
-            //     range.insert((sx-1,sy));
-            // } else {
-            //     range.insert((sx, sy+i));
-            //     for (k,j) in (sy..sy+i+1).rev().enumerate() {
-            //         // println!("{},{}", k, j);
-            //         // let j = i - j;
-            //         range.insert((sx+j, sy+i-j));
-            //     }
-            // }
-
-            // for j in 0..i {
-            //     range.insert((
-            // }
-
-            i += 1;
-
-
-
-
-            // if i == 5 {
-            //     break;
-            // }
         }
+        // range.insert((sx,sy));
+
+        // let mut i = 1;
+        // loop {
+        //     if range.contains(&(bx,by)) {
+        //         break;
+        //     }
+
+        //     println!("i is {}", i);
+
+        //     for (j,x) in (sx..sx+i).enumerate() {
+        //         println!("need to write coord {},?", x);
+        //         for y in sy..sy+i-j as i32 {
+        //             println!("write coord {}, {}", x, y);
+        //             range.insert((x, y));
+        //         }
+
+        //         println!("need to write coord {},? (p2)", x);
+        //         for y in (sy-i+j as i32..sy).rev() {
+        //             println!("write coord {}, {}", x, y+1);
+        //             range.insert((x, y+1));
+        //         }
+        //     }
+
+        //     for (j,x) in (sx-i..sx).rev().enumerate() {
+        //         println!("need to write coord {},? (down)", x+1);
+        //         for y in sy..sy+i-j as i32 {
+        //             println!("write coord {}, {}", x+1, y);
+        //             range.insert((x+1, y));
+        //         }
+
+        //         println!("need to write coord {},? (down p2)", x+1);
+        //         for y in (sy-i+j as i32..sy).rev() {
+        //             println!("write coord {}, {}", x+1, y+1);
+        //             range.insert((x+1, y+1));
+        //         }
+        //     }
+
+        //     i += 1;
+        // }
 
 
         sensors.insert((sx, sy), range);
@@ -88,7 +86,17 @@ pub fn y22d15(input: &str, row: u32) -> u32 {
 
     }
 
-    0
+    let mut matches = HashSet::new();
+    for (sensor, range) in sensors {
+        for r in range {
+            let (x,y) = r;
+            if y == row {
+                matches.insert(r);
+            }
+        }
+    }
+
+    matches.len() as u32
 }
 
 #[cfg(test)]
