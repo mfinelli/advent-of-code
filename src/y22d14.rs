@@ -93,12 +93,10 @@ pub fn y22d14(input: &str, part: u32) -> u32 {
             }
 
             if part == 1
-                && !occupied
-                    .iter()
-                    .any(|o| {
-                        let (ox, oy) = o;
-                        ox == &x && oy > &y
-                    })
+                && !occupied.iter().any(|o| {
+                    let (ox, oy) = o;
+                    ox == &x && oy > &y
+                })
             {
                 // sand falls forever; we're done
                 stop = true;
