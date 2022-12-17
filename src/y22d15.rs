@@ -2,7 +2,7 @@ use regex::Regex;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
-pub fn y22d15(input: &str, row: i32) -> u32 {
+pub fn y22d15p1(input: &str, row: i32) -> u32 {
     let lines: Vec<_> = input.lines().collect();
     let mut rows: HashMap<i32, Vec<(i32, i32)>> = HashMap::new();
     let mut beacons = HashSet::new();
@@ -10,7 +10,7 @@ pub fn y22d15(input: &str, row: i32) -> u32 {
 
     for line in lines {
         let captures = r.captures(line).unwrap();
-        println!("{:?}", captures);
+        // println!("{:?}", captures);
         let sx: i32 = captures[1].parse().unwrap();
         let sy: i32 = captures[2].parse().unwrap();
         let bx: i32 = captures[3].parse().unwrap();
@@ -104,7 +104,7 @@ pub fn y22d15(input: &str, row: i32) -> u32 {
         }
     }
 
-    println!("{:?}", matches);
+    // println!("{:?}", matches);
 
     // let mut matches = HashSet::new();
     // for (sensor, range) in sensors {
@@ -120,6 +120,85 @@ pub fn y22d15(input: &str, row: i32) -> u32 {
     // println!("{:?}", beacons);
     matches.len() as u32 - beacons.len() as u32
     // 0
+}
+
+pub fn y22d15p2(input: &str, max: i32) -> u64 {
+    let lines: Vec<_> = input.lines().collect();
+    let r = Regex::new(r"^Sensor at x=(-?\d+), y=(-?\d+): closest beacon is at x=(-?\d+), y=(-?\d+)$").unwrap();
+
+    let mut sensors = HashMap::new();
+
+    for line in lines {
+        let captures = r.captures(line).unwrap();
+        // println!("{:?}", captures);
+        let sx: i32 = captures[1].parse().unwrap();
+        let sy: i32 = captures[2].parse().unwrap();
+        let bx: i32 = captures[3].parse().unwrap();
+        let by: i32 = captures[4].parse().unwrap();
+
+        let md = (sx-bx).abs() + (sy-by).abs();
+        sensors.insert((sx,sy), md);
+    }
+
+    // println!("{:?}", sensors);
+
+    for ((sx,sy), md) in &sensors {
+        // if sx != &12 && sy != &14 {
+        //     continue;
+        // }
+
+        for i in 0..md + 2 {
+            let start_x = sx - md +i as i32;
+            let end_x = sx +md -i as i32;
+            let up_y = sy + i as i32;
+            let down_y = sy - i as i32;
+
+            // println!("sensor {},{} has border {},{}", sx, sy, start_x, up_y);
+            // println!("sensor {},{} has border {},{}", sx, sy, start_x, down_y);
+            // println!("sensor {},{} has border {},{}", sx, sy, end_x, up_y);
+            // println!("sensor {},{} has border {},{}", sx, sy, end_x, down_y);
+
+            let checks: [(i32, i32); 4] = [(start_x-1, up_y), (end_x+1, up_y), (start_x -1, down_y), (end_x +1,down_y)];
+
+            for (x,y) in checks {
+                if x < 0 || x > max || y < 0 || y > max {
+                    continue;
+                }
+
+                // println!("sensor {},{} outside border: {},{}", sx, sy, x, y);
+
+                // if x == 14 && y == 11 {
+                //     println!("found 14,11: {:?},{:?} {:?}", sx,sy,md);
+                // }
+
+                let mut in_range = false;
+                for ((ox,oy), omd) in &sensors {
+                    if ox == sx && oy == sy {
+                        continue;
+                    }
+
+                    if (ox-x).abs() + (y-oy).abs() < *omd {
+                        // println!("{:?},{:?} is in range of {:?},{:?}", x,y,ox,oy);
+                        in_range = true;
+                        break;
+                    }
+                }
+
+                if !in_range {
+                    // println!("{},{} is not in range of any sensor", x,y);
+                    return (x as i64 * 4000000 + y as i64).try_into().unwrap();
+                    // break;
+                }
+            }
+        }
+
+    }
+
+
+
+    // we shouldn't get here...
+
+    0
 }
 
 #[cfg(test)]
@@ -146,13 +225,16 @@ mod tests {
             "Sensor at x=20, y=1: closest beacon is at x=15, y=3\n",
         );
 
-        assert_eq!(y22d15(input, 10), 26);
+        assert_eq!(y22d15p1(input, 10), 26);
+        assert_eq!(y22d15p2(input, 20), 56000011);
     }
 
     #[test]
+    #[ignore]
     fn the_solution() {
         let contents = fs::read_to_string("input/2022/day15.txt").unwrap();
 
-        assert_eq!(y22d15(&contents, 2000000), 4717631);
+        assert_eq!(y22d15p1(&contents, 2000000), 4717631);
+        assert_eq!(y22d15p2(&contents, 4000000), 13197439355220);
     }
 }
