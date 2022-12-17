@@ -34,9 +34,12 @@ pub fn y22d15(input: &str, row: i32) -> u32 {
             // println!("run line from {} to {} on {}", start_x, end_x, down_y);
             // for x in start_x..end_x +1 {
             // range.insert((x, up_y));
-            let mut up_ranges = rows.entry(up_y).or_insert(Vec::new());
-            up_ranges.push((start_x, end_x));
-            if i != 0 {
+            if up_y == row {
+                let mut up_ranges = rows.entry(up_y).or_insert(Vec::new());
+                up_ranges.push((start_x, end_x));
+            }
+
+            if i != 0 && down_y == row {
                 let mut down_ranges = rows.entry(down_y).or_insert(Vec::new());
                 down_ranges.push((start_x, end_x));
                 // range.insert((x, down_y));
@@ -150,6 +153,6 @@ mod tests {
     fn the_solution() {
         let contents = fs::read_to_string("input/2022/day15.txt").unwrap();
 
-        // assert_eq!(y22d15(&contents, 2000000), 0);
+        assert_eq!(y22d15(&contents, 2000000), 4717631);
     }
 }
