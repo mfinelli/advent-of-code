@@ -121,12 +121,20 @@ pub fn y22d16(input: &str) -> u32 {
 
     // }
 
-    let mut closed = Vec::new();
+    let mut rooms_to_visit = Vec::new();
     for room in &rooms {
-        closed.push(&room.name);
+        if room.flow > 0 {
+            rooms_to_visit.push(&room.name);
+        }
     }
 
-    let paths = dfs(&distances, &rooms, &closed, 30, starting_room, Vec::new());
+    // let mut closed = Vec::new();
+    // for room in &rooms {
+    //     closed.push(&room.name);
+    // }
+
+    // let paths = dfs(&distances, &rooms, &closed, 30, starting_room, Vec::new());
+    let paths = dfs(&distances, &rooms, 30, starting_room, rooms_to_visit, Vec::new());
     println!("{:?}", paths);
 
 
@@ -140,15 +148,17 @@ struct RoomPath<'a>{
     time_remaining: i32,
 }
 
-fn dfs<'a>(distances: &'a HashMap<&'a String, HashMap<&'a String, Option<i32>>>, rooms: &'a Vec<Room>, closed: &Vec<&'a String>, time_remaining: i32, current: &'a Room, mut opened: Vec<RoomPath<'a>>) -> Vec<RoomPath<'a>> {
-    for closed_room in closed {
-        let room = rooms.iter().find(|r| &r.name == *closed_room).unwrap();
+// fn dfs<'a>(distances: &'a HashMap<&'a String, HashMap<&'a String, Option<i32>>>, rooms: &'a Vec<Room>, closed: &Vec<&'a String>, time_remaining: i32, current: &'a Room, mut opened: Vec<RoomPath<'a>>) -> Vec<RoomPath<'a>> {
+fn dfs<'a>(distances: &'a HashMap<&'a String, HashMap<&'a String, Option<i32>>>, rooms: &'a Vec<Room>, time_remaining: i32, current: &'a Room, rooms_to_open: Vec<&'a String>, path: Vec<RoomPath>) -> Vec<Vec<RoomPath<'a>>> {
+    // let mut results = Vec::new();
 
-        if room.flow == 0 || room.name == current.name {
+    for room_to_open in &rooms_to_open {
+        let room = rooms.iter().find(|r| &r.name == *room_to_open).unwrap();
+
+        if *room_to_open == &current.name {
             continue;
         }
 
-        // let time = time_remaining - rooms.iter().find(|r| r.name == distances[&current.name][&room.name]).unwrap().flow;
         let distance_to_room_from_current = distances[&current.name][&room.name].unwrap();
         let new_time = time_remaining - distance_to_room_from_current - 1;
         if new_time < 2 {
@@ -156,36 +166,71 @@ fn dfs<'a>(distances: &'a HashMap<&'a String, HashMap<&'a String, Option<i32>>>,
             continue;
         }
 
-        let mut new_opened = opened.clone();
-        new_opened.push(RoomPath {
-            name: &room.name,
-            flow: room.flow,
-            time_remaining: new_time,
-        });
-
-        let mut new_closed = Vec::new();
-        for r in closed {
-            if r != closed_room {
-                new_closed.push(*r);
+        let mut new_rooms_to_open = Vec::new();
+        for r in &rooms_to_open {
+            if r != room_to_open {
+                new_rooms_to_open.push(*r);
             }
         }
-        // for r in rooms {
-        //     if r.name == room.name {
-        //         continue;
-        //     }
+        // new_rooms_to_open.push(&current.name);
 
-        //     new_closed.push(&r.name);
-        // }
-
-        println!("\nnew closed: {:?}", new_closed);
-        println!("\nnew opened: {:?}", new_opened);
-
-        let mut downstream_results = dfs(distances, &rooms, &new_closed, new_time, room, new_opened);
-        println!("{:?}\n", downstream_results);
-        opened.append(&mut downstream_results);
+        let mut new_results = dfs(distances, rooms, new_time, room, new_rooms_to_open);
+        // println!("{:?}", results);
+        results.append(&mut results);
     }
 
-    return opened;
+    return results;
+
+
+
+
+
+
+    // for closed_room in closed {
+    //     let room = rooms.iter().find(|r| &r.name == *closed_room).unwrap();
+
+    //     if room.flow == 0 || room.name == current.name {
+    //         continue;
+    //     }
+
+    //     // let time = time_remaining - rooms.iter().find(|r| r.name == distances[&current.name][&room.name]).unwrap().flow;
+    //     let distance_to_room_from_current = distances[&current.name][&room.name].unwrap();
+    //     let new_time = time_remaining - distance_to_room_from_current - 1;
+    //     if new_time < 2 {
+    //         // we won't have time to move to this room _and_ open it
+    //         continue;
+    //     }
+
+    //     let mut new_opened = opened.clone();
+    //     new_opened.push(RoomPath {
+    //         name: &room.name,
+    //         flow: room.flow,
+    //         time_remaining: new_time,
+    //     });
+
+    //     let mut new_closed = Vec::new();
+    //     for r in closed {
+    //         if r != closed_room {
+    //             new_closed.push(*r);
+    //         }
+    //     }
+    //     // for r in rooms {
+    //     //     if r.name == room.name {
+    //     //         continue;
+    //     //     }
+
+    //     //     new_closed.push(&r.name);
+    //     // }
+
+    //     println!("\nnew closed: {:?}", new_closed);
+    //     println!("\nnew opened: {:?}", new_opened);
+
+    //     let mut downstream_results = dfs(distances, &rooms, &new_closed, new_time, room, new_opened);
+    //     println!("{:?}\n", downstream_results);
+    //     opened.append(&mut downstream_results);
+    // }
+
+    // return opened;
 }
 
 #[cfg(test)]
