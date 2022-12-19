@@ -1,7 +1,7 @@
 use regex::Regex;
 use std::collections::{BinaryHeap, HashMap, HashSet};
 
-pub fn y22d16(input: &str) -> u32 {
+pub fn y22d16(input: &str, part: u32) -> u32 {
     let lines: Vec<_> = input.lines().collect();
     let flow_regex = Regex::new(r"^rate=(\d+);$").unwrap();
 
@@ -102,18 +102,22 @@ pub fn y22d16(input: &str) -> u32 {
         }
     }
 
-    println!("{:?}", rates);
-    println!("{:?}", connections);
-    println!("{:?}", distances);
-    println!("{:?}", positive_flows);
+    // println!("{:?}", rates);
+    // println!("{:?}", connections);
+    // println!("{:?}", distances);
+    // println!("{:?}", positive_flows);
 
     // let start = HashMap::new();
     // let paths = dfs(&distances, &rates, &positive_flows, 30, "AA", &mut start);
-    let result = dfs(&distances, &rates, positive_flows, "AA".to_string(), 30);
-    println!("{:?}", result);
+    if part == 1 {
+        dfs(&distances, &rates, positive_flows, "AA".to_string(), 30, false)
+    } else {
+        dfs(&distances, &rates, positive_flows, "AA".to_string(), 26, true)
+    }
+    // println!("{:?}", result);
 
 
-    result
+    // result
 }
 
 fn dfs(
@@ -122,6 +126,7 @@ fn dfs(
     positive_flows: HashSet<String>,
     current_room: String,
     time_remaining: i32,
+    help: bool,
 ) -> u32 {
     let mut paths: BinaryHeap<u32> = BinaryHeap::new();
     paths.push(0); // TODO: remove
@@ -134,9 +139,15 @@ fn dfs(
 
         if time_remaining > new_time && new_time > 0 {
             let new_time_pos: u32 = new_time.try_into().unwrap();
-            let rate = rates[room] * new_time_pos + dfs(distances, rates, positive_flows, room.to_string(), new_time);
+            let rate = rates[room] * new_time_pos + dfs(distances, rates, positive_flows, room.to_string(), new_time, help);
             paths.push(rate);
         }
+    }
+
+    // with the given rooms remaining, calculate most pressure that could be
+    // released by the other person (elephant)
+    if help {
+        paths.push(dfs(distances, rates, positive_flows, "AA".to_string(), 26, false));
     }
 
     paths.pop().unwrap()
@@ -194,7 +205,8 @@ mod tests {
             "Valve JJ has flow rate=21; tunnel leads to valve II\n",
         );
 
-        assert_eq!(y22d16(input), 1651);
+        assert_eq!(y22d16(input, 1), 1651);
+        assert_eq!(y22d16(input, 2), 1707);
     }
 
     #[test]
@@ -202,6 +214,8 @@ mod tests {
     fn the_solution() {
         let contents = fs::read_to_string("input/2022/day16.txt").unwrap();
 
-        assert_eq!(y22d16(&contents), 2124);
+        assert_eq!(y22d16(&contents, 1), 2124);
+        // TODO: optimize this... it take almost 10m with a release build
+        // assert_eq!(y22d16(&contents, 2), 2775);
     }
 }
