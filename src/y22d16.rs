@@ -1,69 +1,51 @@
 use regex::Regex;
-use std::collections::BinaryHeap;
-use std::collections::HashMap;
-
-#[derive(Clone,Debug)]
-struct Room {
-    name: String,
-    flow: u32,
-    connections: Vec<String>,
-}
+use std::collections::{BinaryHeap, HashMap};
 
 pub fn y22d16(input: &str) -> u32 {
     let lines: Vec<_> = input.lines().collect();
     let flow_regex = Regex::new(r"^rate=(\d+);$").unwrap();
-    let mut rooms = Vec::new();
+
+    let mut rates: HashMap<&str, u32> = HashMap::new();
+    let mut connections: HashMap<&str, Vec<&str>> = HashMap::new();
+    let mut distances: HashMap<&str, HashMap<&str, Option<i32>>> = HashMap::new();
 
     for line in lines {
         let parts: Vec<_> = line.split_whitespace().collect();
-
         let flow_captures = flow_regex.captures(parts[4]).unwrap();
-        let mut connections = Vec::new();
+
+        let mut room_connections = Vec::new();
 
         for i in 9..parts.len() {
-            connections.push(parts[i].trim_end_matches(',').to_string());
+            room_connections.push(parts[i].trim_end_matches(','));
         }
 
-
-        let mut room = Room {
-            name: parts[1].to_string(),
-            flow: flow_captures[1].parse().unwrap(),
-            connections: connections,
-        };
-
-        // println!("{:?}", room);
-        rooms.push(room);
-
+        rates.insert(parts[1], flow_captures[1].parse().unwrap());
+        connections.insert(parts[1], room_connections);
     }
 
-    println!("{:?}", rooms);
-    let starting_room = rooms.iter().find(|r| r.name == "AA").unwrap();
-    println!("{:?}", starting_room);
+    for (room,rate) in &rates {
+        let mut other_distances: HashMap<&str, Option<i32>> = HashMap::new();
 
-    let mut distances = HashMap::new();
-    for room in &rooms {
-        let mut other_distances: HashMap<&String, Option<i32>> = HashMap::new();
-        for other_room in &rooms {
-            if &room.name == &other_room.name {
-                other_distances.insert(&other_room.name, Some(0));
-            } else if room.connections.contains(&other_room.name) {
-                other_distances.insert(&other_room.name, Some(1));
-            }else {
-                other_distances.insert(&other_room.name, None);
+        for (other_room,other_rate) in &rates {
+            if room == other_room {
+                other_distances.insert(other_room, Some(0));
+            } else if connections[room].contains(other_room) {
+                other_distances.insert(other_room, Some(1));
+            } else {
+                other_distances.insert(other_room, None);
             }
         }
-        distances.insert(&room.name, other_distances);
+
+        distances.insert(room, other_distances);
     }
 
-    // println!("{:?}", distances);
-    // println!("{:?}", distances[&"AA".to_string()]);
-
-    for k in &rooms {
-        for i in &rooms {
-            for j in &rooms {
-                let ij = distances[&i.name][&j.name];
-                let ik = distances[&i.name][&k.name];
-                let kj = distances[&k.name][&j.name];
+    // now compute the distance from every node to every other node
+    for (k, _) in &rates {
+        for (i, _) in &rates {
+            for (j, _) in &rates {
+                let ij = distances[i][j];
+                let ik = distances[i][k];
+                let kj = distances[k][j];
 
                 match ij {
                     Some(ij) => {
@@ -72,7 +54,7 @@ pub fn y22d16(input: &str) -> u32 {
                                 match kj {
                                     Some(kj) => {
                                         if ij > ik + kj {
-                                            distances.get_mut(&i.name).map(|val| val.insert(&j.name, Some(ik + kj)));
+                                            distances.get_mut(i).map(|val| val.insert(j, Some(ik + kj)));
                                         }
                                     },
                                     None => {
@@ -94,7 +76,7 @@ pub fn y22d16(input: &str) -> u32 {
                                     Some(kj) => {
                                         // ik and kj are _not_ infinity but ik _is_
                                         // so ik + kj will always be less than
-                                        distances.get_mut(&i.name).map(|val| val.insert(&j.name, Some(ik + kj)));
+                                        distances.get_mut(i).map(|val| val.insert(j, Some(ik + kj)));
                                     },
                                     None => {
                                         // kj is infinity so ik + kj is infinity which is always
@@ -107,130 +89,61 @@ pub fn y22d16(input: &str) -> u32 {
                                 // greater than ij (even if that's infinity)
                             },
                         }
-
                     }
                 }
             }
         }
     }
 
-    println!("{:?}", distances);
-    println!("{:?}", distances[&"AA".to_string()]);
-
-    // for room in &starting_room.connections {
-
-    // }
-
-    let mut rooms_to_visit = Vec::new();
-    for room in &rooms {
-        if room.flow > 0 {
-            rooms_to_visit.push(&room.name);
+    let mut positive_flows: HashMap<&str, u32> = HashMap::new();
+    for (room, rate) in &rates {
+        if *rate > 0 {
+            positive_flows.insert(room, *rate);
         }
     }
 
-    // let mut closed = Vec::new();
-    // for room in &rooms {
-    //     closed.push(&room.name);
-    // }
+    println!("{:?}", rates);
+    println!("{:?}", connections);
+    println!("{:?}", distances);
+    println!("{:?}", positive_flows);
 
-    // let paths = dfs(&distances, &rooms, &closed, 30, starting_room, Vec::new());
-    let paths = dfs(&distances, &rooms, 30, starting_room, rooms_to_visit, Vec::new());
+    let start = HashMap::new();
+    let paths = dfs(&distances, &rates, &positive_flows, 30, "AA", &mut start);
     println!("{:?}", paths);
 
 
     0
 }
 
-#[derive(Clone,Debug)]
-struct RoomPath<'a>{
-    name: &'a String,
-    flow: u32,
-    time_remaining: i32,
-}
+// fn dfs(distances: &HashMap<&str, HashMap<&str, Option<i32>>>, rates: &HashMap<&str, u32>, positive_flows: &HashMap<&str, u32>, time_remaining: i32, current_room: &str, opened: &HashMap<&str, i32>) -> Vec<&HashMap<&str, i32>> {
+fn dfs<'a>(distances: &'a HashMap<&'a str, HashMap<&'a str, Option<i32>>>, rates: &'a HashMap<&'a str, u32>, positive_flows: &'a HashMap<&'a str, u32>, time_remaining: i32, current_room: &'a str, opened: &'a mut HashMap<&'a str, i32>) -> Vec<&'a mut HashMap<&'a str, i32>> {
+    let mut results = Vec::new();
+    results.push(opened);
 
-// fn dfs<'a>(distances: &'a HashMap<&'a String, HashMap<&'a String, Option<i32>>>, rooms: &'a Vec<Room>, closed: &Vec<&'a String>, time_remaining: i32, current: &'a Room, mut opened: Vec<RoomPath<'a>>) -> Vec<RoomPath<'a>> {
-fn dfs<'a>(distances: &'a HashMap<&'a String, HashMap<&'a String, Option<i32>>>, rooms: &'a Vec<Room>, time_remaining: i32, current: &'a Room, rooms_to_open: Vec<&'a String>, path: Vec<RoomPath>) -> Vec<Vec<RoomPath<'a>>> {
-    // let mut results = Vec::new();
-
-    for room_to_open in &rooms_to_open {
-        let room = rooms.iter().find(|r| &r.name == *room_to_open).unwrap();
-
-        if *room_to_open == &current.name {
-            continue;
-        }
-
-        let distance_to_room_from_current = distances[&current.name][&room.name].unwrap();
-        let new_time = time_remaining - distance_to_room_from_current - 1;
-        if new_time < 2 {
-            // we won't have time to move to this room _and_ open it
-            continue;
-        }
-
-        let mut new_rooms_to_open = Vec::new();
-        for r in &rooms_to_open {
-            if r != room_to_open {
-                new_rooms_to_open.push(*r);
-            }
-        }
-        // new_rooms_to_open.push(&current.name);
-
-        let mut new_results = dfs(distances, rooms, new_time, room, new_rooms_to_open);
-        // println!("{:?}", results);
-        results.append(&mut results);
+    if time_remaining < 2 {
+        return results;
     }
 
-    return results;
+    // let opened_keys: Vec<_> = opened.keys().collect();
 
+    for (room, rate) in positive_flows {
+        let mut my_opened = opened.clone();
+        if !my_opened.contains_key(room) {
+        // if !opened_keys.contains(&room) {
+            let new_time_remaining = time_remaining - (distances[current_room][room].unwrap() + 1);
+            my_opened.insert(room, new_time_remaining);
+            // positive_flows.remove(room);
+            let mut new_results = dfs(distances, rates, positive_flows, new_time_remaining, room, &mut my_opened);
+            results.append(&mut new_results);
+        }
+    }
 
-
-
-
-
-    // for closed_room in closed {
-    //     let room = rooms.iter().find(|r| &r.name == *closed_room).unwrap();
-
-    //     if room.flow == 0 || room.name == current.name {
-    //         continue;
-    //     }
-
-    //     // let time = time_remaining - rooms.iter().find(|r| r.name == distances[&current.name][&room.name]).unwrap().flow;
-    //     let distance_to_room_from_current = distances[&current.name][&room.name].unwrap();
-    //     let new_time = time_remaining - distance_to_room_from_current - 1;
-    //     if new_time < 2 {
-    //         // we won't have time to move to this room _and_ open it
-    //         continue;
-    //     }
-
-    //     let mut new_opened = opened.clone();
-    //     new_opened.push(RoomPath {
-    //         name: &room.name,
-    //         flow: room.flow,
-    //         time_remaining: new_time,
-    //     });
-
-    //     let mut new_closed = Vec::new();
-    //     for r in closed {
-    //         if r != closed_room {
-    //             new_closed.push(*r);
-    //         }
-    //     }
-    //     // for r in rooms {
-    //     //     if r.name == room.name {
-    //     //         continue;
-    //     //     }
-
-    //     //     new_closed.push(&r.name);
-    //     // }
-
-    //     println!("\nnew closed: {:?}", new_closed);
-    //     println!("\nnew opened: {:?}", new_opened);
-
-    //     let mut downstream_results = dfs(distances, &rooms, &new_closed, new_time, room, new_opened);
-    //     println!("{:?}\n", downstream_results);
-    //     opened.append(&mut downstream_results);
+    // if time_remaining != 1 {
+    //     let mut new_results = dfs(distances, rates, positive_flows, 1, "BB", opened);
+    //     results.append(&mut new_results);
     // }
 
-    // return opened;
+    return results;
 }
 
 #[cfg(test)]
