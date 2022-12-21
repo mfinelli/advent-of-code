@@ -25,39 +25,52 @@ pub fn y22d17(input: &str) -> u32 {
 
         // let mut shape: &[(u32, u32)] = &shape.clone().iter().map(|(x, y)| (x+2, y+4)).collect::<Vec<(u32, u32)>>();
         let mut shape = shape.clone().iter().map(|(x, y)| (x+2, y+y_start)).collect::<Vec<(u32, u32)>>();
-        println!("shape start: {:?}", shape);
+        // println!("shape start: {:?}", shape);
+        // print_state(&cave, &shape);
 
         let mut j = 0;
         loop {
             let Some((jet_i, jet)) = jets.next() else { panic!("cycle!") };
             // let width = shape_width(shape);
+            //
+
+            if *jet == '<' {
+                // println!("attempt to move left");
+            } else {
+                // println!("attempt to move right");
+            }
 
 
             if *jet == '<' && can_move(&cave, &shape, -1, 0){
                 shape = do_move(&cave, &shape, -1, 0);
-                println!("moved left: {:?}", shape);
-            } else if can_move(&cave, &shape, 1, 0) {
+                // println!("moved left: {:?}", shape);
+                // print_state(&cave, &shape);
+            } else if *jet == '>' && can_move(&cave, &shape, 1, 0) {
                 shape = do_move(&cave, &shape, 1, 0);
-                println!("moved right: {:?}", shape);
+                // println!("moved right: {:?}", shape);
+                // print_state(&cave, &shape);
             }
 
             if can_move(&cave, &shape, 0, -1) {
                 shape = do_move(&cave, &shape, 0, -1);
-                println!("moved down: {:?}", shape);
+                // println!("moved down: {:?}", shape);
+                // print_state(&cave, &shape);
             } else {
                 // add the shape to the cave and move to the next piece
-                println!("hit bottom: {:?}", shape);
+                // println!("hit bottom: {:?}", shape);
                 for (x,y) in shape {
                     heights.push(y);
                     cave.insert((x, y));
                     y_start = *heights.peek().unwrap() + 4;
                 }
 
-                println!("cave: {:?}", cave);
-                println!("new y start: {}\n", y_start);
+                // println!("cave: {:?}", cave);
+                // print_state(&cave, &[(0, y_start)]);
+                // println!("new y start: {}\n", y_start);
 
                 break;
             }
+
 
             // if j == 2 {
             //     break;
@@ -65,12 +78,12 @@ pub fn y22d17(input: &str) -> u32 {
             //  j+=1;
         }
 
-        if i == 10 {
-            break;
-        }
+        // if i == 10 {
+        //     break;
+        // }
     }
 
-    println!("{:?}", cave);
+    // println!("{:?}", cave);
 
     heights.pop().unwrap()
 }
@@ -103,6 +116,28 @@ fn do_move(cave: &HashSet<(u32, u32)>, shape: &[(u32, u32)], x_offset: i32, y_of
         let iy: i32 = (*y).try_into().unwrap();
         ((ix+x_offset).try_into().unwrap(), (iy +y_offset).try_into().unwrap())
     }).collect::<Vec<(u32, u32)>>()
+}
+
+fn print_state(cave: &HashSet<(u32, u32)>, shape: &[(u32, u32)]) {
+    let mut s = String::new();
+
+    let mut i = *shape.clone().iter().map(|(_,y)| y).max().unwrap();
+    while i > 0 {
+        for j in 1..8 {
+            if cave.contains(&(j, i)) {
+                s += "#";
+            } else if shape.contains(&(j, i)) {
+                s += "@";
+            } else {
+                s += ".";
+            }
+        }
+        s += "\n";
+        i -= 1;
+    }
+
+    s += "-------\n";
+    println!("{}", s);
 }
 
 
@@ -141,10 +176,9 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn the_solution() {
         let contents = fs::read_to_string("input/2022/day17.txt").unwrap();
 
-        assert_eq!(y22d17(&contents), 0);
+        assert_eq!(y22d17(&contents), 3071);
     }
 }
