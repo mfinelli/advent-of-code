@@ -158,6 +158,10 @@ pub fn y15d06p2(input: &str) -> u64 {
     total
 }
 
+/// This function simply parses an input line and returns the necessary
+/// instruction with the matching coordinates because the positions of the
+/// coordinates change if the string starts with "toggle" or "turn on/off" by
+/// one.
 fn parse_instruction(line: &str) -> (Instruction, usize, usize, usize, usize) {
     let parts: Vec<_> = line.split_whitespace().collect();
 
