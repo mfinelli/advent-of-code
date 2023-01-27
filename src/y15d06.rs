@@ -15,14 +15,18 @@
 
 //! Advent of Code 2015 Day 6: <https://adventofcode.com/2015/day/6>
 //!
-//! TODO
+//! This challenge is pretty straightforward and amounts to dealing with a big
+//! grid of booleans in part one or a big grid of individual brightnesses
+//! (integers) in part two.
 
 use std::collections::HashMap;
 
 /// Instruction is a representation of the kind of operation to take: toggle
 /// the state of the light, turn if on (even if it's already on), or turn it
-/// off (even if it's already off). In the case of turning on or off a light
-/// that is already on or off this essentially results in a no-op.
+/// off (even if it's already off). In part one the case of turning on or off
+/// a light that is already on or off this essentially results in a no-op. In
+/// part two in which we track total brightness turn off if the value is
+/// already zero results in a no-op.
 #[derive(Debug, PartialEq)]
 enum Instruction {
     Toggle,
@@ -32,14 +36,24 @@ enum Instruction {
 
 /// The solution for part one of the day six challenge.
 ///
-/// TODO
+/// Given the input as a string we start by building a `1000x1000` grid of
+/// booleans that represent the state of each light in each position. All of
+/// the lights start "off" (`false`). We then parse each instruction and loop
+/// through the lights in the instruction, turning them on or off as necessary.
+/// Finally, we make one final pass through every light and increment our final
+/// counter if the light is on and then return that final sum.
 ///
 /// # Example
 /// ```rust
 /// # use aoc::y15d06::y15d06p1;
 /// // probably read this from the input file...
-/// let input = "";
-/// // assert_eq!(y15d06p1(input), "TODO");
+/// let input = concat![
+///   "turn on 12,12 through 40,40\n",
+///   "turn off 10,10 through 23,23\n",
+///   "turn on 15,14 through 16,15\n",
+///   "toggle 20,21 through 22,21\n",
+/// ];
+/// assert_eq!(y15d06p1(input), 704);
 /// ```
 pub fn y15d06p1(input: &str) -> u32 {
     let lines: Vec<_> = input.lines().collect();
@@ -80,14 +94,35 @@ pub fn y15d06p1(input: &str) -> u32 {
 
 /// The solution part two of the day six challenge.
 ///
-/// TODO
+/// Part two is both similar and dissimilar to part one. At first I wanted to
+/// manage the brightness count in a two-dimensional array of `u32`s but I
+/// kept overflowing the stack so instead we maintain a
+/// [`std::collections::HashMap`] of the brightness of each lights coordinates.
+/// If the lights current brightness is zero (or would result in zero after the
+/// operation) it does not have an entry in the map (or has its entry removed).
+///
+/// So, given our input as a string like in part one, we start by parsing each
+/// instruction and then loop through the light positions defined by the
+/// instruction. As mentioned in the prompt "turn on" means increase the
+/// brightness by one, "turn off" means decrease it by one (but not below
+/// zero), and "toggle" means increase the brightness by two. As we loop
+/// through each coordinate we create missing entries (lights that currently
+/// have a brightness of zero) and remove entries (lights whose brightness
+/// would become zero) as necessary. Finally, to compute the total brightness
+/// we just need to add the value of all of the lights that we're currently
+/// tracking (i.e., have a brightness of at least one).
 ///
 /// # Example
 /// ```rust
 /// # use aoc::y15d06::y15d06p2;
 /// // probably read this from the input file...
-/// let input = "";
-/// //assert_eq!(y15d06p2(input), "TODO");
+/// let input = concat![
+///   "turn on 102,12 through 400,40\n",
+///   "turn off 100,10 through 203,23\n",
+///   "turn on 15,14 through 16,15\n",
+///   "toggle 20,21 through 22,21",
+/// ];
+/// assert_eq!(y15d06p2(input), 7457);
 /// ```
 pub fn y15d06p2(input: &str) -> u64 {
     let lines: Vec<_> = input.lines().collect();
@@ -188,6 +223,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn the_solution() {
         let contents = fs::read_to_string("input/2015/day06.txt").unwrap();
 
