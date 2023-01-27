@@ -1,4 +1,4 @@
-/* Copyright 2022 Mario Finelli
+/* Copyright 2022-2023 Mario Finelli
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,44 @@
 
 //! Advent of Code 2022 Day 14: <https://adventofcode.com/2022/day/14>
 //!
-//! TODO
+//! Today's puzzle is not too challenging. Essentially, we need to maintain a
+//! list of spaces that are occupied by rocks or sand and then simulate pieces
+//! of sand that fall down until they can't anymore. As each piece of sand
+//! comes to rest it gets added to our list of occupied spaces. In part one
+//! when the sand would fall forever (it is below the lowest rock that we
+//! recorded from the puzzle input) we're done. In part two there is a floor
+//! that extends forever in the "X" direction two spaces below the lowest
+//! recorded rock and so when there is no more space for the sand to fall as
+//! it's reached the top we're done.
 
 use std::collections::{BinaryHeap, HashSet};
 
 /// The solution for the day fourteen challenge.
 ///
-/// TODO
+/// Given the input as a string and an integer to determine if we should run
+/// part `1`, or part `2` of the puzzle, we start by building a
+/// [`std::collections::HashSet`] of the spaces that are currently occupied by
+/// rocks based on parsing the puzzle input. The set contains the coordinates
+/// that are currently occupied (right now by rocks, but also by sand once we
+/// start the simulation). While doing this we also need to record the lowest
+/// "Y" coordinate which we can treat as the floor. We do this using our usual
+/// [`std::collections::BinaryHeap`]. If we're in part two we take this floor
+/// and add two more spaces below as the prompt tells us there's an actual
+/// floor two spaces below the lowest rock.
+///
+/// Now we can start the simulation. We let sand fall until we've met the
+/// condition to stop letting it fall: in part one when the sand would fall
+/// forever, and in part two once it reaches the starting point of the sand
+/// (coordinate `500`,`0`). For each granule of sand we start at the entry
+/// point. We then check the coordinate below (this is slightly tricky as the
+/// "Y" coordinates actually count up) to see if there is a space either
+/// directly below or below to the left or right where the sand can move. If
+/// it _can't_ then we stop, add the sand into our occupied spaces set and move
+/// on to the next sand granule. If we're in part two and the sand didn't move
+/// from its starting position then we're done. Otherwise on the next (and on
+/// every) iteration of the sands movement we check to see if the sand is
+/// _below_ the floor which means that it would keep falling forever, so we're
+/// done. All that remains is to return the number of units of sand that fell.
 ///
 /// # Example
 /// ```rust
