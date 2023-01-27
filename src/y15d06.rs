@@ -1,5 +1,28 @@
+/* Copyright 2022-2023 Mario Finelli
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+//! Advent of Code 2015 Day 6: <https://adventofcode.com/2015/day/6>
+//!
+//! TODO
+
 use std::collections::HashMap;
 
+/// Instruction is a representation of the kind of operation to take: toggle
+/// the state of the light, turn if on (even if it's already on), or turn it
+/// off (even if it's already off). In the case of turning on or off a light
+/// that is already on or off this essentially results in a no-op.
 #[derive(Debug, PartialEq)]
 enum Instruction {
     Toggle,
@@ -7,6 +30,17 @@ enum Instruction {
     TurnOff,
 }
 
+/// The solution for part one of the day six challenge.
+///
+/// TODO
+///
+/// # Example
+/// ```rust
+/// # use aoc::y15d06::y15d06p1;
+/// // probably read this from the input file...
+/// let input = "";
+/// // assert_eq!(y15d06p1(input), "TODO");
+/// ```
 pub fn y15d06p1(input: &str) -> u32 {
     let lines: Vec<_> = input.lines().collect();
     let mut on = 0;
@@ -16,26 +50,26 @@ pub fn y15d06p1(input: &str) -> u32 {
     for line in lines {
         let (instruction, x1, y1, x2, y2) = parse_instruction(line);
 
-        for y in y1..y2 + 1 {
-            for x in x1..x2 + 1 {
+        for light_row in lights.iter_mut().take(y2 + 1).skip(y1) {
+            for light in light_row.iter_mut().take(x2 + 1).skip(x1) {
                 if instruction == Instruction::Toggle {
-                    if lights[y][x] {
-                        lights[y][x] = false;
+                    if *light {
+                        *light = false;
                     } else {
-                        lights[y][x] = true;
+                        *light = true;
                     }
                 } else if instruction == Instruction::TurnOff {
-                    lights[y][x] = false;
+                    *light = false;
                 } else {
-                    lights[y][x] = true;
+                    *light = true;
                 }
             }
         }
     }
 
-    for i in 0..1000 {
-        for j in 0..1000 {
-            if lights[i][j] {
+    for light_row in &lights {
+        for light in light_row.iter() {
+            if *light {
                 on += 1;
             }
         }
@@ -44,6 +78,17 @@ pub fn y15d06p1(input: &str) -> u32 {
     on
 }
 
+/// The solution part two of the day six challenge.
+///
+/// TODO
+///
+/// # Example
+/// ```rust
+/// # use aoc::y15d06::y15d06p2;
+/// // probably read this from the input file...
+/// let input = "";
+/// //assert_eq!(y15d06p2(input), "TODO");
+/// ```
 pub fn y15d06p2(input: &str) -> u64 {
     let lines: Vec<_> = input.lines().collect();
     let mut lights = HashMap::new();
@@ -143,7 +188,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn the_solution() {
         let contents = fs::read_to_string("input/2015/day06.txt").unwrap();
 

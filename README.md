@@ -19,7 +19,7 @@ cargo run -- yXXdYY - < ./path/to/input
 ## license
 
 ```
-Copyright 2022 Mario Finelli
+Copyright 2022-2023 Mario Finelli
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
