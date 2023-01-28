@@ -1,4 +1,4 @@
-/* Copyright 2022 Mario Finelli
+/* Copyright 2022-2023 Mario Finelli
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,18 +51,18 @@ pub fn y22d15p1(input: &str, row: i32) -> u32 {
         let md = (sx - bx).abs() + (sy - by).abs();
 
         for i in 0..md + 1 {
-            let start_x = sx - md + i as i32;
-            let end_x = sx + md - i as i32;
-            let up_y = sy + i as i32;
-            let down_y = sy - i as i32;
+            let start_x = sx - md + i;
+            let end_x = sx + md - i;
+            let up_y = sy + i;
+            let down_y = sy - i;
 
             if up_y == row {
-                let mut up_ranges = rows.entry(up_y).or_insert(Vec::new());
+                let up_ranges = rows.entry(up_y).or_default();
                 up_ranges.push((start_x, end_x));
             }
 
             if i != 0 && down_y == row {
-                let mut down_ranges = rows.entry(down_y).or_insert(Vec::new());
+                let down_ranges = rows.entry(down_y).or_default();
                 down_ranges.push((start_x, end_x));
             }
         }
@@ -110,10 +110,10 @@ pub fn y22d15p2(input: &str, max: i32) -> u64 {
         // than the border (plus one to make it inclusive, plus one for the
         // larger size)
         for i in 0..md + 2 {
-            let start_x = sx - md + i as i32;
-            let end_x = sx + md - i as i32;
-            let up_y = sy + i as i32;
-            let down_y = sy - i as i32;
+            let start_x = sx - md + i;
+            let end_x = sx + md - i;
+            let up_y = sy + i;
+            let down_y = sy - i;
 
             let checks: [(i32, i32); 4] = [
                 (start_x - 1, up_y),
