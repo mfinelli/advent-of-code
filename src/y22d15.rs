@@ -15,18 +15,43 @@
 
 //! Advent of Code 2022 Day 15: <https://adventofcode.com/2022/day/15>
 //!
-//! TODO
+//! Part one of this challenge is not too hard, we just need to find how many
+//! places the beacon _can't_ be (for a single row). In part two, the challenge
+//! is kind of reversed where we need to find the only place that the beacon
+//! _can_ be.
 
 use regex::Regex;
 use std::collections::{HashMap, HashSet};
 
 /// The solution for part one of the day fifteen challenge.
 ///
-/// TODO
+/// This is a somewhat naive and brute force approach to solving the problem
+/// given the puzzle input as a string and an integer of the row that we want
+/// to compute. We start by parsing the puzzle input to extract the locations
+/// of the sensors and the beacon that they detect. Because a position that
+/// already contains a beacon can't be a position that can't contain a beacon
+/// we need to track any beacons that are on the row that we're interested in
+/// so that we can substract them from the final total. We then need to find
+/// the [Manhattan Distance](https://en.wikipedia.org/wiki/Taxicab_geometry)
+/// and then we check each row (both above and below) from the sensor until
+/// the end of the Manhattan distance. At each step we reduce the range along
+/// the x-axis to account for being farther from the starting point. If we
+/// match the row that we're interested in then we save the range for later.
+/// After we've processed all of the sensors then we can loop through each
+/// range and insert its x-coordinate into a tracking set. Finally, to get the
+/// answer to the challenge we return the total number of x-coordinates that
+/// we have minus the number of beacons on the row.
 ///
 /// # Example
 /// ```rust
 /// # use aoc::y22d15::y22d15p1;
+/// // probably read the from the input file...
+/// let input = concat!(
+///     "Sensor at x=2, y=18: closest beacon is at x=-2, y=15\n",
+///     "Sensor at x=9, y=16: closest beacon is at x=10, y=16\n",
+///     "Sensor at x=13, y=2: closest beacon is at x=15, y=3",
+/// );
+/// assert_eq!(y22d15p1(input, 15), 9);
 /// ```
 pub fn y22d15p1(input: &str, row: i32) -> u32 {
     let lines: Vec<_> = input.lines().collect();
