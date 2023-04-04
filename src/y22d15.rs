@@ -57,7 +57,11 @@ pub fn y22d15p1(input: &str, row: i32) -> u32 {
     let lines: Vec<_> = input.lines().collect();
     let mut rows: HashMap<i32, Vec<(i32, i32)>> = HashMap::new();
     let mut beacons = HashSet::new();
-    let r = Regex::new(r"^Sensor at x=(-?\d+), y=(-?\d+): closest beacon is at x=(-?\d+), y=(-?\d+)$").unwrap();
+    let r = Regex::new(concat!(
+        r"^Sensor at x=(-?\d+), y=(-?\d+): ",
+        r"closest beacon is at x=(-?\d+), y=(-?\d+)$"
+    ))
+    .unwrap();
 
     for line in lines {
         let captures = r.captures(line).unwrap();
@@ -107,15 +111,54 @@ pub fn y22d15p1(input: &str, row: i32) -> u32 {
 
 /// The solution for part two of the day fifteen challenge.
 ///
-/// TODO
+/// I originally solved this challenge by checking the perimeter of each
+/// sensor (i.e., manhattan distance to beacon/range plus one) to see if it
+/// was in range of any other sensors. If it was not, then we found the free
+/// space and the missing beacon. However, after trying to solve a test that
+/// would only fail occasionally I found a different method based on this
+/// [comment](https://www.reddit.com/r/adventofcode/comments/zmcn64/comment/j0b90nr/)
+/// on the Advent of Code subreddit. The strategy is to instead compute the
+/// lines that surround the perimeter of each sensor then we can compute the
+/// intersection and see if these reduced number of points to check is free
+/// from any other scanners (just as I had implemented it before). As before,
+/// if the intersection is outside of the range of all of the other sensors
+/// then we've found the solution.
+///
+/// Given the input as a string and the upper bound of the search box as
+/// function parameters we can start by parsing the input as in part one to
+/// locate each of our sensors and their range based on the coordinates of the
+/// beacon that they detect. The range, as before, is computed as the
+/// Manhattan distance from the sensor to its beacon. Then we can compute the
+/// four bounding diagonals. Then we can loop through each set of diagonals
+/// and compute the intersection. If the intersection is within bounds then we
+/// simply check it against the every sensor to see if its in range. Once we
+/// have found an intersection that's _not_ in range then we're done and can
+/// compute the answer based on the challenge prompt: the value of the x
+/// coordinate times 4,000,000 plus the value of the y coordinate.
+/// +
 ///
 /// # Example
 /// ```rust
 /// # use aoc::y22d15::y22d15p2;
+/// // probably read the from the input file...
+/// let input = concat!(
+///     "Sensor at x=0, y=0: closest beacon is at x=-2, y=0\n",
+///     "Sensor at x=4, y=0: closest beacon is at x=6, y=0\n",
+///     "Sensor at x=2, y=3: closest beacon is at x=0, y=3\n",
+///     "Sensor at x=3, y=4: closest beacon is at x=3, y=6\n",
+///     "Sensor at x=7, y=2: closest beacon is at x=9, y=2\n",
+///     "Sensor at x=6, y=6: closest beacon is at x=6, y=8\n",
+///     "Sensor at x=0, y=6: closest beacon is at x=0, y=8\n",
+/// );
+/// assert_eq!(y22d15p2(input, 6), 20000003);
 /// ```
 pub fn y22d15p2(input: &str, max: i32) -> u64 {
     let lines: Vec<_> = input.lines().collect();
-    let r = Regex::new(r"^Sensor at x=(-?\d+), y=(-?\d+): closest beacon is at x=(-?\d+), y=(-?\d+)$").unwrap();
+    let r = Regex::new(concat!(
+        r"^Sensor at x=(-?\d+), y=(-?\d+): ",
+        r"closest beacon is at x=(-?\d+), y=(-?\d+)$"
+    ))
+    .unwrap();
 
     let mut sensors = HashMap::new();
 
@@ -130,41 +173,40 @@ pub fn y22d15p2(input: &str, max: i32) -> u64 {
         sensors.insert((sx, sy), md);
     }
 
-    for ((sx, sy), md) in &sensors {
-        // use manhattan distance plus two to account for being one _larger_
-        // than the border (plus one to make it inclusive, plus one for the
-        // larger size)
-        for i in 0..md + 2 {
-            let start_x = sx - md + i;
-            let end_x = sx + md - i;
-            let up_y = sy + i;
-            let down_y = sy - i;
+    let mut a_diagonals = HashSet::new();
+    let mut b_diagonals = HashSet::new();
 
-            let checks: [(i32, i32); 4] = [
-                (start_x - 1, up_y),
-                (end_x + 1, up_y),
-                (start_x - 1, down_y),
-                (end_x + 1, down_y),
-            ];
+    for ((x, y), range) in &sensors {
+        a_diagonals.insert(y - x + range + 1);
+        a_diagonals.insert(y - x - range - 1);
+        b_diagonals.insert(x + y + range + 1);
+        b_diagonals.insert(x + y - range - 1);
+    }
 
-            for (x, y) in checks {
-                if x < 0 || x > max || y < 0 || y > max {
-                    continue;
-                }
+    for a in &a_diagonals {
+        for b in &b_diagonals {
+            let intersection = (
+                (((b - a) as f32) / 2.0).floor() as i32,
+                (((a + b) as f32) / 2.0).floor() as i32,
+            );
+            let (x, y) = intersection;
 
+            // only consider points that are in bounds
+            if 0 <= x && x <= max && 0 <= y && y <= max {
                 let mut in_range = false;
-                for ((ox, oy), omd) in &sensors {
-                    if ox == sx && oy == sy {
-                        continue;
-                    }
-
-                    if (ox - x).abs() + (y - oy).abs() < *omd {
+                for ((sx, sy), range) in &sensors {
+                    let md = (x - *sx).abs() + (y - *sy).abs();
+                    if md <= *range {
+                        // this intersection is in-range of a sensor, we can
+                        // stop checking and move on to the next one
                         in_range = true;
                         break;
                     }
                 }
 
                 if !in_range {
+                    // we checked all of the sensors and were not in range of
+                    // any of them -- we can return the solution!
                     return (x as i64 * 4000000 + y as i64).try_into().unwrap();
                 }
             }
@@ -200,13 +242,10 @@ mod tests {
         );
 
         assert_eq!(y22d15p1(input, 10), 26);
-        // TODO: there's an ordering problem here somewhere... this test
-        // occasionally fails
         assert_eq!(y22d15p2(input, 20), 56000011);
     }
 
     #[test]
-    #[ignore]
     fn the_solution() {
         let contents = fs::read_to_string("input/2022/day15.txt").unwrap();
 
