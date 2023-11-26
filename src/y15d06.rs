@@ -67,15 +67,9 @@ pub fn y15d06p1(input: &str) -> u32 {
         for light_row in lights.iter_mut().take(y2 + 1).skip(y1) {
             for light in light_row.iter_mut().take(x2 + 1).skip(x1) {
                 if instruction == Instruction::Toggle {
-                    if *light {
-                        *light = false;
-                    } else {
-                        *light = true;
-                    }
-                } else if instruction == Instruction::TurnOff {
-                    *light = false;
+                    *light = !(*light);
                 } else {
-                    *light = true;
+                    *light = instruction != Instruction::TurnOff;
                 }
             }
         }
