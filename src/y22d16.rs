@@ -51,10 +51,10 @@ pub fn y22d16(input: &str, part: u32) -> u32 {
         connections.insert(parts[1].to_string(), room_connections);
     }
 
-    for (room, rate) in &rates {
+    for (room, _rate) in &rates {
         let mut other_distances: HashMap<String, Option<i32>> = HashMap::new();
 
-        for (other_room, other_rate) in &rates {
+        for (other_room, _other_rate) in &rates {
             if room == other_room {
                 other_distances.insert(other_room.to_string(), Some(0));
             } else if connections[room].contains(other_room) {
