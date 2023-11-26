@@ -17,6 +17,11 @@ jobs:
           path: |
             ~/.cargo/registry
           key: cargo-${{ hashFiles('**/Cargo.lock') }}
+      - run: |
+          rustc --version
+          cargo --version
+          cargo fmt --version
+          cargo clippy --version
       - run: cargo fmt -- --check
       - run: cargo check --locked
       - run: cargo clippy --locked
