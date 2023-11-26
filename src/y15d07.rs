@@ -31,50 +31,83 @@ use std::collections::HashMap;
 pub fn y15d07(input: &str, wire: &str) -> u16 {
     let lines: Vec<_> = input.lines().collect();
     let mut wires: HashMap<&str, u16> = HashMap::new();
-    // let mut wires = HashMap::new();
 
     let r = Regex::new(r"^\d+ ").unwrap();
+    let mut done = false;
 
-    for line in lines {
-        let text: Vec<&str> = line.split_whitespace().collect();
+    while !done {
+        // presume that we finished...
+        done = true;
 
-        if r.is_match(line) {
-            // it's a wire input, just add its value to the map
+        for line in &lines {
+            let text: Vec<&str> = line.split_whitespace().collect();
+            let wire = text.last().unwrap();
 
-            let wire = text[2];
-            let signal = text[0].parse().unwrap();
-            wires.insert(wire, signal);
-        } else {
-            // it's an operation... so do the operation and then assign it
+            match wires.get(wire) {
+                Some(_) => continue,
+                None => {
+                    // we're making a change, so run through again
+                    done = false;
 
-            if text[0] == "NOT" {
-                let wire = text[3];
-                let arg = text[1];
+                    if text.len() == 3 {
+                        // simple assignment
+                        if r.is_match(line) {
+                            let signal = text[0].parse().unwrap();
+                            wires.insert(wire, signal);
+                        } else {
+                            match wires.get(text[0]) {
+                                Some(signal) => {
+                                    wires.insert(wire, *signal);
+                                }
+                                None => continue,
+                            }
+                        }
+                    } else if text[0] == "NOT" {
+                        match wires.get(text[1]) {
+                            Some(signal) => {
+                                wires.insert(wire, !signal);
+                            }
+                            None => continue,
+                        }
+                    } else if text[1] == "AND" || text[1] == "OR" {
+                        let lparse = &text[0].parse();
+                        let leftarg = match lparse {
+                            Ok(arg) => arg,
+                            Err(_) => match wires.get(text[0]) {
+                                Some(signal) => signal,
+                                None => continue,
+                            },
+                        };
 
-                wires.insert(wire, !wires.get(arg).unwrap());
-            } else {
-                let wire = text[4];
-                let op = text[1];
-                let arg1 = text[0];
-                let arg2 = text[2];
+                        let rparse = &text[2].parse();
+                        let rightarg = match rparse {
+                            Ok(arg) => arg,
+                            Err(_) => match wires.get(text[2]) {
+                                Some(signal) => signal,
+                                None => continue,
+                            },
+                        };
 
-                match op {
-                    "AND" => {
-                        wires.insert(wire, wires.get(arg1).unwrap() & wires.get(arg2).unwrap());
-                    }
-                    "OR" => {
-                        wires.insert(wire, wires.get(arg1).unwrap() | wires.get(arg2).unwrap());
-                    }
-                    "LSHIFT" => {
-                        let howmuch: u16 = arg2.parse().unwrap();
-                        wires.insert(wire, wires.get(arg1).unwrap() << howmuch);
-                    }
-                    "RSHIFT" => {
-                        let howmuch: u16 = arg2.parse().unwrap();
-                        wires.insert(wire, wires.get(arg1).unwrap() >> howmuch);
-                    }
-                    _ => {
-                        panic!("Unkown operation!");
+                        if text[1] == "AND" {
+                            wires.insert(wire, leftarg & rightarg);
+                        } else {
+                            wires.insert(wire, leftarg | rightarg);
+                        }
+                    } else if text[1] == "LSHIFT" || text[1] == "RSHIFT" {
+                        let by: u16 = text[2].parse().unwrap();
+
+                        match wires.get(text[0]) {
+                            Some(signal) => {
+                                if text[1] == "LSHIFT" {
+                                    wires.insert(wire, signal << by);
+                                } else {
+                                    wires.insert(wire, signal >> by);
+                                }
+                            }
+                            None => continue,
+                        }
+                    } else {
+                        panic!("Unsupported operation!");
                     }
                 }
             }
@@ -116,6 +149,6 @@ mod tests {
     fn the_solution() {
         let contents = fs::read_to_string("input/2015/day07.txt").unwrap();
 
-        assert_eq!(y15d07(&contents, "a"), 0);
+        assert_eq!(y15d07(&contents, "a"), 16076);
     }
 }
