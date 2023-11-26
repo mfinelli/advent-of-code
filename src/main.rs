@@ -62,7 +62,8 @@ fn main() {
             println!("Part 2: {}", y15d07::y15d07(&input, "a", 2));
         }
         "y15d08" => {
-            println!("Part 1: {}", y15d08::y15d08(&input));
+            println!("Part 1: {}", y15d08::y15d08p1(&input));
+            println!("Part 2: {}", y15d08::y15d08p2(&input));
         }
         "y22d01" => {
             println!("Part 1: {}", y22d01::y22d01(&input, 1));

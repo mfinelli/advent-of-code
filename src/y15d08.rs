@@ -17,17 +17,17 @@
 //!
 //! TODO
 
-/// The solution for the day eight challenge.
+/// The solution for part one of the day eight challenge.
 ///
 /// TODO
 ///
 /// # Example
 /// ```rust
-/// # use aoc::y15d08::y15d08;
+/// # use aoc::y15d08::y15d08p1;
 /// // probably read this from the input file...
 /// let input = "";
 /// ```
-pub fn y15d08(input: &str) -> u32 {
+pub fn y15d08p1(input: &str) -> u32 {
     let lines: Vec<_> = input.lines().collect();
     let mut codesum = 0;
     let mut memsum = 0;
@@ -75,23 +75,60 @@ pub fn y15d08(input: &str) -> u32 {
     codesum - memsum
 }
 
+/// The solution for part two of the day eight challenge.
+///
+/// TODO
+///
+/// # Example
+/// ```rust
+/// # use aoc::y15d08::y15d08p2;
+/// // probably read this from the input file...
+/// let input = "";
+/// ```
+pub fn y15d08p2(input: &str) -> u32 {
+    let lines: Vec<_> = input.lines().collect();
+    let mut codesum = 0;
+    let mut encsum = 0;
+
+    for line in lines {
+        let mut enclen: u32 = 2;
+        let codelen: u32 = line.len().try_into().unwrap();
+        codesum += codelen;
+
+        let chars: Vec<_> = line.trim().chars().collect();
+        for c in chars {
+            if c == '"' || c == '\\' {
+                enclen += 2;
+            } else {
+                enclen += 1;
+            }
+        }
+
+        encsum += enclen;
+    }
+
+    encsum - codesum
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use std::fs;
 
     #[test]
-    fn tit_works() {
+    fn it_works() {
         let input =
             concat!("\"\"\n", "\"abc\"\n", "\"aaa\\\"aaa\"\n", "\"\\x27\"\n",);
 
-        assert_eq!(y15d08(input), 12);
+        assert_eq!(y15d08p1(input), 12);
+        assert_eq!(y15d08p2(input), 19);
     }
 
     #[test]
     fn the_solution() {
         let contents = fs::read_to_string("input/2015/day08.txt").unwrap();
 
-        assert_eq!(y15d08(&contents), 0);
+        assert_eq!(y15d08p1(&contents), 1371);
+        assert_eq!(y15d08p2(&contents), 2117);
     }
 }
