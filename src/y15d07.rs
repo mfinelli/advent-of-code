@@ -28,9 +28,13 @@ use std::collections::HashMap;
 /// ```rust
 ///
 /// ```
-pub fn y15d07(input: &str, wire: &str) -> u16 {
+pub fn y15d07(input: &str, wire: &str, part: u32) -> u16 {
     let lines: Vec<_> = input.lines().collect();
     let mut wires: HashMap<&str, u16> = HashMap::new();
+
+    if part == 2 {
+        wires.insert("b", y15d07(input, "a", 1));
+    }
 
     let r = Regex::new(r"^\d+ ").unwrap();
     let mut done = false;
@@ -149,6 +153,7 @@ mod tests {
     fn the_solution() {
         let contents = fs::read_to_string("input/2015/day07.txt").unwrap();
 
-        assert_eq!(y15d07(&contents, "a"), 16076);
+        assert_eq!(y15d07(&contents, "a", 1), 16076);
+        assert_eq!(y15d07(&contents, "a", 2), 2797);
     }
 }
