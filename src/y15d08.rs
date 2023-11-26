@@ -15,17 +15,33 @@
 
 //! Advent of Code 2015 Day 8: <https://adventofcode.com/2015/day/8>
 //!
-//! TODO
+//! Today's challenge was very simple. It essentially amounted to looping over
+//! some strings with some counters and in a couple of cases changing how the
+//! counters were incremented.
 
 /// The solution for part one of the day eight challenge.
 ///
-/// TODO
+/// Given the input string we initialize the total sums of each type and then
+/// loop over each string. The "code" representation we can find by simply
+/// calling the `.len()` function (and converting it to a `u32`). To calculate
+/// the "memory" representation we loop over all of the characters. If we have
+/// previously encountered the escape character then we check if we have an `x`
+/// which means a hexadecimal escape (and we need to skip the next two
+/// characters) or not in which case we just move on without incrementing the
+/// counter. If we have a skip value set then decrement it and move on without
+/// incrementing the counter. If we encounter the `"` we don't increment the
+/// counter because it's the start/end. Otherwise we increment the counter.
+/// If we've encountered the escape character then trigger the behavior
+/// described above for the next loop iteration. Finally, add the "memory" sum
+/// to the running total and then return the "code" sum minus the "memory" sum
+/// as requested by the prompt.
 ///
 /// # Example
 /// ```rust
 /// # use aoc::y15d08::y15d08p1;
 /// // probably read this from the input file...
-/// let input = "";
+/// let input = "\"a\"b\"\n\"\"\n\"\x23\"";
+/// assert_eq!(y15d08p1(input), 7);
 /// ```
 pub fn y15d08p1(input: &str) -> u32 {
     let lines: Vec<_> = input.lines().collect();
@@ -77,13 +93,21 @@ pub fn y15d08p1(input: &str) -> u32 {
 
 /// The solution for part two of the day eight challenge.
 ///
-/// TODO
+/// Even easier than part one, we loop through all of the input lines
+/// calculating the "code" sum the same as in part one (with the `.len()`
+/// function). To calculate the "encoded" sum we start with `2` to account for
+/// the new `"` that are added to the start and end of the string. Then we
+/// loop through the characters and if we encounter the `"` or `\` characters
+/// we increment by two to account for the escape otherwise we increment by
+/// one as its standard. Add the tallies for the line to the totals and then
+/// return the "encoded" sum minus the "code" sum as requested by the prompt.
 ///
 /// # Example
 /// ```rust
 /// # use aoc::y15d08::y15d08p2;
 /// // probably read this from the input file...
-/// let input = "";
+/// let input = "\"a\"b\"\n\"\"\n\"\x23\"";
+/// assert_eq!(y15d08p2(input), 13);
 /// ```
 pub fn y15d08p2(input: &str) -> u32 {
     let lines: Vec<_> = input.lines().collect();
