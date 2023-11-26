@@ -15,18 +15,56 @@
 
 //! Advent of Code 2015 Day 7: <https://adventofcode.com/2015/day/7>
 //!
-//! TODO
+//! Today's challenge was a little more difficult than I thought at the
+//! beginning because it appears that the circuit can provide instructions
+//! out-of-order. Once accounting for that possibility it was pretty
+//! straightforward.
 
 use regex::Regex;
 use std::collections::HashMap;
 
 /// The solution for the day seven challenge.
 ///
-/// TODO
+/// We take the usual input argument as a string as well as an argument for
+/// the final wire signal that we're interested in. The final argument is for
+/// part `1` (normal) or for part `2` (override the signal of wire `b` with
+/// the signal of wire `a` calculated in part one).
+///
+/// We start by parsing our input and creating our
+/// [`std::collections::HashMap`] that will store wires as keys and their
+/// signals as the values. If we're in part two then we calculate the signal
+/// for wire `a` in part one and then assign it to wire `b` immediately. This
+/// works because we only set new values if they don't exist (implemented
+/// during part one as it appeared that instructions could come out-of-order).
+///
+/// Now we start a loop that we'll use to run over the input until we've
+/// accounted for all of the wires. Each iteration of the loop assumes that
+/// we're done (so that it will exit when it's done) and then if we make _any_
+/// changes (i.e., assign a signal to a wire) then we mark it as not done so
+/// that we run the loop again. This lets us process the input even if there
+/// are some wires that we can't calculate yet because we don't have all of
+/// their input values.
+///
+/// From here it's pretty easy: figure out the wire to which we want to assign
+/// a signal (always the final component of the instruction) and if we've
+/// already assigned it a value then move on, otherwise figure out which
+/// operation we want to perform and perform it. If we haven't calculated the
+/// signal for any of the inputs then we skip it and try to calculate it again
+/// when we come back around on the next loop iteration.
+///
+/// Finally, return the signal of the wire that we asked for as an argument.
+///
+/// **N.B.** the use of `u16` is important as it's specified in the prompt that
+/// the integers are 16-bit which changes the values when performing bitwise
+/// operations and shifts.
 ///
 /// # Example
 /// ```rust
-///
+/// # use aoc::y15d07::y15d07;
+/// // probably read this from the input file...
+/// let input = "12 -> c\n14 -> d\nc AND d -> b\nb -> a\n";
+/// assert_eq!(y15d07(input, "a", 1), 12);
+/// assert_eq!(y15d07(input, "a", 2), 12);
 /// ```
 pub fn y15d07(input: &str, wire: &str, part: u32) -> u16 {
     let lines: Vec<_> = input.lines().collect();
@@ -139,14 +177,14 @@ mod tests {
             "NOT y -> i",
         );
 
-        assert_eq!(y15d07(input, "d"), 72);
-        assert_eq!(y15d07(input, "e"), 507);
-        assert_eq!(y15d07(input, "f"), 492);
-        assert_eq!(y15d07(input, "g"), 114);
-        assert_eq!(y15d07(input, "h"), 65412);
-        assert_eq!(y15d07(input, "i"), 65079);
-        assert_eq!(y15d07(input, "x"), 123);
-        assert_eq!(y15d07(input, "y"), 456);
+        assert_eq!(y15d07(input, "d", 1), 72);
+        assert_eq!(y15d07(input, "e", 1), 507);
+        assert_eq!(y15d07(input, "f", 1), 492);
+        assert_eq!(y15d07(input, "g", 1), 114);
+        assert_eq!(y15d07(input, "h", 1), 65412);
+        assert_eq!(y15d07(input, "i", 1), 65079);
+        assert_eq!(y15d07(input, "x", 1), 123);
+        assert_eq!(y15d07(input, "y", 1), 456);
     }
 
     #[test]
