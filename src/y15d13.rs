@@ -28,10 +28,24 @@ use std::collections::{BinaryHeap, HashMap};
 /// ```rust
 /// # use aoc::y15d13::y15d13;
 /// // probably read this from the input file...
-/// //let input = "";
-/// //assert_eq!(y15d13(input), 0);
+/// let input = concat!(
+///     "Bob would gain 10 happiness units by sitting next to Alice.\n",
+///     "Bob would gain 20 happiness units by sitting next to Jim.\n",
+///     "Bob would gain 30 happiness units by sitting next to Andy.\n",
+///     "Alice would lose 10 happiness units by sitting next to Bob.\n",
+///     "Alice would lose 20 happiness units by sitting next to Jim.\n",
+///     "Alice would lose 30 happiness units by sitting next to Andy.\n",
+///     "Jim would gain 10 happiness units by sitting next to Alice.\n",
+///     "Jim would gain 20 happiness units by sitting next to Bob.\n",
+///     "Jim would gain 30 happiness units by sitting next to Andy.\n",
+///     "Andy would lose 10 happiness units by sitting next to Alice.\n",
+///     "Andy would lose 20 happiness units by sitting next to Jim.\n",
+///     "Andy would lose 30 happiness units by sitting next to Bob.",
+/// );
+/// assert_eq!(y15d13(input, false), 10);
+/// assert_eq!(y15d13(input, true), 50);
 /// ```
-pub fn y15d13(input: &str) -> i32 {
+pub fn y15d13(input: &str, me: bool) -> i32 {
     let lines: Vec<_> = input.lines().collect();
     let mut happinesses: HashMap<&str, HashMap<&str, i32>> = HashMap::new();
     let mut totals = BinaryHeap::new();
@@ -48,8 +62,21 @@ pub fn y15d13(input: &str) -> i32 {
         };
         let guest_b = text[10].strip_suffix(".").unwrap();
 
-        let happiness = happinesses.entry(guest_a).or_default();
+        let mut newme = HashMap::new();
+        if me {
+            newme.insert("Me", 0);
+        }
+
+        let happiness = happinesses.entry(guest_a).or_insert(newme);
         happiness.insert(guest_b, amount);
+    }
+
+    if me {
+        let mut guests = HashMap::new();
+        for &guest in happinesses.keys() {
+            guests.insert(guest, 0);
+        }
+        happinesses.insert("Me", guests);
     }
 
     for seating in happinesses.keys().permutations(happinesses.keys().len()) {
@@ -88,13 +115,15 @@ mod tests {
             "David would gain 41 happiness units by sitting next to Carol.\n",
         );
 
-        assert_eq!(y15d13(input), 330);
+        assert_eq!(y15d13(input, false), 330);
+        assert_eq!(y15d13(input, true), 286);
     }
 
     #[test]
     fn the_solution() {
         let contents = fs::read_to_string("input/2015/day13.txt").unwrap();
 
-        assert_eq!(y15d13(&contents), 709);
+        assert_eq!(y15d13(&contents, false), 709);
+        assert_eq!(y15d13(&contents, true), 668);
     }
 }
