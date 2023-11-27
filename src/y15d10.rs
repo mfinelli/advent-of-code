@@ -82,7 +82,7 @@ mod tests {
     }
 
     #[test]
-    fn tit_works() {
+    fn it_works() {
         let input = "1\n";
 
         assert_eq!(y15d10(input, 1), 2); // 11
@@ -97,5 +97,6 @@ mod tests {
         let contents = fs::read_to_string("input/2015/day10.txt").unwrap();
 
         assert_eq!(y15d10(&contents, 40), 360154);
+        assert_eq!(y15d10(&contents, 50), 5103798);
     }
 }
