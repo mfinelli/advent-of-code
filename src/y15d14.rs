@@ -15,12 +15,17 @@
 
 //! Advent of Code 2015 Day 14: <https://adventofcode.com/2015/day/14>
 //!
-//! TODO
+//! I originally brute-forced this problem for part one simply iterating
+//! the prompted number of times to compute the distance travelled but sure
+//! that there was some math that I could do to calculate the answer much
+//! faster. After seeing part two I decided to maintain my approach but refine
+//! it to keep track of the state of all of the reindeer at each second so
+//! that I could correctly award the points to the current winner.
 
 use std::collections::BinaryHeap;
 
-/// TODO
-#[derive(Debug)]
+/// Reindeer tracks the state of each reindeer during the race.
+#[derive(Debug, PartialEq)]
 struct Reindeer {
     name: String,
     speed: u32,
@@ -34,13 +39,22 @@ struct Reindeer {
 }
 
 impl Reindeer {
-    /// TODO
-    fn new(name: &str, speed: u32, race_seconds: u32, rest_seconds: u32) -> Reindeer {
+    /// Initializes a new reindeer object, given their name, race speed, how
+    /// long they can race before needing to rest, and how long they need to
+    /// rest before they can race again. Reindeer then start in the racing
+    /// (flying phase) at distance `0` with the number of seconds that they can
+    /// race set as the remaining time to spend in the current phase.
+    fn new(
+        name: &str,
+        speed: u32,
+        race_seconds: u32,
+        rest_seconds: u32,
+    ) -> Reindeer {
         Reindeer {
             name: name.to_string(),
-            speed: speed,
-            race_seconds: race_seconds,
-            rest_seconds: rest_seconds,
+            speed,
+            race_seconds,
+            rest_seconds,
             distance: 0,
             points: 0,
             is_flying: true,
@@ -48,12 +62,17 @@ impl Reindeer {
         }
     }
 
-    /// TODO
+    /// A simple function to increment the current points that a reindeer has.
     fn award_point(&mut self) {
         self.points += 1;
     }
 
-    /// TODO
+    /// This function computes the state of the reindeer for the next second.
+    /// If the reindeer is currently in the racing (flying) phase then we
+    /// increment its current distance by its speed. Then we decrement the
+    /// phase counter. If we've reached the end of the phase (i.e., the counter
+    /// is `0`) then we switch the phase and set the counter to the new phase
+    /// time.
     fn next(&mut self) {
         if self.is_flying {
             self.distance += self.speed;
@@ -75,18 +94,34 @@ impl Reindeer {
 
 /// The solution for the day fourteen challenge.
 ///
-/// TODO
+/// As usual we accept the input as a string. Then we take how many seconds of
+/// race to process and whether we're doing part `1` (return the maximum
+/// distance) or part `2` (return the maximum number of points). We start by
+/// parsing the input and creating our `Reindeer` objects to track the state
+/// as the race progresses. Then for the desired number or race seconds we
+/// process each second one-at-a-time. For each second we create a new max-heap
+/// (using the venerable [`std::collections::BinaryHeap`] to keep track of the
+/// current maximum travelled distance. We process each reindeer and add their
+/// distance to the heap. We then pop the heap to see what the maximum distance
+/// is across all reindeer and then any reindeer who is currently at that
+/// winning distance is awarded a point. To return the desired final answer we
+/// create a new max-heap and then add each reindeer's distance for part one or
+/// number of obtained points for part two. Popping the heap gives us the
+/// answer.
 ///
 /// # Example
 /// ```rust
 /// # use aoc::y15d14::y15d14;
 /// // probably read this from the input file...
-/// let input = "";
-/// assert_eq!(y15d13(input, 100), 10);
+/// let input = concat!(
+///     "Santa can fly 25 km/s for 10 seconds, but ",
+///     "then must rest for 10 seconds."
+/// );
+/// assert_eq!(y15d14(input, 100, 1), 1250);
+/// assert_eq!(y15d14(input, 100, 2), 100);
 /// ```
 pub fn y15d14(input: &str, seconds: u32, part: u32) -> u32 {
     let lines: Vec<_> = input.lines().collect();
-    // let mut distances = BinaryHeap::new();
     let mut reindeer = Vec::new();
 
     for line in lines {
@@ -97,17 +132,6 @@ pub fn y15d14(input: &str, seconds: u32, part: u32) -> u32 {
         let rest_seconds = text[13].parse().unwrap();
 
         reindeer.push(Reindeer::new(name, speed, race_seconds, rest_seconds));
-
-        // reindeer.push(Reindeer {
-        //     name: text[0].to_string(),
-        //     speed: speed,
-        //     race_seconds: race_seconds,
-        //     rest_seconds: rest_seconds,
-        //     distance: 0,
-        //     points: 0,
-        // });
-
-        // distances.push(compute_distance(speed, race_seconds, rest_seconds, seconds));
     }
 
     for _ in 0..seconds {
@@ -127,8 +151,6 @@ pub fn y15d14(input: &str, seconds: u32, part: u32) -> u32 {
         }
     }
 
-    // println!("{:?}", reindeer);
-
     if part == 1 {
         let mut distances = BinaryHeap::new();
         for r in &reindeer {
@@ -144,49 +166,57 @@ pub fn y15d14(input: &str, seconds: u32, part: u32) -> u32 {
     }
 }
 
-/// TODO
-pub fn compute_distance(speed: u32, flying: u32, rest: u32, seconds: u32) -> u32 {
-    let mut is_flying = true;
-    let mut phase = flying;
-    let mut total = 0;
-
-    for _ in 0..seconds {
-        if is_flying {
-            total += speed;
-        }
-
-        phase -= 1;
-
-        if phase == 0 {
-            if is_flying {
-                phase = rest;
-            } else {
-                phase = flying;
-            }
-
-            is_flying = !is_flying;
-        }
-    }
-
-    total
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use std::fs;
 
     #[test]
-    fn test_compute_distance() {
-        assert_eq!(compute_distance(14, 10, 127, 1000), 1120);
-        assert_eq!(compute_distance(16, 11, 162, 1000), 1056);
+    fn test_reindeer_new() {
+        assert_eq!(
+            Reindeer::new("Test", 10, 15, 20),
+            Reindeer {
+                name: "Test".to_string(),
+                speed: 10,
+                race_seconds: 15,
+                rest_seconds: 20,
+                distance: 0,
+                points: 0,
+                is_flying: true,
+                left_in_phase: 15,
+            }
+        );
+    }
+
+    #[test]
+    fn test_reindeer_award_point() {
+        let mut r = Reindeer::new("Test", 1, 1, 1);
+        assert_eq!(r.points, 0);
+        r.award_point();
+        assert_eq!(r.points, 1);
+    }
+
+    #[test]
+    fn test_reindeer_next() {
+        let mut comet = Reindeer::new("Comet", 14, 10, 127);
+        let mut dancer = Reindeer::new("Dancer", 16, 11, 162);
+
+        for _ in 0..1000 {
+            comet.next();
+            dancer.next();
+        }
+
+        assert_eq!(comet.distance, 1120);
+        assert_eq!(dancer.distance, 1056);
     }
 
     #[test]
     fn it_works() {
         let input = concat!(
-            "Comet can fly 14 km/s for 10 seconds, but then must rest for 127 seconds.\n",
-            "Dancer can fly 16 km/s for 11 seconds, but then must rest for 162 seconds.",
+            "Comet can fly 14 km/s for 10 seconds, but ",
+            "then must rest for 127 seconds.\n",
+            "Dancer can fly 16 km/s for 11 seconds, but ",
+            "then must rest for 162 seconds.\n",
         );
 
         assert_eq!(y15d14(input, 1000, 1), 1120);
