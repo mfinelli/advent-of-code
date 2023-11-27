@@ -15,13 +15,19 @@
 
 //! Advent of Code 2015 Day 12: <https://adventofcode.com/2015/day/12>
 //!
-//! TODO
+//! A straigtforward puzzle made easy by Rust's match syntax to allow us to
+//! easily recurse based on the possible JSON types. We make use of
+//! [serde](https://github.com/serde-rs/json) to handle the actual parsing of
+//! the input string.
 
 use serde_json::Value;
 
 /// The solution for the day twelve challenge.
 ///
-/// TODO
+/// Given the input string and a boolean whether or not we should ignore
+/// objects that have a value `red` we pass everything off to the calculate
+/// value function which can call itself recursively to calculate the total
+/// sum.
 ///
 /// # Example
 /// ```rust
@@ -36,7 +42,13 @@ pub fn y15d12(input: &str, ignore_red: bool) -> i64 {
     calculate_value(json, ignore_red)
 }
 
-/// TODO
+/// This function is what is responsible for actually calculating the value of
+/// all of the numbers of a JSON. We first check to see if we're ignoring red
+/// and if the object has red in it. If it does then we're done, otherwise we
+/// continue processing. We're only interested in three JSON types: arrays in
+/// which re recurse to each value of the array adding it to the sum, objects
+/// in which we recurse to each value of the object adding it to the sum, and
+/// numbers which we add directly to the sum. Everything else can be ignored.
 fn calculate_value(value: Value, ignore_red: bool) -> i64 {
     let mut sum = 0;
 
@@ -64,17 +76,16 @@ fn calculate_value(value: Value, ignore_red: bool) -> i64 {
     sum
 }
 
+/// This function determines if the provided JSON value is an object that has
+/// `red` for any of its values.
 fn has_red(value: Value) -> bool {
     match value {
         Value::Object(o) => {
             for (_, i) in o.iter() {
-                match i {
-                    Value::String(s) => {
-                        if s == "red" {
-                            return true;
-                        }
+                if let Value::String(s) = i {
+                    if s == "red" {
+                        return true;
                     }
-                    _ => {}
                 }
             }
 
@@ -104,15 +115,15 @@ mod tests {
     fn test_has_red() {
         let mut input = "{\"a\":\"red\"}";
         let mut json: Value = serde_json::from_str(input).unwrap();
-        assert_eq!(has_red(json), true);
+        assert!(has_red(json));
 
         input = "{\"a\":\"green\"}";
         json = serde_json::from_str(input).unwrap();
-        assert_eq!(has_red(json), false);
+        assert!(!has_red(json));
 
         input = "{\"red\":\"\"}";
         json = serde_json::from_str(input).unwrap();
-        assert_eq!(has_red(json), false);
+        assert!(!has_red(json));
     }
 
     #[test]
