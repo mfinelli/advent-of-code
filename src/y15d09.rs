@@ -32,10 +32,11 @@ use std::collections::{BinaryHeap, HashMap};
 /// let input = "";
 /// assert_eq!(y15d09(input), 0);
 /// ```
-pub fn y15d09(input: &str) -> u32 {
+pub fn y15d09(input: &str, part: u32) -> u32 {
     let lines: Vec<_> = input.lines().collect();
     let mut distances: HashMap<&str, HashMap<&str, u32>> = HashMap::new();
-    let mut trips = BinaryHeap::new();
+    let mut shortest_trips = BinaryHeap::new();
+    let mut longest_trips = BinaryHeap::new();
 
     for line in lines {
         let text: Vec<&str> = line.split_whitespace().collect();
@@ -61,11 +62,16 @@ pub fn y15d09(input: &str) -> u32 {
             distance += distances.get(trip[0]).unwrap().get(trip[1]).unwrap();
         }
 
-        trips.push(Reverse(distance));
+        shortest_trips.push(Reverse(distance));
+        longest_trips.push(distance);
     }
 
-    let Reverse(shortest) = trips.pop().unwrap();
-    shortest
+    if part == 1 {
+        let Reverse(shortest) = shortest_trips.pop().unwrap();
+        shortest
+    } else {
+        longest_trips.pop().unwrap()
+    }
 }
 
 #[cfg(test)]
@@ -81,13 +87,15 @@ mod tests {
             "Dublin to Belfast = 141",
         );
 
-        assert_eq!(y15d09(input), 605);
+        assert_eq!(y15d09(input, 1), 605);
+        assert_eq!(y15d09(input, 2), 982);
     }
 
     #[test]
     fn the_solution() {
         let contents = fs::read_to_string("input/2015/day09.txt").unwrap();
 
-        assert_eq!(y15d09(&contents), 207);
+        assert_eq!(y15d09(&contents, 1), 207);
+        assert_eq!(y15d09(&contents, 2), 804);
     }
 }
