@@ -18,7 +18,7 @@
 //! It took me a little while to wrap my head around what look-and-say is but
 //! once I figured it out this was relatively easy to implement.
 
-/// The solution for the day nine challenge.
+/// The solution for the day ten challenge.
 ///
 /// We take the input as a string and the number of times to perform the
 /// look-and-say as arguments and then return the length of the resulting
