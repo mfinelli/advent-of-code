@@ -1,4 +1,4 @@
-/* Copyright 2022 Mario Finelli
+/* Copyright 2022-2023 Mario Finelli
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -139,25 +139,25 @@ mod tests {
 
     #[test]
     fn test_is_nice_p1() {
-        assert_eq!(is_nice_p1("aei"), false);
-        assert_eq!(is_nice_p1("xazegov"), false);
-        assert_eq!(is_nice_p1("aeiouaeiouaeiou"), false);
-        assert_eq!(is_nice_p1("xx"), false);
-        assert_eq!(is_nice_p1("abcdde"), false);
-        assert_eq!(is_nice_p1("aabbccdd"), false);
-        assert_eq!(is_nice_p1("ugknbfddgicrmopn"), true);
-        assert_eq!(is_nice_p1("aaa"), true);
-        assert_eq!(is_nice_p1("jchzalrnumimnmhp"), false);
-        assert_eq!(is_nice_p1("haegwjzuvuyypxyu"), false);
-        assert_eq!(is_nice_p1("dvszwmarrgswjxmb"), false);
+        assert!(!is_nice_p1("aei"));
+        assert!(!is_nice_p1("xazegov"));
+        assert!(!is_nice_p1("aeiouaeiouaeiou"));
+        assert!(!is_nice_p1("xx"));
+        assert!(!is_nice_p1("abcdde"));
+        assert!(!is_nice_p1("aabbccdd"));
+        assert!(is_nice_p1("ugknbfddgicrmopn"));
+        assert!(is_nice_p1("aaa"));
+        assert!(!is_nice_p1("jchzalrnumimnmhp"));
+        assert!(!is_nice_p1("haegwjzuvuyypxyu"));
+        assert!(!is_nice_p1("dvszwmarrgswjxmb"));
     }
 
     #[test]
     fn test_is_nice_p2() {
-        assert_eq!(is_nice_p2("qjhvhtzxzqqjkmpb"), true);
-        assert_eq!(is_nice_p2("xxyxx"), true);
-        assert_eq!(is_nice_p2("uurcxstgmygtbstg"), false);
-        assert_eq!(is_nice_p2("ieodomkazucvgmuy"), false);
+        assert!(is_nice_p2("qjhvhtzxzqqjkmpb"));
+        assert!(is_nice_p2("xxyxx"));
+        assert!(!is_nice_p2("uurcxstgmygtbstg"));
+        assert!(!is_nice_p2("ieodomkazucvgmuy"));
     }
 
     #[test]

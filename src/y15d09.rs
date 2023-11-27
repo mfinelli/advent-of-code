@@ -58,17 +58,14 @@ pub fn y15d09(input: &str, part: u32) -> u32 {
         let city2 = text[2];
         let distance: u32 = text[4].parse().unwrap();
 
-        let city = distances.entry(city1).or_insert(HashMap::new());
+        let city = distances.entry(city1).or_default();
         city.insert(city2, distance);
 
-        let city = distances.entry(city2).or_insert(HashMap::new());
+        let city = distances.entry(city2).or_default();
         city.insert(city1, distance);
     }
 
-    let paths = distances
-        .keys()
-        .permutations(distances.keys().len())
-        .into_iter();
+    let paths = distances.keys().permutations(distances.keys().len());
     for path in paths {
         let mut distance = 0;
 
