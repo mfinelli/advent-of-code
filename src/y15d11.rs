@@ -15,9 +15,22 @@
 
 //! Advent of Code 2015 Day 11: <https://adventofcode.com/2015/day/11>
 //!
-//! TODO
+//! This was fairly simple to implement and wasn't too challenging but the
+//! solution ended up being rather long and verbose. The solution doesn't use
+//! strings or regular expressions but operations instead on vectors of code
+//! points and so the magic numbers found within correspond to the several
+//! characters that we need to know about: `a`: `97`, `z`: `122`, `i`: `105`,
+//! `l`: `108`, and `o`: `111`.
 
 /// The solution for the day eleven challenge.
+///
+/// We take the input as a string and a second parameter for how many valid
+/// new passwords we want to generate (it just so happens that in part one it's
+/// `1` and in part two it's `2`). We first convert the password into a vector
+/// of integers corresponding to the character code points. Then for the number
+/// of new passwords that we want we generate the next password and then until
+/// we have a valid password we keep generating the next password. Then we
+/// convert our vector back into a string and we're done.
 ///
 /// # Example
 /// ```rust
@@ -36,24 +49,27 @@ pub fn y15d11(input: &str, howmany: u32) -> String {
         }
     }
 
-    // password
-    // "".to_string()
     String::from_utf8(password).unwrap()
 }
 
-/// TODO
+/// This function calculates the next password (it doesn't care if it generates
+/// a valid password or not). To make things easier it reverses the order of
+/// the password first and then calls the next character function (which is
+/// responsible for actually incrementing the password correctly) and then
+/// reverses it again to return it.
 fn next_password(current: Vec<u8>) -> Vec<u8> {
-    // let mut password: Vec<u8> = current.trim().chars().rev().map(|c| c as u8).collect();
     let mut password = current.into_iter().rev().collect();
     password = increment_char(password, 0);
-    // let converted = password.iter().rev().map(|c| *c as char);
-    // converted.map(|c| c.to_string())
-    let rev: Vec<u8> = password.iter().rev().map(|c| *c).collect();
-    // String::from_utf8(rev).unwrap()
-    rev
+    password.iter().rev().copied().collect()
 }
 
-/// TODO
+/// This function is responsible for actually incrementing the password
+/// characters correctly. If we have an index greater than the length of our
+/// current password then we've overflowed and add a new character. Otherwise,
+/// we increment the character of the provided index and if that increases
+/// past "z" (code point 122) then we reset it to "a" (code point 97) and then
+/// run the increment on the next index recursively until we have incremented
+/// everything all the way.
 fn increment_char(mut p: Vec<u8>, index: u8) -> Vec<u8> {
     if index >= p.len().try_into().unwrap() {
         p.push(97);
@@ -70,7 +86,10 @@ fn increment_char(mut p: Vec<u8>, index: u8) -> Vec<u8> {
     }
 }
 
-/// TODO
+/// This function determines if the provided password meets all of the
+/// requirements laid out in the prompt: no "i", "l", or "o" characters (code
+/// points 105, 108, and 111 respectively), at least one run of three
+/// characters, and two distinct sets of double characters.
 fn valid_password(password: Vec<u8>) -> bool {
     if password.contains(&105)
         || password.contains(&108)
@@ -91,6 +110,7 @@ fn valid_password(password: Vec<u8>) -> bool {
         return false;
     }
 
+    // if we find a double character record it for later
     let mut found_double: Option<u8> = None;
     for w in password.windows(2) {
         if w[0] == w[1] {
@@ -99,6 +119,9 @@ fn valid_password(password: Vec<u8>) -> bool {
         }
     }
 
+    // if we didn't find a double then we're done, otherwise repeat the above
+    // but also check to make sure that we find a double distinct from the one
+    // that we already found
     match found_double {
         None => return false,
         Some(double) => {
@@ -135,11 +158,11 @@ mod tests {
 
     #[test]
     fn test_valid_password() {
-        assert_eq!(valid_password("hijklmmn".into()), false);
-        assert_eq!(valid_password("abbceffg".into()), false);
-        assert_eq!(valid_password("abbcegjk".into()), false);
-        assert_eq!(valid_password("abcdffaa".into()), true);
-        assert_eq!(valid_password("ghjaabcc".into()), true);
+        assert!(!valid_password("hijklmmn".into()));
+        assert!(!valid_password("abbceffg".into()));
+        assert!(!valid_password("abbcegjk".into()));
+        assert!(valid_password("abcdffaa".into()));
+        assert!(valid_password("ghjaabcc".into()));
     }
 
     #[test]
