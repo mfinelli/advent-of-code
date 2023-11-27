@@ -15,14 +15,25 @@
 
 //! Advent of Code 2015 Day 13: <https://adventofcode.com/2015/day/13>
 //!
-//! TODO
+//! This problem is extremely similar to the problem from day nine and so an
+//! extremely similar approach was taken.
 
 use itertools::Itertools;
 use std::collections::{BinaryHeap, HashMap};
 
 /// The solution for the day thirteen challenge.
 ///
-/// TODO
+/// We take the input as a string and a boolean specifying if we're also
+/// attending dinner or not. Then much like on day nine we start by parsing the
+/// input to compute the happiness change of each guest sitting next to every
+/// other guest. If we're attending dinner then we also add a `Me` entry with
+/// happiness change of `0`. Then again like in day nine we compute all of the
+/// possible seating arrangements (permutations) and then calculate the
+/// happiness for each guest. Differently from day nine we use circular windows
+/// to account for the first and last guest in the list sitting next to each
+/// other. Like in day nine we add the total happiness to a
+/// [`std::collections::BinaryHeap`] to make getting the final, largest value
+/// easy.
 ///
 /// # Example
 /// ```rust
@@ -60,7 +71,7 @@ pub fn y15d13(input: &str, me: bool) -> i32 {
         } else {
             -(text[3].parse::<i32>().unwrap())
         };
-        let guest_b = text[10].strip_suffix(".").unwrap();
+        let guest_b = text[10].strip_suffix('.').unwrap();
 
         let mut newme = HashMap::new();
         if me {
