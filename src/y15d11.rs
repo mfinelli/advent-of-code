@@ -24,14 +24,16 @@
 /// # use aoc::y15d11::y15d11;
 /// // probably read this from the input file...
 /// let input = "zzzzzzzz";
-/// assert_eq!(y15d11(input), "aaaaaabcc");
+/// assert_eq!(y15d11(input, 1), "aaaaaabcc");
 /// ```
-pub fn y15d11(input: &str) -> String {
+pub fn y15d11(input: &str, howmany: u32) -> String {
     let mut password: Vec<u8> = input.trim().chars().map(|c| c as u8).collect();
 
-    password = next_password(password);
-    while !valid_password(password.clone()) {
+    for _ in 0..howmany {
         password = next_password(password);
+        while !valid_password(password.clone()) {
+            password = next_password(password);
+        }
     }
 
     // password
@@ -150,16 +152,17 @@ mod tests {
     #[test]
     fn it_works() {
         let mut input = "abcdefgh\n";
-        assert_eq!(y15d11(input), "abcdffaa");
+        assert_eq!(y15d11(input, 1), "abcdffaa");
 
         input = "ghijklmn";
-        assert_eq!(y15d11(input), "ghjaabcc");
+        assert_eq!(y15d11(input, 1), "ghjaabcc");
     }
 
     #[test]
     fn the_solution() {
         let contents = fs::read_to_string("input/2015/day11.txt").unwrap();
 
-        assert_eq!(y15d11(&contents), "hxbxxyzz");
+        assert_eq!(y15d11(&contents, 1), "hxbxxyzz");
+        assert_eq!(y15d11(&contents, 2), "hxcaabcc");
     }
 }
