@@ -56,7 +56,7 @@ struct Mix<'a> {
 /// //let input = "";
 /// //assert_eq!(y15d15(input), 0);
 /// ```
-pub fn y15d15(input: &str) -> i32 {
+pub fn y15d15(input: &str, part: u32) -> i32 {
     let total = 100;
     let lines: Vec<_> = input.lines().collect();
     let mut ingredients = Vec::new();
@@ -99,7 +99,7 @@ pub fn y15d15(input: &str) -> i32 {
 
     // println!("{:?}", ingredients);
     // println!("{:?}", mixes);
-    let possibilities: Vec<Vec<Mix>> = mixes.into_iter().combinations(ingredients.len()).filter(|p| valid_possibility(&ingredients, p)).collect();
+    let possibilities: Vec<Vec<Mix>> = mixes.into_iter().combinations(ingredients.len()).filter(|p| valid_possibility(&ingredients, p, part)).collect();
 
     // println!("{:?}", possibilities);
     for possibility in possibilities {
@@ -116,7 +116,7 @@ pub fn y15d15(input: &str) -> i32 {
 }
 
 /// TODO
-fn valid_possibility(ingredients: &Vec<Ingredient>, possibility: &Vec<Mix>) -> bool {
+fn valid_possibility(ingredients: &Vec<Ingredient>, possibility: &Vec<Mix>, part: u32) -> bool {
     let total = 100;
     let sum: u32 = possibility.iter().map(|p| p.amount).sum();
     // println!("{:?}", sum);
@@ -131,6 +131,13 @@ fn valid_possibility(ingredients: &Vec<Ingredient>, possibility: &Vec<Mix>) -> b
     //
     if names.len() != ingredients.len() {
         return false;
+    }
+
+    if part == 2 {
+        let calories: u32 = possibility.iter().map(|p| p.ingredient.calories * p.amount).sum();
+        if calories != 500 {
+            return false;
+        }
     }
 
     true
@@ -178,13 +185,15 @@ mod tests {
             "calories 3\n",
         );
 
-        assert_eq!(y15d15(input), 62842880);
+        assert_eq!(y15d15(input, 1), 62842880);
+        assert_eq!(y15d15(input, 2), 57600000);
     }
 
     #[test]
     fn the_solution() {
         let contents = fs::read_to_string("input/2015/day15.txt").unwrap();
 
-        assert_eq!(y15d15(&contents), 13882464);
+        assert_eq!(y15d15(&contents, 1), 13882464);
+        assert_eq!(y15d15(&contents, 2), 11171160);
     }
 }
