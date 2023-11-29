@@ -31,7 +31,7 @@ const CALORIES: i32 = 500;
 /// Ingredient represents an ingredient parsed from the input.
 #[derive(Debug)]
 struct Ingredient {
-    name: String,
+    // name: String,
     capacity: i32,
     durability: i32,
     flavor: i32,
@@ -68,7 +68,7 @@ pub fn y15d15(input: &str, part: u32) -> i32 {
 
     for line in lines {
         let text: Vec<&str> = line.split_whitespace().collect();
-        let name = text[0].strip_suffix(':').unwrap().to_string();
+        // let name = text[0].strip_suffix(':').unwrap().to_string();
         let capacity = text[2].strip_suffix(',').unwrap().parse().unwrap();
         let durability = text[4].strip_suffix(',').unwrap().parse().unwrap();
         let flavor = text[6].strip_suffix(',').unwrap().parse().unwrap();
@@ -76,12 +76,12 @@ pub fn y15d15(input: &str, part: u32) -> i32 {
         let calories = text[10].parse().unwrap();
 
         ingredients.push(Ingredient {
-            name: name,
-            capacity: capacity,
-            durability: durability,
-            flavor: flavor,
-            texture: texture,
-            calories: calories,
+            // name,
+            capacity,
+            durability,
+            flavor,
+            texture,
+            calories,
         });
     }
 
@@ -90,8 +90,8 @@ pub fn y15d15(input: &str, part: u32) -> i32 {
         let mut totals = Vec::new();
         for amount in 0..TOTAL + 1 {
             totals.push(Mix {
-                amount: amount,
-                ingredient: ingredient,
+                amount,
+                ingredient,
             });
         }
         mixes.push(totals);
@@ -100,7 +100,7 @@ pub fn y15d15(input: &str, part: u32) -> i32 {
     let possibilities: Vec<Vec<Mix>> = mixes
         .into_iter()
         .multi_cartesian_product()
-        .filter(|p| valid_possibility(&ingredients, p, part))
+        .filter(|p| valid_possibility(p, part))
         .collect();
 
     for possibility in possibilities {
@@ -111,11 +111,7 @@ pub fn y15d15(input: &str, part: u32) -> i32 {
 }
 
 /// TODO
-fn valid_possibility(
-    ingredients: &Vec<Ingredient>,
-    possibility: &Vec<Mix>,
-    part: u32,
-) -> bool {
+fn valid_possibility(possibility: &[Mix], part: u32) -> bool {
     let sum: i32 = possibility.iter().map(|p| p.amount).sum();
     if sum != TOTAL {
         return false;
@@ -135,7 +131,7 @@ fn valid_possibility(
 }
 
 /// TODO
-fn compute_score(possibility: &Vec<Mix>) -> i32 {
+fn compute_score(possibility: &[Mix]) -> i32 {
     let capacity: i32 = possibility
         .iter()
         .map(|p| p.ingredient.capacity * p.amount)
@@ -177,12 +173,10 @@ mod tests {
     use std::fs;
 
     #[test]
-    fn test_compute_score() {
-    }
+    fn test_compute_score() {}
 
     #[test]
-    fn test_valid_possibility() {
-    }
+    fn test_valid_possibility() {}
 
     #[test]
     fn it_works() {
