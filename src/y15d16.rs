@@ -95,7 +95,7 @@ impl AuntSue {
 /// let input = "";
 /// assert_eq!(y15d16(input), 0);
 /// ```
-pub fn y15d16(input: &str) -> u32 {
+pub fn y15d16(input: &str, part: u32) -> u32 {
     let lines: Vec<_> = input.lines().collect();
 
     let mut sues = Vec::new();
@@ -114,8 +114,8 @@ pub fn y15d16(input: &str) -> u32 {
     for line in lines {
         // println!("{:?}", line);
         let number = number_regex.captures(line).unwrap();
-        let children = children_regex.captures(line);
-        let goldfish = goldfish_regex.captures(line);
+        // let children = children_regex.captures(line);
+        // let goldfish = goldfish_regex.captures(line);
 
         // println!("{:?}", children);
         // println!("{:?}", goldfish);
@@ -182,7 +182,7 @@ pub fn y15d16(input: &str) -> u32 {
             }
             None => {}
         }
-        
+
         match cars_regex.captures(line) {
             Some(m) => {
                 sue.cars = Some(m[1].parse().unwrap());
@@ -204,7 +204,7 @@ pub fn y15d16(input: &str) -> u32 {
     //
     //
     for sue in sues {
-        if the_real_aunt_sue(&sue) {
+        if the_real_aunt_sue(&sue, part) {
             return sue.number;
         }
     }
@@ -215,7 +215,7 @@ pub fn y15d16(input: &str) -> u32 {
 }
 
 /// TODO
-fn the_real_aunt_sue(sue: &AuntSue) -> bool {
+fn the_real_aunt_sue(sue: &AuntSue, part: u32) -> bool {
     match sue.children {
         Some(c) => {
             if c != CHILDREN {
@@ -227,7 +227,7 @@ fn the_real_aunt_sue(sue: &AuntSue) -> bool {
 
     match sue.cats {
         Some(c) => {
-            if c != CATS {
+            if (part == 2 && c <= CATS) || (part == 1 && c != CATS) {
                 return false;
             }
         }
@@ -245,7 +245,7 @@ fn the_real_aunt_sue(sue: &AuntSue) -> bool {
 
     match sue.pomeranians {
         Some(p) => {
-            if p != POMERANIANS {
+            if (part == 2 && p >= POMERANIANS) || (part == 1 && p != POMERANIANS) {
                 return false;
             }
         }
@@ -272,7 +272,7 @@ fn the_real_aunt_sue(sue: &AuntSue) -> bool {
 
     match sue.goldfish {
         Some(g) => {
-            if g != GOLDFISH {
+            if (part == 2 && g >= GOLDFISH) || (part == 1 && g != GOLDFISH) {
                 return false;
             }
         }
@@ -281,7 +281,7 @@ fn the_real_aunt_sue(sue: &AuntSue) -> bool {
 
     match sue.trees {
         Some(t) => {
-            if t != TREES {
+            if (part == 2 && t <= TREES) || (part == 1 && t != TREES) {
                 return false;
             }
         }
@@ -318,6 +318,7 @@ mod tests {
     fn tthe_solution() {
         let contents = fs::read_to_string("input/2015/day16.txt").unwrap();
 
-        assert_eq!(y15d16(&contents), 40);
+        assert_eq!(y15d16(&contents, 1), 40);
+        assert_eq!(y15d16(&contents, 2), 241);
     }
 }
