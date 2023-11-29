@@ -49,9 +49,8 @@ const CARS: u32 = 2;
 /// TODO
 const PERFUMES: u32 = 1;
 
-
 /// TODO
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 struct AuntSue {
     number: u32,
     children: Option<u32>,
@@ -67,9 +66,10 @@ struct AuntSue {
 }
 
 impl AuntSue {
+    /// TODO
     fn new(number: u32) -> AuntSue {
         AuntSue {
-            number: number,
+            number,
             children: None,
             cats: None,
             samoyeds: None,
@@ -92,13 +92,16 @@ impl AuntSue {
 /// ```rust
 /// # use aoc::y15d16::y15d16;
 /// // probably read this from the input file...
-/// let input = "";
-/// assert_eq!(y15d16(input), 0);
+/// let input = concat!(
+///     "Sue 1: goldfish: 5, cars: 2, samoyeds: 2\n",
+///     "Sue 2: goldfish: 4, cars: 2, samoyeds: 2",
+/// );
+/// assert_eq!(y15d16(input, 1), 1);
+/// assert_eq!(y15d16(input, 2), 2);
 /// ```
 pub fn y15d16(input: &str, part: u32) -> u32 {
     let lines: Vec<_> = input.lines().collect();
 
-    let mut sues = Vec::new();
     let number_regex = Regex::new(r"^Sue (\d+):").unwrap();
     let children_regex = Regex::new(r"children: (\d+)").unwrap();
     let cats_regex = Regex::new(r"cats: (\d+)").unwrap();
@@ -112,198 +115,117 @@ pub fn y15d16(input: &str, part: u32) -> u32 {
     let perfumes_regex = Regex::new(r"perfumes: (\d+)").unwrap();
 
     for line in lines {
-        // println!("{:?}", line);
         let number = number_regex.captures(line).unwrap();
-        // let children = children_regex.captures(line);
-        // let goldfish = goldfish_regex.captures(line);
-
-        // println!("{:?}", children);
-        // println!("{:?}", goldfish);
-        // println!("{:?}", num);
-        // break;
-        // sues.push(AuntSue {
-        //     number: num.parse().unwrap(),
-        // });
-        // sues.push(AuntSue::new(num[1].parse().unwrap()));
         let mut sue = AuntSue::new(number[1].parse().unwrap());
 
-        match children_regex.captures(line) {
-            Some(m) => {
-                sue.children = Some(m[1].parse().unwrap());
-            }
-            None => {}
+        if let Some(c) = children_regex.captures(line) {
+            sue.children = Some(c[1].parse().unwrap());
         }
 
-        match cats_regex.captures(line) {
-            Some(m) => {
-                sue.cats = Some(m[1].parse().unwrap());
-            }
-            None => {}
+        if let Some(c) = cats_regex.captures(line) {
+            sue.cats = Some(c[1].parse().unwrap());
         }
 
-        match samoyeds_regex.captures(line) {
-            Some(m) => {
-                sue.samoyeds = Some(m[1].parse().unwrap());
-            }
-            None => {}
+        if let Some(s) = samoyeds_regex.captures(line) {
+            sue.samoyeds = Some(s[1].parse().unwrap());
         }
 
-        match pomeranians_regex.captures(line) {
-            Some(m) => {
-                sue.pomeranians = Some(m[1].parse().unwrap());
-            }
-            None => {}
+        if let Some(p) = pomeranians_regex.captures(line) {
+            sue.pomeranians = Some(p[1].parse().unwrap());
         }
 
-        match akitas_regex.captures(line) {
-            Some(m) => {
-                sue.akitas = Some(m[1].parse().unwrap());
-            }
-            None => {}
+        if let Some(a) = akitas_regex.captures(line) {
+            sue.akitas = Some(a[1].parse().unwrap());
         }
 
-        match vizslas_regex.captures(line) {
-            Some(m) => {
-                sue.vizslas = Some(m[1].parse().unwrap());
-            }
-            None => {}
+        if let Some(v) = vizslas_regex.captures(line) {
+            sue.vizslas = Some(v[1].parse().unwrap());
         }
 
-        match goldfish_regex.captures(line) {
-            Some(m) => {
-                sue.goldfish = Some(m[1].parse().unwrap());
-            }
-            None => {}
+        if let Some(g) = goldfish_regex.captures(line) {
+            sue.goldfish = Some(g[1].parse().unwrap());
         }
 
-        match trees_regex.captures(line) {
-            Some(m) => {
-                sue.trees = Some(m[1].parse().unwrap());
-            }
-            None => {}
+        if let Some(t) = trees_regex.captures(line) {
+            sue.trees = Some(t[1].parse().unwrap());
         }
 
-        match cars_regex.captures(line) {
-            Some(m) => {
-                sue.cars = Some(m[1].parse().unwrap());
-            }
-            None => {}
+        if let Some(c) = cars_regex.captures(line) {
+            sue.cars = Some(c[1].parse().unwrap());
         }
 
-        match perfumes_regex.captures(line) {
-            Some(m) => {
-                sue.perfumes = Some(m[1].parse().unwrap());
-            }
-            None => {}
+        if let Some(p) = perfumes_regex.captures(line) {
+            sue.perfumes = Some(p[1].parse().unwrap());
         }
 
-        sues.push(sue);
-    }
-
-    // println!("{:?}", sues);
-    //
-    //
-    for sue in sues {
         if the_real_aunt_sue(&sue, part) {
             return sue.number;
         }
     }
 
-
-    // 1
     0
 }
 
 /// TODO
 fn the_real_aunt_sue(sue: &AuntSue, part: u32) -> bool {
-    match sue.children {
-        Some(c) => {
-            if c != CHILDREN {
-                return false;
-            }
+    if let Some(c) = sue.children {
+        if c != CHILDREN {
+            return false;
         }
-        None => {}
     }
 
-    match sue.cats {
-        Some(c) => {
-            if (part == 2 && c <= CATS) || (part == 1 && c != CATS) {
-                return false;
-            }
+    if let Some(c) = sue.cats {
+        if (part == 2 && c <= CATS) || (part == 1 && c != CATS) {
+            return false;
         }
-        None => {}
     }
 
-    match sue.samoyeds {
-        Some(s) => {
-            if s != SAMOYEDS {
-                return false;
-            }
+    if let Some(s) = sue.samoyeds {
+        if s != SAMOYEDS {
+            return false;
         }
-        None => {}
     }
 
-    match sue.pomeranians {
-        Some(p) => {
-            if (part == 2 && p >= POMERANIANS) || (part == 1 && p != POMERANIANS) {
-                return false;
-            }
+    if let Some(p) = sue.pomeranians {
+        if (part == 2 && p >= POMERANIANS) || (part == 1 && p != POMERANIANS) {
+            return false;
         }
-        None => {}
     }
 
-    match sue.akitas {
-        Some(a) => {
-            if a != AKITAS {
-                return false;
-            }
+    if let Some(a) = sue.akitas {
+        if a != AKITAS {
+            return false;
         }
-        None => {}
     }
 
-    match sue.vizslas {
-        Some(v) => {
-            if v != VIZSLAS {
-                return false;
-            }
+    if let Some(v) = sue.vizslas {
+        if v != VIZSLAS {
+            return false;
         }
-        None => {}
     }
 
-    match sue.goldfish {
-        Some(g) => {
-            if (part == 2 && g >= GOLDFISH) || (part == 1 && g != GOLDFISH) {
-                return false;
-            }
+    if let Some(g) = sue.goldfish {
+        if (part == 2 && g >= GOLDFISH) || (part == 1 && g != GOLDFISH) {
+            return false;
         }
-        None => {}
     }
 
-    match sue.trees {
-        Some(t) => {
-            if (part == 2 && t <= TREES) || (part == 1 && t != TREES) {
-                return false;
-            }
+    if let Some(t) = sue.trees {
+        if (part == 2 && t <= TREES) || (part == 1 && t != TREES) {
+            return false;
         }
-        None => {}
     }
 
-    match sue.cars {
-        Some(c) => {
-            if c != CARS {
-                return false;
-            }
+    if let Some(c) = sue.cars {
+        if c != CARS {
+            return false;
         }
-        None => {}
     }
 
-    match sue.perfumes {
-        Some(p) => {
-            if p != PERFUMES {
-                return false;
-            }
+    if let Some(p) = sue.perfumes {
+        if p != PERFUMES {
+            return false;
         }
-        None => {}
     }
 
     true
@@ -315,7 +237,106 @@ mod tests {
     use std::fs;
 
     #[test]
-    fn tthe_solution() {
+    fn test_auntsue_new() {
+        assert_eq!(
+            AuntSue::new(10),
+            AuntSue {
+                number: 10,
+                children: None,
+                cats: None,
+                samoyeds: None,
+                pomeranians: None,
+                akitas: None,
+                vizslas: None,
+                goldfish: None,
+                trees: None,
+                cars: None,
+                perfumes: None,
+            }
+        );
+    }
+
+    #[test]
+    fn test_the_real_aunt_sue() {
+        let mut input = AuntSue::new(10);
+        input.children = Some(CHILDREN);
+        input.cats = Some(CATS);
+        input.samoyeds = Some(SAMOYEDS);
+        input.pomeranians = Some(POMERANIANS);
+        input.akitas = Some(AKITAS);
+        input.vizslas = Some(VIZSLAS);
+        input.goldfish = Some(GOLDFISH);
+        input.trees = Some(TREES);
+        input.cars = Some(CARS);
+        input.perfumes = Some(PERFUMES);
+
+        assert!(the_real_aunt_sue(&input, 1));
+
+        input.children = Some(CHILDREN + 1);
+        assert!(!the_real_aunt_sue(&input, 1));
+        input.children = Some(CHILDREN);
+
+        input.cats = Some(CATS + 1);
+        assert!(!the_real_aunt_sue(&input, 1));
+        input.cats = Some(CATS);
+
+        input.samoyeds = Some(SAMOYEDS + 1);
+        assert!(!the_real_aunt_sue(&input, 1));
+        input.samoyeds = Some(SAMOYEDS);
+
+        input.pomeranians = Some(POMERANIANS + 1);
+        assert!(!the_real_aunt_sue(&input, 1));
+        input.pomeranians = Some(POMERANIANS);
+
+        input.akitas = Some(AKITAS + 1);
+        assert!(!the_real_aunt_sue(&input, 1));
+        input.akitas = Some(AKITAS);
+
+        input.vizslas = Some(VIZSLAS + 1);
+        assert!(!the_real_aunt_sue(&input, 1));
+        input.vizslas = Some(VIZSLAS);
+
+        input.goldfish = Some(GOLDFISH + 1);
+        assert!(!the_real_aunt_sue(&input, 1));
+        input.goldfish = Some(GOLDFISH);
+
+        input.trees = Some(TREES + 1);
+        assert!(!the_real_aunt_sue(&input, 1));
+        input.trees = Some(TREES);
+
+        input.cars = Some(CARS + 1);
+        assert!(!the_real_aunt_sue(&input, 1));
+        input.cars = Some(CARS);
+
+        input.perfumes = Some(PERFUMES + 1);
+        assert!(!the_real_aunt_sue(&input, 1));
+        input.perfumes = Some(PERFUMES);
+
+        input.cats = Some(CATS + 1);
+        input.pomeranians = Some(POMERANIANS - 1);
+        input.goldfish = Some(GOLDFISH - 1);
+        input.trees = Some(TREES + 1);
+        assert!(the_real_aunt_sue(&input, 2));
+
+        input.cats = Some(CATS);
+        assert!(!the_real_aunt_sue(&input, 2));
+        input.cats = Some(CATS + 1);
+
+        input.pomeranians = Some(POMERANIANS);
+        assert!(!the_real_aunt_sue(&input, 2));
+        input.pomeranians = Some(POMERANIANS - 1);
+
+        input.goldfish = Some(GOLDFISH);
+        assert!(!the_real_aunt_sue(&input, 2));
+        input.goldfish = Some(GOLDFISH - 1);
+
+        input.trees = Some(TREES);
+        assert!(!the_real_aunt_sue(&input, 2));
+        input.trees = Some(TREES + 1);
+    }
+
+    #[test]
+    fn the_solution() {
         let contents = fs::read_to_string("input/2015/day16.txt").unwrap();
 
         assert_eq!(y15d16(&contents, 1), 40);
