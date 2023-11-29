@@ -15,41 +15,48 @@
 
 //! Advent of Code 2015 Day 16: <https://adventofcode.com/2015/day/16>
 //!
-//! TODO
+//! Today's challenge is pretty straightforward. We don't have all of the
+//! information for the Aunt Sues but presumably, there is only one correct
+//! answer in the list of Aunt Sues, and so each incorrect Sue will have some
+//! disqualifying characteristic. The solution is therefore simple, check the
+//! information that we have about each Sue, if we can't find anything that
+//! disqualifies here then she's the one that we're looking for!
 
 use regex::Regex;
 
-/// TODO
+/// How many children Aunt Sue has (provided by the prompt).
 const CHILDREN: u32 = 3;
 
-/// TODO
+/// How many cats Aunt Sue has (provided by the prompt).
 const CATS: u32 = 7;
 
-/// TODO
+/// How many samoyeds Aunt Sue has (provided by the prompt).
 const SAMOYEDS: u32 = 2;
 
-/// TODO
+/// How many pomeranians Aunt Sue has (provided by the prompt).
 const POMERANIANS: u32 = 3;
 
-/// TODO
+/// How many akitas Aunt Sue has (provided by the prompt).
 const AKITAS: u32 = 0;
 
-/// TODO
+/// How many vizslas Aunt Sue has (provided by the prompt).
 const VIZSLAS: u32 = 0;
 
-/// TODO
+/// How many goldfish Aunt Sue has (provided by the prompt).
 const GOLDFISH: u32 = 5;
 
-/// TODO
+/// How many trees Aunt Sue has (provided by the prompt).
 const TREES: u32 = 3;
 
-/// TODO
+/// How many cars Aunt Sue has (provided by the prompt).
 const CARS: u32 = 2;
 
-/// TODO
+/// How many perfumes Aunt Sue has (provided by the prompt).
 const PERFUMES: u32 = 1;
 
-/// TODO
+/// AuntSue represents one of the Aunt Sues from the input list. She has an
+/// identifying number, and then optional information that we remember about
+/// her.
 #[derive(Debug, PartialEq)]
 struct AuntSue {
     number: u32,
@@ -66,7 +73,8 @@ struct AuntSue {
 }
 
 impl AuntSue {
-    /// TODO
+    /// Creates a new `AuntSue` with the given identifying number and no
+    /// information remembered about her (to be filled in later).
     fn new(number: u32) -> AuntSue {
         AuntSue {
             number,
@@ -86,7 +94,15 @@ impl AuntSue {
 
 /// The solution for the day sixteen challenge.
 ///
-/// TODO
+/// Starting with the input as a string and the part we're solving (which only
+/// affects some of the comparisons that we do to find the real aunt sue) we
+/// parse the input into `AuntSue` objects and then try to find out if we have
+/// the one we're looking for. In theory we could optimize this further by not
+/// creating objects but running the comparison as we try to check each field,
+/// but I don't think that it's worth it. Leaving it as-is creates a cleaner,
+/// easier-to-reason-about solution. If we get `0` back (which is not a valid
+/// Aunt Sue) then it means that we exhausted the input list of Sues and were
+/// unable to find the one that we were looking for.
 ///
 /// # Example
 /// ```rust
@@ -166,7 +182,10 @@ pub fn y15d16(input: &str, part: u32) -> u32 {
     0
 }
 
-/// TODO
+/// This function determines if the passed Aunt Sue is the _real_ Aunt Sue. We
+/// check each of her characteristics and if we find one that doesn't match
+/// the input we were given then we disqualify her. If we can't disqualify her
+/// then we have found the one we're looking for.
 fn the_real_aunt_sue(sue: &AuntSue, part: u32) -> bool {
     if let Some(c) = sue.children {
         if c != CHILDREN {
