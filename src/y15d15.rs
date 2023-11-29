@@ -87,17 +87,19 @@ pub fn y15d15(input: &str, part: u32) -> i32 {
 
     let mut mixes = Vec::new();
     for ingredient in &ingredients {
+        let mut totals = Vec::new();
         for amount in 0..TOTAL + 1 {
-            mixes.push(Mix {
+            totals.push(Mix {
                 amount: amount,
                 ingredient: ingredient,
             });
         }
+        mixes.push(totals);
     }
 
     let possibilities: Vec<Vec<Mix>> = mixes
         .into_iter()
-        .combinations(ingredients.len())
+        .multi_cartesian_product()
         .filter(|p| valid_possibility(&ingredients, p, part))
         .collect();
 
@@ -116,15 +118,6 @@ fn valid_possibility(
 ) -> bool {
     let sum: i32 = possibility.iter().map(|p| p.amount).sum();
     if sum != TOTAL {
-        return false;
-    }
-
-    let names: Vec<&String> = possibility
-        .iter()
-        .map(|p| &p.ingredient.name)
-        .unique()
-        .collect();
-    if names.len() != ingredients.len() {
         return false;
     }
 
