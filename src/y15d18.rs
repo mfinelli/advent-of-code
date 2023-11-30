@@ -15,13 +15,35 @@
 
 //! Advent of Code 2015 Day 18: <https://adventofcode.com/2015/day/18>
 //!
-//! TODO
+//! A relatively easy challenge, we essentially keep track of all of the lights
+//! as points on a grid ([`std::collections::HashMap`]) and then for each step
+//! evaluate the neighbors to build a new grid and then replace the current
+//! grid with the new grid in order to make one atomic option. Lights on the
+//! edge should have their neighbors considered off which is easy with the
+//! HashMap lookup: if we don't have a neighbor because it doesn't exist in the
+//! grid then don't increment the turned-on-neighbor count. In part two we
+//! just continually always set the corners to on.
 
 use std::collections::HashMap;
 
 /// The solution for the day eighteen challenge.
 ///
-/// TODO
+/// We take the input as a string as usual, and then accept the number of steps
+/// to process and the part of the problem that we're solving (in part `2` the
+/// corners are always on). We start by parsing the input to build a grid of
+/// the lights and their state. If we're in part `2` then we turn on the lights
+/// in the corner regardless of the initial input. Then for each step until we
+/// reach the total number of steps we build a new grid. We process all of the
+/// current lights and check their neighbors to see if they are on or not (if
+/// we're in part two and on a corner we just skip as we always leave the
+/// corner lights on). After we've counted the number of lights that are on we
+/// turn the light on or off based on the constraints from the prompt: if the
+/// light is currently on and it has two or three neighbors that are on then it
+/// stays on otherwise it turns off, and if it's currently off and it has three
+/// neighbors that are on then it turns on otherwise it stays off. If we're in
+/// part two we turn on the corner lights before replacing the current grid
+/// with the new grid that we've just built and moving on to the next step.
+/// Finally, we count the number of lights that are on and return the result.
 ///
 /// # Example
 /// ```rust
