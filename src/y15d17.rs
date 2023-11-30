@@ -15,35 +15,49 @@
 
 //! Advent of Code 2015 Day 17: <https://adventofcode.com/2015/day/17>
 //!
-//! TODO
+//! A very easy challenge today that amounts to using all of the combinations
+//! of containers that we can use and seeing if we can use that combination to
+//! transport the desired number of liters of eggnog.
 
 use itertools::Itertools;
 
 /// The solution for the day seventeen challenge.
 ///
-/// TODO
+/// We take the usual input as a string. The second argument is for the number
+/// of liters that we want to transport. The third argument is for the part of
+/// the problem that we want to solve (part `1` for the total number of
+/// possible combinations and part `2` for the number of combinations using the
+/// fewest number of containers). We start by parsing the input to create a
+/// vector of integers representing the capacity of each container. Then we
+/// find all of the possible combinations using from one to the total number
+/// of containers that we have. For each combination we check to see if it adds
+/// up to the correct number of liters. If it does then we increment our
+/// counter. If we're on part two as soon as we have a non-zero number of
+/// combinations we can return the answer because we take combinations from
+/// one to number of containers and the prompt only asks how many combinations
+/// are possible using the fewest number of containers.
 ///
 /// # Example
 /// ```rust
 /// # use aoc::y15d17::y15d17;
 /// // probably read this from the input file...
-/// let input = "";
-/// assert_eq!(y15d17(input, 10, 1), 0);
-/// assert_eq!(y15d17(input, 10, 2), 0);
+/// let input = "2\n3\n4\n5\n6\n7\n8\n9";
+/// assert_eq!(y15d17(input, 10, 1), 4);
+/// assert_eq!(y15d17(input, 10, 2), 3);
 /// ```
 pub fn y15d17(input: &str, liters: u32, part: u32) -> u32 {
     let lines: Vec<_> = input.lines().collect();
-    let mut bottles: Vec<u32> = Vec::new();
+    let mut containers: Vec<u32> = Vec::new();
     let mut total = 0;
 
     for line in lines {
-        bottles.push(line.parse().unwrap());
+        containers.push(line.parse().unwrap());
     }
 
-    for i in 1..bottles.len() {
+    for i in 1..containers.len() {
         let mut combinations = 0;
 
-        for combination in bottles.iter().combinations(i) {
+        for combination in containers.iter().combinations(i) {
             if combination.into_iter().sum::<u32>() == liters {
                 combinations += 1;
             }
