@@ -28,9 +28,10 @@ use itertools::Itertools;
 /// # use aoc::y15d17::y15d17;
 /// // probably read this from the input file...
 /// let input = "";
-/// assert_eq!(y15d17(input, 10), 0);
+/// assert_eq!(y15d17(input, 10, 1), 0);
+/// assert_eq!(y15d17(input, 10, 2), 0);
 /// ```
-pub fn y15d17(input: &str, liters: u32) -> u32 {
+pub fn y15d17(input: &str, liters: u32, part: u32) -> u32 {
     let lines: Vec<_> = input.lines().collect();
     let mut bottles: Vec<u32> = Vec::new();
     let mut total = 0;
@@ -40,11 +41,19 @@ pub fn y15d17(input: &str, liters: u32) -> u32 {
     }
 
     for i in 1..bottles.len() {
+        let mut combinations = 0;
+
         for combination in bottles.iter().combinations(i) {
             if combination.into_iter().sum::<u32>() == liters {
-                total += 1;
+                combinations += 1;
             }
         }
+
+        if part == 2 && combinations != 0 {
+            return combinations;
+        }
+
+        total += combinations;
     }
 
     total
@@ -58,13 +67,15 @@ mod tests {
     #[test]
     fn it_works() {
         let input = "20\n15\n10\n5\n5\n";
-        assert_eq!(y15d17(input, 25), 4);
+        assert_eq!(y15d17(input, 25, 1), 4);
+        assert_eq!(y15d17(input, 25, 2), 3);
     }
 
     #[test]
     fn the_solution() {
         let contents = fs::read_to_string("input/2015/day17.txt").unwrap();
 
-        assert_eq!(y15d17(&contents, 150), 1638);
+        assert_eq!(y15d17(&contents, 150, 1), 1638);
+        assert_eq!(y15d17(&contents, 150, 2), 17);
     }
 }
