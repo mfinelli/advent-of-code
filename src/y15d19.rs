@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-
 //! Advent of Code 2015 Day 19: <https://adventofcode.com/2015/day/19>
 //!
 //! TODO
@@ -48,14 +47,20 @@ pub fn y15d19(input: &str) -> u32 {
     }
 
     for (find, replace) in replacements {
-        // println!("find: {}, replace: {}", find, replace);
-        for (i, check) in molecule.chars().collect::<Vec<char>>().windows(find.len()).enumerate() {
+        for (i, check) in molecule
+            .chars()
+            .collect::<Vec<char>>()
+            .windows(find.len())
+            .enumerate()
+        {
             let check: String = check.iter().collect();
-            // println!("i: {}, check: {}", i, check);
             if check == find {
-                // println!("check == find: {}", check);
-                let new = format!("{}{}{}", substring(molecule, 0, i), replace, substring(molecule, i+find.len(), molecule.len()));
-                // println!("new: {}", new);
+                let new = format!(
+                    "{}{}{}",
+                    substring(molecule, 0, i),
+                    replace,
+                    substring(molecule, i + find.len(), molecule.len())
+                );
                 set.insert(new);
             }
         }
@@ -64,6 +69,7 @@ pub fn y15d19(input: &str) -> u32 {
     set.len().try_into().unwrap()
 }
 
+/// TODO
 fn substring(string: &str, start: usize, end: usize) -> String {
     let s: String = string.chars().skip(start).take(end).collect();
     s
@@ -75,7 +81,10 @@ mod tests {
     use std::fs;
 
     #[test]
-    fn tit_works() {
+    fn test_substring() {}
+
+    #[test]
+    fn it_works() {
         let input = "H => HO\nH => OH\nO => HH\n\nHOHOHO\n";
         assert_eq!(y15d19(input), 7);
     }
