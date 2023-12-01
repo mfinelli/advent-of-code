@@ -27,8 +27,8 @@ use std::collections::HashSet;
 /// ```rust
 /// # use aoc::y15d19::y15d19;
 /// // probably read this from the input file...
-/// let input = "";
-/// assert_eq!(y15d19(input), 0);
+/// let input = "Al => ThF\nAl => ThRnFAr\nB => BCa\nB => TiB\n\nnPBP";
+/// assert_eq!(y15d19(input), 2);
 /// ```
 pub fn y15d19(input: &str) -> u32 {
     let lines: Vec<_> = input.lines().collect();
