@@ -15,7 +15,9 @@
 
 //! Advent of Code 2023 Day 2: <https://adventofcode.com/2023/day/2>
 //!
-//! TODO
+//! Today's challenge was fairly easy, the most challenging part was parsing
+//! the input (which was straightforward with a few simple regular
+//! expressions).
 
 use regex::Regex;
 use std::collections::BinaryHeap;
@@ -39,15 +41,25 @@ struct Game {
 
 /// The solution for the day two challenge.
 ///
-/// TODO
+/// As usual, we take the input as a string and an integer denoting the part of
+/// the problem that we want to solve. In part `1` we return the sum of the
+/// game numbers of the games that are possible, and in part `2` we instead
+/// return the sum of the "powers" of the games (more information about how to
+/// compute the power is in the prompt but basically the minimum number of
+/// red, blue, and green cubes multiplies together). After we parse the input
+/// we switch on the part and either check if the game is possible and add its
+/// number to the sum or compute its power and add it to the sum.
 ///
 /// # Example
 /// ```rust
 /// # use aoc::y23d02::y23d02;
 /// // probably read this from the input file...
-/// let input = "";
-/// assert_eq!(y23d02(input, 1), 0);
-/// assert_eq!(y23d02(input, 2), 0);
+/// let input = concat!(
+///     "Game 1: 20 red, 20 blue, 20 green\n",
+///     "Game 2: 5 red, 5 blue, 5 green",
+/// );
+/// assert_eq!(y23d02(input, 1), 2);
+/// assert_eq!(y23d02(input, 2), 8125);
 /// ```
 pub fn y23d02(input: &str, part: u32) -> u32 {
     let mut sum = 0;
@@ -103,7 +115,8 @@ pub fn y23d02(input: &str, part: u32) -> u32 {
     sum
 }
 
-/// TODO
+/// This function computes if a game is possible given the constraint on the
+/// number of red, blue, and green cubes as specified in the prompt.
 fn is_possible(game: &Game) -> bool {
     let red = 12;
     let blue = 14;
@@ -132,7 +145,10 @@ fn is_possible(game: &Game) -> bool {
     true
 }
 
-/// TODO
+/// This function computes the power of a game. We use a
+/// [`std::collections::BinaryHeap`] to keep track of the minimum number of
+/// cube for each game across all draws and pop the heap for each cube to
+/// compute the power.
 fn compute_power(game: &Game) -> u32 {
     let mut red = BinaryHeap::from([0]);
     let mut blue = BinaryHeap::from([0]);
