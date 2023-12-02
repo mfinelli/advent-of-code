@@ -18,6 +18,8 @@
 //! TODO
 
 use regex::Regex;
+// use std::cmp::Reverse;
+use std::collections::BinaryHeap;
 
 /// TODO
 #[derive(Debug)]
@@ -43,9 +45,10 @@ struct Game {
 /// # use aoc::y23d02::y23d02;
 /// // probably read this from the input file...
 /// let input = "";
-/// assert_eq!(y23d02(input), 0);
+/// assert_eq!(y23d02(input, 1), 0);
+/// assert_eq!(y23d02(input, 2), 0);
 /// ```
-pub fn y23d02(input: &str) -> u32 {
+pub fn y23d02(input: &str, part: u32) -> u32 {
     let mut games = Vec::new();
     let red_regex = Regex::new(r"(\d+) red").unwrap();
     let blue_regex = Regex::new(r"(\d+) blue").unwrap();
@@ -85,15 +88,22 @@ pub fn y23d02(input: &str) -> u32 {
     }
 
     let mut sum = 0;
-    for game in games {
-        if is_possible(&game) {
-            sum += game.number;
+    if part == 1 {
+        for game in games {
+            if is_possible(&game) {
+                sum += game.number;
+            }
+        }
+    } else {
+        for game in games {
+            sum += compute_power(&game);
         }
     }
 
     sum
 }
 
+/// TODO
 fn is_possible(game: &Game) -> bool {
     let red = 12;
     let blue = 14;
@@ -122,10 +132,65 @@ fn is_possible(game: &Game) -> bool {
     true
 }
 
+/// TODO
+fn compute_power(game: &Game) -> u32 {
+    let mut min_red = BinaryHeap::from([0]);
+    let mut min_blue = BinaryHeap::from([0]);
+    let mut min_green = BinaryHeap::from([0]);
+
+    for draw in &game.draws {
+        if let Some(r) = draw.red {
+            min_red.push(r);
+        }
+
+        if let Some(b) = draw.blue {
+            min_blue.push(b);
+        }
+
+        if let Some(g) = draw.green {
+            min_green.push(g);
+        }
+    }
+
+    // let Reverse(red) = min_red.pop().unwrap();
+    // let Reverse(blue) = min_blue.pop().unwrap();
+    // let Reverse(green) = min_green.pop().unwrap();
+
+    // red * blue * green
+
+    min_red.pop().unwrap() * min_blue.pop().unwrap() * min_green.pop().unwrap()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use std::fs;
+
+    #[test]
+    fn test_is_possible() {
+    }
+
+    #[test]
+    fn test_compute_power() {
+        let mut game = Game {
+            number: 1,
+            draws: vec![Draw {
+                red: Some(4),
+                blue: Some(3),
+                green: None,
+            }, Draw {
+                red: Some(1),
+                blue: Some(6),
+                green: Some(2),
+            }, Draw {
+                red: None,
+                blue: None,
+                green: Some(2),
+            }]
+        };
+
+        assert_eq!(compute_power(&game), 48);
+    }
 
     #[test]
     fn it_works() {
@@ -137,13 +202,15 @@ mod tests {
             "Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green\n",
         );
 
-        assert_eq!(y23d02(input), 8);
+        assert_eq!(y23d02(input, 1), 8);
+        assert_eq!(y23d02(input, 2), 2286);
     }
 
     #[test]
     fn the_solution() {
         let contents = fs::read_to_string("input/2023/day02.txt").unwrap();
 
-        assert_eq!(y23d02(&contents), 2551);
+        assert_eq!(y23d02(&contents, 1), 2551);
+        assert_eq!(y23d02(&contents, 2), 62811);
     }
 }
