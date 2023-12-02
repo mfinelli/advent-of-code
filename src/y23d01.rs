@@ -25,7 +25,7 @@
 //! also account for multiple numbers encoded into a single word (see example
 //! below in the function description).
 
-/// The solution for part one of the day one challenge.
+/// The solution the day one challenge.
 ///
 /// We take the input as a string and the part that we're solving (in part `2`
 /// we treat number-words as their number equivalents). We loop through each
