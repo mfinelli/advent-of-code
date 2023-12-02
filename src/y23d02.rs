@@ -18,10 +18,10 @@
 //! TODO
 
 use regex::Regex;
-// use std::cmp::Reverse;
 use std::collections::BinaryHeap;
 
-/// TODO
+/// Draw repredents a handful of cubes in a game. Each color (red, blue, and
+/// green) can have some or none.
 #[derive(Debug)]
 struct Draw {
     red: Option<u32>,
@@ -29,7 +29,8 @@ struct Draw {
     green: Option<u32>,
 }
 
-/// TODO
+/// Game represents each game from the input, it has a number and a variable
+/// number of draws.
 #[derive(Debug)]
 struct Game {
     number: u32,
@@ -49,6 +50,7 @@ struct Game {
 /// assert_eq!(y23d02(input, 2), 0);
 /// ```
 pub fn y23d02(input: &str, part: u32) -> u32 {
+    let mut sum = 0;
     let mut games = Vec::new();
     let red_regex = Regex::new(r"(\d+) red").unwrap();
     let blue_regex = Regex::new(r"(\d+) blue").unwrap();
@@ -56,7 +58,9 @@ pub fn y23d02(input: &str, part: u32) -> u32 {
 
     for line in input.lines() {
         let parts: Vec<_> = line.split(": ").collect();
-        let number = parts[0].split_whitespace().collect::<Vec<_>>()[1].parse().unwrap();
+        let number = parts[0].split_whitespace().collect::<Vec<_>>()[1]
+            .parse()
+            .unwrap();
         let mut draws = Vec::new();
 
         for d in parts[1].split("; ") {
@@ -81,13 +85,9 @@ pub fn y23d02(input: &str, part: u32) -> u32 {
             draws.push(draw);
         }
 
-        games.push(Game {
-            number: number,
-            draws: draws,
-        });
+        games.push(Game { number, draws });
     }
 
-    let mut sum = 0;
     if part == 1 {
         for game in games {
             if is_possible(&game) {
@@ -134,31 +134,25 @@ fn is_possible(game: &Game) -> bool {
 
 /// TODO
 fn compute_power(game: &Game) -> u32 {
-    let mut min_red = BinaryHeap::from([0]);
-    let mut min_blue = BinaryHeap::from([0]);
-    let mut min_green = BinaryHeap::from([0]);
+    let mut red = BinaryHeap::from([0]);
+    let mut blue = BinaryHeap::from([0]);
+    let mut green = BinaryHeap::from([0]);
 
     for draw in &game.draws {
         if let Some(r) = draw.red {
-            min_red.push(r);
+            red.push(r);
         }
 
         if let Some(b) = draw.blue {
-            min_blue.push(b);
+            blue.push(b);
         }
 
         if let Some(g) = draw.green {
-            min_green.push(g);
+            green.push(g);
         }
     }
 
-    // let Reverse(red) = min_red.pop().unwrap();
-    // let Reverse(blue) = min_blue.pop().unwrap();
-    // let Reverse(green) = min_green.pop().unwrap();
-
-    // red * blue * green
-
-    min_red.pop().unwrap() * min_blue.pop().unwrap() * min_green.pop().unwrap()
+    red.pop().unwrap() * blue.pop().unwrap() * green.pop().unwrap()
 }
 
 #[cfg(test)]
@@ -168,37 +162,168 @@ mod tests {
 
     #[test]
     fn test_is_possible() {
+        let game = Game {
+            number: 1,
+            draws: vec![
+                Draw {
+                    red: Some(4),
+                    blue: Some(3),
+                    green: None,
+                },
+                Draw {
+                    red: Some(1),
+                    blue: Some(6),
+                    green: Some(2),
+                },
+                Draw {
+                    red: None,
+                    blue: None,
+                    green: Some(2),
+                },
+            ],
+        };
+
+        assert!(is_possible(&game));
+
+        let game = Game {
+            number: 2,
+            draws: vec![
+                Draw {
+                    red: None,
+                    blue: Some(1),
+                    green: Some(2),
+                },
+                Draw {
+                    red: Some(1),
+                    blue: Some(4),
+                    green: Some(3),
+                },
+                Draw {
+                    red: None,
+                    blue: Some(1),
+                    green: Some(1),
+                },
+            ],
+        };
+
+        assert!(is_possible(&game));
+
+        let game = Game {
+            number: 3,
+            draws: vec![
+                Draw {
+                    red: Some(20),
+                    blue: Some(6),
+                    green: Some(8),
+                },
+                Draw {
+                    red: Some(4),
+                    blue: Some(5),
+                    green: None,
+                },
+                Draw {
+                    red: None,
+                    blue: None,
+                    green: Some(13),
+                },
+                Draw {
+                    red: Some(1),
+                    blue: None,
+                    green: Some(5),
+                },
+            ],
+        };
+
+        assert!(!is_possible(&game));
     }
 
     #[test]
     fn test_compute_power() {
-        let mut game = Game {
+        let game = Game {
             number: 1,
-            draws: vec![Draw {
-                red: Some(4),
-                blue: Some(3),
-                green: None,
-            }, Draw {
-                red: Some(1),
-                blue: Some(6),
-                green: Some(2),
-            }, Draw {
-                red: None,
-                blue: None,
-                green: Some(2),
-            }]
+            draws: vec![
+                Draw {
+                    red: Some(4),
+                    blue: Some(3),
+                    green: None,
+                },
+                Draw {
+                    red: Some(1),
+                    blue: Some(6),
+                    green: Some(2),
+                },
+                Draw {
+                    red: None,
+                    blue: None,
+                    green: Some(2),
+                },
+            ],
         };
 
         assert_eq!(compute_power(&game), 48);
+
+        let game = Game {
+            number: 2,
+            draws: vec![
+                Draw {
+                    red: None,
+                    blue: Some(1),
+                    green: Some(2),
+                },
+                Draw {
+                    red: Some(1),
+                    blue: Some(4),
+                    green: Some(3),
+                },
+                Draw {
+                    red: None,
+                    blue: Some(1),
+                    green: Some(1),
+                },
+            ],
+        };
+
+        assert_eq!(compute_power(&game), 12);
+
+        let game = Game {
+            number: 3,
+            draws: vec![
+                Draw {
+                    red: Some(20),
+                    blue: Some(6),
+                    green: Some(8),
+                },
+                Draw {
+                    red: Some(4),
+                    blue: Some(5),
+                    green: None,
+                },
+                Draw {
+                    red: None,
+                    blue: None,
+                    green: Some(13),
+                },
+                Draw {
+                    red: Some(1),
+                    blue: None,
+                    green: Some(5),
+                },
+            ],
+        };
+
+        assert_eq!(compute_power(&game), 1560);
     }
 
     #[test]
     fn it_works() {
         let input = concat!(
             "Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green\n",
-            "Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue\n",
-            "Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red\n",
-            "Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red\n",
+            "Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, ",
+            "1 blue\n",
+            "Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; ",
+            "5 green, 1 red\n",
+            "Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 ",
+            "blue, 14 red\n",
             "Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green\n",
         );
 
