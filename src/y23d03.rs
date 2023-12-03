@@ -15,13 +15,22 @@
 
 //! Advent of Code 2023 Day 3: <https://adventofcode.com/2023/day/3>
 //!
-//! TODO
+//! Part one of today's challenge was fairly easy, but the problem in part two
+//! didn't fit at all with how I solved part one and so I wasn't really able
+//! to reuse anything or build on top of part one as is usually the case so
+//! part two is essentially its own problem with its own solution.
 
 use std::collections::HashMap;
 
 /// The solution for part one of the day three challenge.
 ///
-/// TODO
+/// Given the problem input as a string we start by building a grid
+/// representation of each character into a [`std::collections::HashMap`] then
+/// we loop through our grid line by line and character by character. We keep
+/// track if we've found a number and then when we either stop seeing numbers
+/// or we get to the end of the line we check to see if what we've found is
+/// adjacent to any of the symbols present in the grid and if it is then we add
+/// it to the final sum.
 ///
 /// # Example
 /// ```rust
@@ -83,6 +92,17 @@ pub fn y23d03p1(input: &str) -> u32 {
 }
 
 /// The solution for part two of the day three challenge.
+///
+/// As in part one we take the problem input as a string. We then parse the
+/// input keeping track of the numbers as we see them (similarly to part one)
+/// and also all of the coordinates of the `*` characters as we need them to
+/// find the gears. Once we have all of the numbers (and their starting x,
+/// ending x, and y coordinates) we loop through all of the stars. For each
+/// star we check the border of all of the numbers to see if there is any
+/// overlap with the star (which means that they are adjacent). If they are
+/// then we add the number to the neighbors vector. If the number of neighbors
+/// is exactly two (given by the prompt) then we multiply them together and add
+/// them to the final sum.
 ///
 /// # Example
 /// ```rust
@@ -167,7 +187,9 @@ pub fn y23d03p2(input: &str) -> u32 {
     sum
 }
 
-/// TODO
+/// This function is only used in part one, and checks to see if a given start
+/// x coordinate, end x coordinate, and y coordinate is adjacent to any symbols
+/// in the grid.
 fn symbol_adjacent(
     grid: &HashMap<(i32, i32), char>,
     start_x: i32,
@@ -193,6 +215,45 @@ fn symbol_adjacent(
 mod tests {
     use super::*;
     use std::fs;
+
+    #[test]
+    fn test_symbol_adjacent() {
+        let mut input = HashMap::new();
+        input.insert((0, 0), '1');
+        input.insert((1, 0), '2');
+        input.insert((2, 0), '.');
+        input.insert((0, 1), '.');
+        input.insert((1, 1), '.');
+        input.insert((2, 1), '.');
+        input.insert((0, 2), '.');
+        input.insert((1, 2), '.');
+        input.insert((2, 2), '*');
+        assert_eq!(symbol_adjacent(&input, 0, 2, 0), false);
+
+        let mut input = HashMap::new();
+        input.insert((0, 0), '1');
+        input.insert((1, 0), '2');
+        input.insert((2, 0), '*');
+        input.insert((0, 1), '.');
+        input.insert((1, 1), '.');
+        input.insert((2, 1), '.');
+        input.insert((0, 2), '.');
+        input.insert((1, 2), '.');
+        input.insert((2, 2), '.');
+        assert_eq!(symbol_adjacent(&input, 0, 2, 0), true);
+
+        let mut input = HashMap::new();
+        input.insert((0, 0), '1');
+        input.insert((1, 0), '2');
+        input.insert((2, 0), '.');
+        input.insert((0, 1), '.');
+        input.insert((1, 1), '.');
+        input.insert((2, 1), '*');
+        input.insert((0, 2), '.');
+        input.insert((1, 2), '.');
+        input.insert((2, 2), '.');
+        assert_eq!(symbol_adjacent(&input, 0, 2, 0), true);
+    }
 
     #[test]
     fn it_works() {
