@@ -182,6 +182,7 @@ fn main() {
         }
         "y23d03" => {
             println!("Part 1: {}", y23d03::y23d03(&input));
+            println!("Part 2: {}", y23d03::y23d03p2(&input));
         }
         _ => panic!("Unable to find year/day match."),
     };
