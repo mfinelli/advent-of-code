@@ -19,18 +19,18 @@
 
 use std::collections::HashMap;
 
-/// The solution for the day three challenge.
+/// The solution for part one of the day three challenge.
 ///
 /// TODO
 ///
 /// # Example
 /// ```rust
-/// # use aoc::y23d03::y23d03;
+/// # use aoc::y23d03::y23d03p1;
 /// // probably read this from the input file...
-/// let input = "";
-/// assert_eq!(y23d03(input), 0);
+/// let input = "123.\n.*..\n....\n.456";
+/// assert_eq!(y23d03p1(input), 123);
 /// ```
-pub fn y23d03(input: &str) -> u32 {
+pub fn y23d03p1(input: &str) -> u32 {
     let lines: Vec<_> = input.lines().collect();
     let size = lines.len();
     let mut sum = 0;
@@ -82,16 +82,22 @@ pub fn y23d03(input: &str) -> u32 {
     sum
 }
 
-/// TODO
+/// The solution for part two of the day three challenge.
+///
+/// # Example
+/// ```rust
+/// # use aoc::y23d03::y23d03p2;
+/// // probably read this from the input file...
+/// let input = "123.5\n...*.\n.....\n..456";
+/// assert_eq!(y23d03p2(input), 615);
+/// ```
 pub fn y23d03p2(input: &str) -> u32 {
     let lines: Vec<_> = input.lines().collect();
     let size: i32 = lines.len().try_into().unwrap();
     let mut sum = 0;
-    let mut grid = HashMap::new();
     let mut stars = Vec::new();
     let mut numbers = Vec::new();
-
-    // let numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    let num_chars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
     for (y, line) in lines.iter().enumerate() {
         let mut in_number = false;
@@ -103,34 +109,39 @@ pub fn y23d03p2(input: &str) -> u32 {
             let y: i32 = y.try_into().unwrap();
 
             if in_number {
-                if ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'].contains(&c) {
+                if num_chars.contains(&c) {
                     current_number = format!("{}{}", current_number, c);
                 } else {
-                    numbers.push((current_number.parse::<u32>().unwrap(), number_start, x-1, y));
+                    numbers.push((
+                        current_number.parse::<u32>().unwrap(),
+                        number_start,
+                        x - 1,
+                        y,
+                    ));
 
                     in_number = false;
                     current_number = "".to_string();
                 }
-            } else if ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'].contains(&c) {
+            } else if num_chars.contains(&c) {
                 in_number = true;
                 current_number = c.to_string();
                 number_start = x;
             }
 
             if c == '*' {
-                stars.push((x,y));
+                stars.push((x, y));
             }
-
-            grid.insert((x as i32, y as i32), c);
         }
 
         if in_number {
-            numbers.push((current_number.parse::<u32>().unwrap(), number_start, size-1, y.try_into().unwrap()));
+            numbers.push((
+                current_number.parse::<u32>().unwrap(),
+                number_start,
+                size - 1,
+                y.try_into().unwrap(),
+            ));
         }
     }
-
-    // println!("{:?}", numbers);
-    // println!("{:?}", stars);
 
     for star in stars {
         let mut neighbors = Vec::new();
@@ -139,25 +150,18 @@ pub fn y23d03p2(input: &str) -> u32 {
         for number in &numbers {
             let (num, start_x, end_x, num_y) = number;
 
-            // if *num == 755 {
-            //     println!("{:?}", number);
-            //     println!("{:?}", star);
-
-            //     println!("x: {}, start_x: {}, end_x: {}", x, start_x, end_x);
-            //     println!("y: {}, y-1: {}, y+1: {}", y, num_y-1, num_y+1);
-            // }
-
-            if x >= *start_x -1 && x <= *end_x +1&& y >= num_y - 1 && y <= num_y +1 {
+            if x >= *start_x - 1
+                && x <= *end_x + 1
+                && y >= num_y - 1
+                && y <= num_y + 1
+            {
                 neighbors.push(num);
             }
         }
 
-        // println!("star at {},{} has neighbors {:?}", x, y, neighbors);
-
         if neighbors.len() == 2 {
             sum += neighbors[0] * neighbors[1];
         }
-
     }
 
     sum
@@ -205,7 +209,7 @@ mod tests {
             ".664.598..\n",
         );
 
-        assert_eq!(y23d03(input), 4361);
+        assert_eq!(y23d03p1(input), 4361);
         assert_eq!(y23d03p2(input), 467835);
     }
 
@@ -213,7 +217,7 @@ mod tests {
     fn the_solution() {
         let contents = fs::read_to_string("input/2023/day03.txt").unwrap();
 
-        assert_eq!(y23d03(&contents), 527144);
+        assert_eq!(y23d03p1(&contents), 527144);
         assert_eq!(y23d03p2(&contents), 81463996);
     }
 }
