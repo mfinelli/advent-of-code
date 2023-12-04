@@ -228,7 +228,7 @@ mod tests {
         input.insert((0, 2), '.');
         input.insert((1, 2), '.');
         input.insert((2, 2), '*');
-        assert_eq!(symbol_adjacent(&input, 0, 2, 0), false);
+        assert!(!symbol_adjacent(&input, 0, 2, 0));
 
         let mut input = HashMap::new();
         input.insert((0, 0), '1');
@@ -240,7 +240,7 @@ mod tests {
         input.insert((0, 2), '.');
         input.insert((1, 2), '.');
         input.insert((2, 2), '.');
-        assert_eq!(symbol_adjacent(&input, 0, 2, 0), true);
+        assert!(symbol_adjacent(&input, 0, 2, 0));
 
         let mut input = HashMap::new();
         input.insert((0, 0), '1');
@@ -252,7 +252,7 @@ mod tests {
         input.insert((0, 2), '.');
         input.insert((1, 2), '.');
         input.insert((2, 2), '.');
-        assert_eq!(symbol_adjacent(&input, 0, 2, 0), true);
+        assert!(symbol_adjacent(&input, 0, 2, 0));
     }
 
     #[test]
