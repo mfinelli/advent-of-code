@@ -17,22 +17,22 @@
 //!
 //! TODO
 
-use std::collections::HashSet;
 use rand::seq::SliceRandom;
 use rand::thread_rng;
+use std::collections::HashSet;
 
-/// The solution for the day nineteen challenge.
+/// The solution for part one of the day nineteen challenge.
 ///
 /// TODO
 ///
 /// # Example
 /// ```rust
-/// # use aoc::y15d19::y15d19;
+/// # use aoc::y15d19::y15d19p1;
 /// // probably read this from the input file...
 /// let input = "Al => ThF\nAl => ThRnFAr\nB => BCa\nB => TiB\n\nnPBP";
-/// assert_eq!(y15d19(input), 2);
+/// assert_eq!(y15d19p1(input), 2);
 /// ```
-pub fn y15d19(input: &str) -> u32 {
+pub fn y15d19p1(input: &str) -> u32 {
     let lines: Vec<_> = input.lines().collect();
     let num_replacements = lines.len() - 2;
     let molecule = lines[lines.len() - 1];
@@ -71,15 +71,24 @@ pub fn y15d19(input: &str) -> u32 {
     set.len().try_into().unwrap()
 }
 
+/// The solution for part two of the day nineteen challenge.
+///
 /// TODO
 ///
 /// # Example
+/// ```rust
+/// # use aoc::y15d19::y15d19p2;
+/// // probably read this from the input file...
+/// let input = "e => A\ne => B\nA => BB\nB => AA\nB => AB\n\nAB";
+/// assert_eq!(y15d19p2(input), 2);
+/// ```
 pub fn y15d19p2(input: &str) -> u32 {
+    let mut rng = thread_rng();
     let lines: Vec<_> = input.lines().collect();
     let num_replacements = lines.len() - 2;
     let molecule = lines[lines.len() - 1].to_string();
     let mut reduced = molecule.clone();
-    let mut count  = 0;
+    let mut count = 0;
 
     let mut replacements = Vec::new();
     for (i, line) in lines.into_iter().enumerate() {
@@ -91,33 +100,12 @@ pub fn y15d19p2(input: &str) -> u32 {
         replacements.push((text[0], text[2]));
     }
 
-    // replacements.sort_by(|(_, a), (_, b)| a.len().cmp(&b.len()));
-    let mut rng = thread_rng();
-
-    // println!("{:?}", replacements);
-    //
-    // for (find, replace) in replacements.iter().rev() {
-    //     loop{
-    //         let new = molecule.replacen(replace, find, 1);
-    //         println!("{} -> {}: {} -> {}", replace, find, molecule, new);
-    //         if new == molecule {
-    //             break;
-    //         }
-    //         count += 1;
-    //         molecule = new;
-    //     }
-
-    //     if molecule == "e" {
-    //         break;
-    //     }
-    // }
     while reduced != "e" {
         let start_len = reduced.len();
 
         for (find, replace) in &replacements {
             loop {
                 let new = reduced.replacen(replace, find, 1);
-                // println!("{} -> {}: {} -> {}", replace, find, reduced, new);
                 if new == reduced {
                     break;
                 }
@@ -151,9 +139,9 @@ mod tests {
     fn test_substring() {}
 
     #[test]
-    fn tit_works() {
+    fn it_works() {
         let mut input = "H => HO\nH => OH\nO => HH\n\nHOHOHO\n";
-        assert_eq!(y15d19(input), 7);
+        assert_eq!(y15d19p1(input), 7);
 
         input = "e => H\ne => O\nH => HO\nH => OH\nO => HH\n\nHOHOHO\n";
         assert_eq!(y15d19p2(input), 6);
@@ -163,7 +151,7 @@ mod tests {
     fn the_solution() {
         let contents = fs::read_to_string("input/2015/day19.txt").unwrap();
 
-        assert_eq!(y15d19(&contents), 509);
+        assert_eq!(y15d19p1(&contents), 509);
         assert_eq!(y15d19p2(&contents), 195);
     }
 }
