@@ -59,3 +59,4 @@ pub mod y22d16;
 pub mod y23d01;
 pub mod y23d02;
 pub mod y23d03;
+pub mod y23d04;
