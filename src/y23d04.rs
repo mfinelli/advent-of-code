@@ -18,6 +18,7 @@
 //! TODO
 
 use std::collections::HashSet;
+use std::collections::HashMap;
 
 /// The solution for the day four challenge.
 ///
@@ -30,20 +31,43 @@ use std::collections::HashSet;
 /// let input = ""
 /// assert_eq!(y23d04(input), 0);
 /// ```
-pub fn y23d04(input: &str) -> u32 {
+pub fn y23d04(input: &str, part: u32) -> u32 {
     let base: u32 = 2;
+    let lines: Vec<_> = input.lines().collect();
+    let mut cards = HashMap::new();
     let mut sum = 0;
 
-    for line in input.lines() {
-        let numbers: Vec<_> = line.split(": ").collect::<Vec<_>>()[1].split("|").collect();
+    if part == 2 {
+        for card in 0..lines.len() {
+            let card: u32 = card.try_into().unwrap();
+            cards.insert(card+1, 1);
+        }
+    }
+
+    for line in lines {
+        let parts: Vec<_> = line.split(": ").collect();
+        let card_number = parts[0].split_whitespace().collect::<Vec<_>>()[1].parse::<u32>().unwrap();
+
+        let numbers: Vec<_> = parts[1].split("|").collect();
         let winning: HashSet<u32> = numbers[0].split_whitespace().map(|n| n.parse().unwrap()).collect();
         let have: HashSet<u32> = numbers[1].split_whitespace().map(|n| n.parse().unwrap()).collect();
-        let points: Vec<_> = winning.intersection(&have).collect();
+        let matches: Vec<_> = winning.intersection(&have).collect();
+        let matches_len: u32 = matches.len().try_into().unwrap();
 
-        if points.len() > 0 {
-            let pow: u32 = points.len().try_into().unwrap();
-            sum += base.pow(pow -1);
+        if part == 1 {
+            if matches_len > 0 {
+                sum += base.pow(matches_len -1);
+            }
+        } else {
+            let how_many_we_have = *cards.get(&card_number).unwrap();
+            for card in card_number..card_number + matches_len {
+                cards.entry(card+1).and_modify(|c| *c+= how_many_we_have);
+            }
         }
+    }
+
+    if part == 2 {
+        return cards.values().sum();
     }
 
     sum
@@ -65,13 +89,15 @@ mod tests {
             "Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11\n",
         );
 
-        assert_eq!(y23d04(input), 13);
+        assert_eq!(y23d04(input, 1), 13);
+        assert_eq!(y23d04(input, 2), 30);
     }
 
     #[test]
     fn the_solution() {
         let contents = fs::read_to_string("input/2023/day04.txt").unwrap();
 
-        assert_eq!(y23d04(&contents), 24706);
+        assert_eq!(y23d04(&contents, 1), 24706);
+        assert_eq!(y23d04(&contents, 2), 13114317);
     }
 }
