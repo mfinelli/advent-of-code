@@ -27,15 +27,26 @@
 /// // probably read this from the input file...
 /// let input = "";
 /// assert_eq!(y23d06(input, 1), 0);
+/// assert_eq!(y23d06(input, 2), 0);
 /// ```
-pub fn y23d06(input: &str) -> u64 {
+pub fn y23d06(input: &str, part: u32) -> u64 {
     let lines: Vec<_>= input.lines().collect();
-    let times: Vec<u32> = lines[0].split_whitespace().skip(1).map(|t| t.parse().unwrap()).collect();
-    let distances: Vec<u32> = lines[1].split_whitespace().skip(1).map(|d| d.parse().unwrap()).collect();
+    let times: Vec<u64> = if part == 2 {
+        vec![lines[0].split_whitespace().skip(1).collect::<Vec<_>>().join("").parse().unwrap()]
+    } else {
+        lines[0].split_whitespace().skip(1).map(|d| d.parse().unwrap()).collect()
+    };
+
+    let distances: Vec<u64> = if part == 2 {
+        vec![lines[1].split_whitespace().skip(1).collect::<Vec<_>>().join("").parse().unwrap()]
+    } else {
+        lines[1].split_whitespace().skip(1).map(|d| d.parse().unwrap()).collect()
+    };
 
     // println!("{:?}", times);
     // println!("{:?}", distances);
     // println!("{:?}", times.iter().zip(distances).collect::<Vec<_>>());
+    //
 
     let mut answer = 1;
     for (time, distance) in times.iter().zip(distances) {
@@ -64,13 +75,15 @@ mod tests {
     fn iit_works() {
         let input = "Time:      7  15   30\nDistance:  9  40  200\n";
 
-        assert_eq!(y23d06(input), 288);
+        assert_eq!(y23d06(input, 1), 288);
+        assert_eq!(y23d06(input, 2), 71503);
     }
 
     #[test]
     fn the_solution() {
         let contents = fs::read_to_string("input/2023/day06.txt").unwrap();
 
-        assert_eq!(y23d06(&contents), 0);
+        assert_eq!(y23d06(&contents, 1), 316800);
+        assert_eq!(y23d06(&contents, 2), 0);
     }
 }
