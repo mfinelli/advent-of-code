@@ -15,12 +15,23 @@
 
 //! Advent of Code 2023 Day 7: <https://adventofcode.com/2023/day/7>
 //!
-//! TODO
+//! Today's challenge was not terribly difficult to understand or to implement
+//! but ended up taking me quite a bit of time to actually complete because
+//! the implementation started to grow quite large. In part two I had a bug
+//! where I was returning `false` from the `is_kind_of_hand` functions when I
+//! should have been just letting the value equal `0` if there weren't any
+//! jokers. The general strategy that I adopted today is to build a custom
+//! type `Hand` which implements its own sorting functions based on the input
+//! from the prompt. Then the actual daily function just needs to parse the
+//! input and sort the result and the work is mostly done.
 
 use std::cmp::Ordering;
 use std::collections::HashMap;
 
-/// TODO
+/// The Card enum is just an easier way to encode the cards in the code. Their
+/// specific value isn't important as long as it respects the ordering rule as
+/// defined in the prompt (e.g., in part two `Joker` must have the lowest
+/// value).
 #[derive(Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 enum Card {
     Ace(u64),
@@ -39,10 +50,13 @@ enum Card {
     Joker(u64),
 }
 
-/// TODO
+/// Just used to represent the value of the Joker card consistently where it's
+/// used.
 const JOKER: Card = Card::Joker(1);
 
-/// TODO
+/// Represents a Hand as defined by the input: includes the card and the bid
+/// for that hand. Also tracks the problem part `1` or `2` to make use of the
+/// joker rules when sorting hands.
 #[derive(Debug)]
 struct Hand {
     cards: [Card; 5],
@@ -51,7 +65,9 @@ struct Hand {
 }
 
 impl Hand {
-    /// TODO
+    /// This function returns a [`std::collections::HashMap`] of all of the
+    /// cards in a hand (as the keys) with the number of times that they
+    /// appear (as the values).
     fn count_cards(&self) -> HashMap<&Card, usize> {
         let mut map = HashMap::new();
 
@@ -62,7 +78,7 @@ impl Hand {
         map
     }
 
-    /// TODO
+    /// Returns true if the hand is a five-of-a-kind and false otherwise.
     fn is_five_of_a_kind(&self) -> bool {
         if self.part == 1 {
             self.cards[0] == self.cards[1]
@@ -92,7 +108,7 @@ impl Hand {
         }
     }
 
-    /// TODO
+    /// Returns true of the hand is a four-of-a-kind and false otherwise.
     fn is_four_of_a_kind(&self) -> bool {
         if self.is_five_of_a_kind() {
             return false;
@@ -124,7 +140,7 @@ impl Hand {
         }
     }
 
-    /// TODO
+    /// Returns true if the hand is a full house and false otherwise.
     fn is_full_house(&self) -> bool {
         if self.is_five_of_a_kind() || self.is_four_of_a_kind() {
             return false;
@@ -155,7 +171,7 @@ impl Hand {
         }
     }
 
-    /// TODO
+    /// Returns true if the hand is a three of a kind and false otherwise.
     fn is_three_of_a_kind(&self) -> bool {
         if self.is_five_of_a_kind()
             || self.is_four_of_a_kind()
@@ -186,7 +202,7 @@ impl Hand {
         }
     }
 
-    /// TODO
+    /// Returns true if the hand is two pairs and false otherwise.
     fn is_two_pair(&self) -> bool {
         if self.is_five_of_a_kind()
             || self.is_four_of_a_kind()
@@ -215,7 +231,7 @@ impl Hand {
         }
     }
 
-    /// TODO
+    /// Returns true if the hand only has a single pair and false otherwise.
     fn is_one_pair(&self) -> bool {
         if self.is_five_of_a_kind()
             || self.is_four_of_a_kind()
@@ -247,7 +263,7 @@ impl Hand {
         }
     }
 
-    /// TODO
+    /// Returns true if the hand has all different cards and false otherwise.
     fn is_high_card(&self) -> bool {
         if self.is_five_of_a_kind()
             || self.is_four_of_a_kind()
@@ -270,7 +286,13 @@ impl Hand {
         }
     }
 
-    /// TODO
+    /// This function implements the second part of the ordering as described
+    /// in the prompt and is only used when two hands have the same type (e.g.,
+    /// two five-of-a-kinds): it compares the first card of each hand and if
+    /// they're the same moving on to the second and the third if those are the
+    /// same, etc. Compared to e.g., poker the comparison is simply done on
+    /// the _first_ card which is not necessarily the highest or most valuable
+    /// card.
     fn cmp_first_card(&self, other: &Self) -> Ordering {
         for (i, card) in self.cards.iter().enumerate() {
             if card == &other.cards[i] {
@@ -433,7 +455,8 @@ pub fn y23d07(input: &str, part: u32) -> u64 {
     winnings
 }
 
-/// TODO
+/// This function returns an element from our `Card` enum based on its
+/// character representation.
 fn parse_card(card: char, part: u32) -> Card {
     match card {
         'A' => Card::Ace(14),
@@ -465,7 +488,15 @@ mod tests {
     use std::fs;
 
     #[test]
-    fn test_parse_card() {}
+    fn test_parse_card() {
+        assert_eq!(parse_card('A', 1), Card::Ace(14));
+        assert_eq!(parse_card('K', 1), Card::King(13));
+        assert_eq!(parse_card('K', 2), Card::King(13));
+        assert_eq!(parse_card('J', 1), Card::Jack(11));
+        assert_eq!(parse_card('J', 2), JOKER);
+        assert_eq!(parse_card('9', 1), Card::Nine(9));
+        assert_eq!(parse_card('4', 2), Card::Four(4));
+    }
 
     #[test]
     fn test_hand_count_cards() {}
