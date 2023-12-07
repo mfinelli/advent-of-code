@@ -17,8 +17,8 @@
 //!
 //! TODO
 
-use std::collections::HashMap;
 use std::cmp::Ordering;
+use std::collections::HashMap;
 
 /// TODO
 #[derive(Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -65,7 +65,10 @@ impl Hand {
     /// TODO
     fn is_five_of_a_kind(&self) -> bool {
         if self.part == 1 {
-            self.cards[0] == self.cards[1] && self.cards[1] ==self.cards[2] && self.cards[2] == self.cards[3] && self.cards[3] == self.cards[4]
+            self.cards[0] == self.cards[1]
+                && self.cards[1] == self.cards[2]
+                && self.cards[2] == self.cards[3]
+                && self.cards[3] == self.cards[4]
         } else {
             let counts = self.count_cards();
             let jokers = match counts.get(&JOKER) {
@@ -73,15 +76,15 @@ impl Hand {
                 Some(jokers) => *jokers,
             };
 
-            if counts.values().any(|v| *v ==5) {
+            if counts.values().any(|v| *v == 5) {
                 return true;
             } else if counts.values().any(|v| *v == 4) && jokers == 1 {
                 return true;
             } else if counts.values().any(|v| *v == 3) && jokers == 2 {
                 return true;
-            } else if counts.values().any(|v| *v ==2) && jokers == 3 {
+            } else if counts.values().any(|v| *v == 2) && jokers == 3 {
                 return true;
-            } else if counts.values().any(|v| *v ==1) && jokers == 4 {
+            } else if counts.values().any(|v| *v == 1) && jokers == 4 {
                 return true;
             } else {
                 return false;
@@ -104,17 +107,13 @@ impl Hand {
                 Some(jokers) => *jokers,
             };
 
-            // KKKKA -> yes
-            // KKKJA -> yes
-            // KKJJA -> yes
-            // KJJJA -> yes
-            // JJJJA -> no/five-of-a-kind
-
             if counts.values().any(|v| *v == 4) {
                 return true;
             } else if counts.values().any(|v| *v == 3) && jokers == 1 {
                 return true;
-            } else if counts.values().filter(|v| **v == 2).count() == 2 && jokers == 2 {
+            } else if counts.values().filter(|v| **v == 2).count() == 2
+                && jokers == 2
+            {
                 // we have two pairs, one is jokers so we can make 4
                 return true;
             } else if counts.values().any(|v| *v == 1) && jokers == 3 {
@@ -141,17 +140,13 @@ impl Hand {
                 Some(jokers) => *jokers,
             };
 
-            // KKKAA -> yes
-            // KKJAA -> yes
-            // KJJAA -> no/four-of-a-kind
-            // JJJAA -> no/five-of-a-kind
-            // KJJJA -> no/four-of-a-kind
-            // KKJJA -> no/four-of-a-kind
-            // KKKJJ -> no/five-of-a-kind
-
-            if counts.values().any(|v| *v == 3) && counts.values().any(|v| *v ==2) {
+            if counts.values().any(|v| *v == 3)
+                && counts.values().any(|v| *v == 2)
+            {
                 return true;
-            } else if counts.values().filter(|v| **v == 2).count() == 2 && jokers == 1 {
+            } else if counts.values().filter(|v| **v == 2).count() == 2
+                && jokers == 1
+            {
                 // two pairs plus a joker to make a full house
                 return true;
             } else {
@@ -162,7 +157,10 @@ impl Hand {
 
     /// TODO
     fn is_three_of_a_kind(&self) -> bool {
-        if self.is_five_of_a_kind() || self.is_four_of_a_kind() || self.is_full_house() {
+        if self.is_five_of_a_kind()
+            || self.is_four_of_a_kind()
+            || self.is_full_house()
+        {
             return false;
         }
 
@@ -175,14 +173,6 @@ impl Hand {
                 None => 0,
                 Some(jokers) => *jokers,
             };
-
-            // AAAKQ -> yes
-            // AAAKJ -> no/four-of-a-kind
-            // AAAJJ -> no/four-of-a-kind
-            // AAJKQ -> yes
-            // AJJKQ -> yes
-            // AJJJK -> no/four-of-a-kind
-            // AJJJJ -> no/five-of-a-kind
 
             if counts.values().any(|v| *v == 3) {
                 return true;
@@ -198,7 +188,11 @@ impl Hand {
 
     /// TODO
     fn is_two_pair(&self) -> bool {
-        if self.is_five_of_a_kind() || self.is_four_of_a_kind() || self.is_full_house() || self.is_three_of_a_kind() {
+        if self.is_five_of_a_kind()
+            || self.is_four_of_a_kind()
+            || self.is_full_house()
+            || self.is_three_of_a_kind()
+        {
             return false;
         }
 
@@ -211,12 +205,7 @@ impl Hand {
                 Some(jokers) => *jokers,
             };
 
-            // AAKKQ -> yes
-            // AAKJQ -> no/three-of-a-kind
-            // AKJJQ -> no/three-of-a-kind
-            // AJKJQ -> no/three-of-a-kind
-
-            if counts.values().filter(|v| **v ==2).count() == 2 {
+            if counts.values().filter(|v| **v == 2).count() == 2 {
                 return true;
             } else if counts.values().any(|v| *v == 2) && jokers == 1 {
                 return true;
@@ -224,34 +213,22 @@ impl Hand {
                 return false;
             }
         }
-
-        //     let counts = self.count_cards();
-
-        //     if counts.values().filter(|v| **v == 2).count() == 2 {
-        //         return true;
-        //     } else {
-        //         let jokers = match counts.get(&JOKER) {
-        //             None => return false,
-        //             Some(jokers) => *jokers,
-        //         };
-
-        //         if counts.values().any(|v| *v == 2)
-
-        //         false
-
-        //     }
-        // }
     }
 
     /// TODO
     fn is_one_pair(&self) -> bool {
-        if self.is_five_of_a_kind() || self.is_four_of_a_kind() || self.is_full_house() || self.is_three_of_a_kind() || self.is_two_pair() {
+        if self.is_five_of_a_kind()
+            || self.is_four_of_a_kind()
+            || self.is_full_house()
+            || self.is_three_of_a_kind()
+            || self.is_two_pair()
+        {
             return false;
         }
 
         let counts = self.count_cards();
 
-        if self.part ==1 {
+        if self.part == 1 {
             counts.values().any(|v| *v == 2)
         } else {
             let counts = self.count_cards();
@@ -259,12 +236,6 @@ impl Hand {
                 None => 0,
                 Some(jokers) => *jokers,
             };
-
-            // println!("{:?}", counts);
-
-            // AAKQT -> yes
-            // AJKQT -> yes
-            // AJJKQ -> no/three-of-a-kind
 
             if counts.values().any(|v| *v == 2) {
                 return true;
@@ -278,7 +249,13 @@ impl Hand {
 
     /// TODO
     fn is_high_card(&self) -> bool {
-        if self.is_five_of_a_kind() || self.is_four_of_a_kind() || self.is_full_house() || self.is_three_of_a_kind() || self.is_two_pair() || self.is_one_pair() {
+        if self.is_five_of_a_kind()
+            || self.is_four_of_a_kind()
+            || self.is_full_house()
+            || self.is_three_of_a_kind()
+            || self.is_two_pair()
+            || self.is_one_pair()
+        {
             return false;
         }
 
@@ -295,22 +272,14 @@ impl Hand {
 
     /// TODO
     fn cmp_first_card(&self, other: &Self) -> Ordering {
-        // println!("comparing {:?} against {:?}", self, other);
         for (i, card) in self.cards.iter().enumerate() {
-            // println!("checking {:?}/{:?}", card, &other.cards[i]);
             if card == &other.cards[i] {
-                // println!("they're the same!");
                 continue;
             }
 
-            // println!("they're not the same: {:?}", card.cmp(&other.cards[i]));
-            // println!("they're not the same: {:?}", other.cards[i].cmp(card));
-
-            // return card.cmp(&other.cards[i]);
             return other.cards[i].cmp(card);
         }
 
-        // println!("they're all the same");
         Ordering::Equal
     }
 }
@@ -346,7 +315,10 @@ impl Ord for Hand {
         }
 
         if self.is_three_of_a_kind() {
-            if other.is_five_of_a_kind() || other.is_four_of_a_kind() || other.is_full_house() {
+            if other.is_five_of_a_kind()
+                || other.is_four_of_a_kind()
+                || other.is_full_house()
+            {
                 return Ordering::Less;
             } else if other.is_three_of_a_kind() {
                 return self.cmp_first_card(other);
@@ -356,7 +328,11 @@ impl Ord for Hand {
         }
 
         if self.is_two_pair() {
-            if other.is_five_of_a_kind() || other.is_four_of_a_kind() || other.is_full_house() || other.is_three_of_a_kind() {
+            if other.is_five_of_a_kind()
+                || other.is_four_of_a_kind()
+                || other.is_full_house()
+                || other.is_three_of_a_kind()
+            {
                 return Ordering::Less;
             } else if other.is_two_pair() {
                 return self.cmp_first_card(other);
@@ -366,7 +342,12 @@ impl Ord for Hand {
         }
 
         if self.is_one_pair() {
-            if other.is_five_of_a_kind() || other.is_four_of_a_kind() || other.is_full_house() || other.is_three_of_a_kind() || other.is_two_pair() {
+            if other.is_five_of_a_kind()
+                || other.is_four_of_a_kind()
+                || other.is_full_house()
+                || other.is_three_of_a_kind()
+                || other.is_two_pair()
+            {
                 return Ordering::Less;
             } else if other.is_one_pair() {
                 return self.cmp_first_card(other);
@@ -376,7 +357,13 @@ impl Ord for Hand {
         }
 
         if self.is_high_card() {
-            if other.is_five_of_a_kind() || other.is_four_of_a_kind() || other.is_full_house() || other.is_three_of_a_kind() || other.is_two_pair() || other.is_one_pair() {
+            if other.is_five_of_a_kind()
+                || other.is_four_of_a_kind()
+                || other.is_full_house()
+                || other.is_three_of_a_kind()
+                || other.is_two_pair()
+                || other.is_one_pair()
+            {
                 return Ordering::Less;
             } else {
                 return self.cmp_first_card(other);
@@ -399,8 +386,7 @@ impl PartialEq for Hand {
     }
 }
 
-impl Eq for Hand {
-}
+impl Eq for Hand {}
 
 /// The solution for the day seven challenge.
 ///
@@ -410,9 +396,13 @@ impl Eq for Hand {
 /// ```rust
 /// # use aoc::y23d07::y23d07;
 /// // probably read this from the input file...
-/// let input = "";
-/// assert_eq!(y23d07(input, 1), 0);
-/// assert_eq!(y23d07(input, 2), 0);
+/// let input = concat!(
+///     "2345A 2\n2345J 5\nJ345A 3\n32T3K 7\nT55J5 17\nKK677 11\nKTJJT 23\n",
+///     "QQQJA 19\nJJJJJ 29\nJAAAA 37\nAAAAJ 43\nAAAAA 53\n2AAAA 13\n",
+///     "2JJJJ 41\nJJJJ2 31",
+/// );
+/// assert_eq!(y23d07(input, 1), 3542);
+/// assert_eq!(y23d07(input, 2), 3667);
 /// ```
 pub fn y23d07(input: &str, part: u32) -> u64 {
     let mut hands = Vec::new();
@@ -422,40 +412,22 @@ pub fn y23d07(input: &str, part: u32) -> u64 {
         let cards: Vec<_> = parts[0].chars().collect();
 
         hands.push(Hand {
-            cards: [parse_card(cards[0], part), parse_card(cards[1], part), parse_card(cards[2], part), parse_card(cards[3], part), parse_card(cards[4], part)],
+            cards: [
+                parse_card(cards[0], part),
+                parse_card(cards[1], part),
+                parse_card(cards[2], part),
+                parse_card(cards[3], part),
+                parse_card(cards[4], part),
+            ],
             bid: parts[1].parse().unwrap(),
             part: part,
         });
     }
 
     hands.sort();
-    // println!("{:?}", hands);
     let mut winnings = 0;
     for (i, hand) in hands.iter().enumerate() {
-        // if part == 2 {
-        //     if hand.is_five_of_a_kind() {
-        //         println!("five-of-a-kind: {:?}", hand);
-        //     } else if hand.is_four_of_a_kind() {
-        //         println!("four-of-a-kind: {:?}", hand);
-        //     } else if hand.is_full_house() {
-        //         println!("full house: {:?}", hand);
-        //     } else if hand.is_three_of_a_kind() {
-        //         println!("three-of-a-kind: {:?}", hand);
-        //     } else if hand.is_two_pair() {
-        //         println!("two pair: {:?}", hand);
-        //     } else if hand.is_one_pair() {
-        //         println!("one pair: {:?}", hand);
-        //     } else if hand.is_high_card() {
-        //         println!("high card: {:?}", hand);
-        //     } else {
-        //         println!("{:?}", hand);
-        //     }
-
-
-
-
-        // }
-        winnings += (i as u64 + 1)*hand.bid;
+        winnings += (i as u64 + 1) * hand.bid;
     }
 
     winnings
@@ -467,7 +439,13 @@ fn parse_card(card: char, part: u32) -> Card {
         'A' => Card::Ace(14),
         'K' => Card::King(13),
         'Q' => Card::Queen(12),
-        'J' => if part == 1 { Card::Jack(11) } else { JOKER },
+        'J' => {
+            if part == 1 {
+                Card::Jack(11)
+            } else {
+                JOKER
+            }
+        }
         'T' => Card::Ten(10),
         '9' => Card::Nine(9),
         '8' => Card::Eight(8),
@@ -495,31 +473,62 @@ mod tests {
     #[test]
     fn test_hand_is_five_of_a_kind() {
         let mut hand = Hand {
-            cards: [Card::Ace(14), Card::Ace(14), Card::Ace(14), Card::Ace(14), Card::Ace(14)],
+            cards: [
+                Card::Ace(14),
+                Card::Ace(14),
+                Card::Ace(14),
+                Card::Ace(14),
+                Card::Ace(14),
+            ],
             bid: 1,
             part: 1,
         };
 
         assert!(hand.is_five_of_a_kind());
 
-        hand.cards = [Card::Ace(14), Card::King(13), Card::Ace(14), Card::Ace(14), Card::Ace(14)];
+        hand.cards = [
+            Card::Ace(14),
+            Card::King(13),
+            Card::Ace(14),
+            Card::Ace(14),
+            Card::Ace(14),
+        ];
         assert!(!hand.is_five_of_a_kind());
 
         let mut hand = Hand {
-            cards: [Card::Ace(14), Card::Ace(14), Card::Ace(14), Card::Ace(14), Card::Ace(14)],
+            cards: [
+                Card::Ace(14),
+                Card::Ace(14),
+                Card::Ace(14),
+                Card::Ace(14),
+                Card::Ace(14),
+            ],
             bid: 1,
             part: 2,
         };
 
         assert!(hand.is_five_of_a_kind());
 
-        hand.cards = [Card::Ace(14), Card::King(13), Card::Ace(14), Card::Ace(14), Card::Ace(14)];
+        hand.cards = [
+            Card::Ace(14),
+            Card::King(13),
+            Card::Ace(14),
+            Card::Ace(14),
+            Card::Ace(14),
+        ];
         assert!(!hand.is_five_of_a_kind());
 
-        hand.cards = [Card::Ace(14), JOKER, Card::Ace(14), Card::Ace(14), Card::Ace(14)];
+        hand.cards = [
+            Card::Ace(14),
+            JOKER,
+            Card::Ace(14),
+            Card::Ace(14),
+            Card::Ace(14),
+        ];
         assert!(hand.is_five_of_a_kind());
 
-        hand.cards = [Card::Ace(14), JOKER, JOKER, Card::Ace(14), Card::Ace(14)];
+        hand.cards =
+            [Card::Ace(14), JOKER, JOKER, Card::Ace(14), Card::Ace(14)];
         assert!(hand.is_five_of_a_kind());
 
         hand.cards = [Card::Ace(14), JOKER, JOKER, JOKER, Card::Ace(14)];
@@ -532,102 +541,152 @@ mod tests {
     #[test]
     fn test_hand_is_four_of_a_kind() {
         let mut hand = Hand {
-            cards: [Card::Ace(14), Card::King(13), Card::Ace(14), Card::Ace(14), Card::Ace(14)],
+            cards: [
+                Card::Ace(14),
+                Card::King(13),
+                Card::Ace(14),
+                Card::Ace(14),
+                Card::Ace(14),
+            ],
             bid: 1,
             part: 1,
         };
 
         assert!(hand.is_four_of_a_kind());
 
-        hand.cards = [Card::Ace(14), Card::King(13), Card::King(13), Card::Ace(14), Card::Ace(14)];
+        hand.cards = [
+            Card::Ace(14),
+            Card::King(13),
+            Card::King(13),
+            Card::Ace(14),
+            Card::Ace(14),
+        ];
         assert!(!hand.is_four_of_a_kind());
 
         let mut hand = Hand {
-            cards: [Card::Ace(14), Card::King(13), Card::Ace(14), Card::Ace(14), Card::Ace(14)],
+            cards: [
+                Card::Ace(14),
+                Card::King(13),
+                Card::Ace(14),
+                Card::Ace(14),
+                Card::Ace(14),
+            ],
             bid: 1,
             part: 2,
         };
 
         assert!(hand.is_four_of_a_kind());
 
-        hand.cards = [Card::Ace(14), Card::King(13), Card::King(13), Card::Ace(14), Card::Ace(14)];
+        hand.cards = [
+            Card::Ace(14),
+            Card::King(13),
+            Card::King(13),
+            Card::Ace(14),
+            Card::Ace(14),
+        ];
         assert!(!hand.is_four_of_a_kind());
 
-        hand.cards = [Card::Ace(14), JOKER, Card::King(13), Card::Ace(14), Card::Ace(14)];
+        hand.cards = [
+            Card::Ace(14),
+            JOKER,
+            Card::King(13),
+            Card::Ace(14),
+            Card::Ace(14),
+        ];
         assert!(hand.is_four_of_a_kind());
 
-        hand.cards = [JOKER, JOKER, Card::King(13), Card::Ace(14), Card::Ace(14)];
+        hand.cards =
+            [JOKER, JOKER, Card::King(13), Card::Ace(14), Card::Ace(14)];
         assert!(hand.is_four_of_a_kind());
 
         hand.cards = [JOKER, JOKER, Card::King(13), JOKER, Card::Ace(14)];
         assert!(hand.is_four_of_a_kind());
 
-        hand.cards = [JOKER, JOKER, Card::King(13), Card::Queen(12), Card::Ace(14)];
+        hand.cards =
+            [JOKER, JOKER, Card::King(13), Card::Queen(12), Card::Ace(14)];
         assert!(!hand.is_four_of_a_kind());
 
-        hand.cards = [JOKER, Card::Ace(14), Card::Ace(14), Card::Ace(14), Card::Ace(14)];
+        hand.cards = [
+            JOKER,
+            Card::Ace(14),
+            Card::Ace(14),
+            Card::Ace(14),
+            Card::Ace(14),
+        ];
         assert!(!hand.is_four_of_a_kind());
     }
 
     #[test]
     fn test_hand_is_full_house() {
         let mut hand = Hand {
-            cards: [Card::Ace(14), Card::King(13), Card::King(13), Card::Ace(14), Card::Ace(14)],
+            cards: [
+                Card::Ace(14),
+                Card::King(13),
+                Card::King(13),
+                Card::Ace(14),
+                Card::Ace(14),
+            ],
             bid: 1,
             part: 1,
         };
 
         assert!(hand.is_full_house());
 
-        hand.cards = [Card::Ace(14), Card::King(13), Card::Queen(12), Card::Ace(14), Card::Ace(14)];
+        hand.cards = [
+            Card::Ace(14),
+            Card::King(13),
+            Card::Queen(12),
+            Card::Ace(14),
+            Card::Ace(14),
+        ];
         assert!(!hand.is_four_of_a_kind());
 
         let mut hand = Hand {
-            cards: [Card::Ace(14), Card::King(13), Card::King(13), Card::Ace(14), Card::Ace(14)],
+            cards: [
+                Card::Ace(14),
+                Card::King(13),
+                Card::King(13),
+                Card::Ace(14),
+                Card::Ace(14),
+            ],
             bid: 1,
             part: 2,
         };
 
         assert!(hand.is_full_house());
 
-        hand.cards = [Card::Ace(14), Card::King(13), Card::Queen(12), Card::Ace(14), Card::Ace(14)];
+        hand.cards = [
+            Card::Ace(14),
+            Card::King(13),
+            Card::Queen(12),
+            Card::Ace(14),
+            Card::Ace(14),
+        ];
         assert!(!hand.is_four_of_a_kind());
 
-        hand.cards = [Card::Ace(14), JOKER, Card::King(13), Card::King(13), Card::Ace(14)];
+        hand.cards = [
+            Card::Ace(14),
+            JOKER,
+            Card::King(13),
+            Card::King(13),
+            Card::Ace(14),
+        ];
         assert!(hand.is_full_house());
     }
 
     #[test]
-    fn test_hand_is_one_pair() {
-        let mut hand = Hand {
-            cards: [Card::Three(3), Card::Two(2), Card::Ten(10), Card::Three(3), Card::King(13)],
-            bid: 7, part: 2 };
-
-        assert!(hand.is_one_pair());
+    fn test_hand_is_three_of_a_kind() {
     }
 
     #[test]
-    fn more_tests(){
-        let input = concat!(
-            "2345A 2\n",
-        "2345J 5\n",
-        "J345A 3\n",
-        "32T3K 7\n",
-        "T55J5 17\n",
-        "KK677 11\n",
-        "KTJJT 23\n",
-        "QQQJA 19\n",
-        "JJJJJ 29\n",
-        "JAAAA 37\n",
-        "AAAAJ 43\n",
-        "AAAAA 53\n",
-        "2AAAA 13\n",
-        "2JJJJ 41\n",
-        "JJJJ2 31\n",
-        );
-        assert_eq!(y23d07(input, 1), 3542);
-        assert_eq!(y23d07(input, 2), 3667);
+    fn test_hand_is_two_pair() {}
+
+    #[test]
+    fn test_hand_is_one_pair() {
     }
+
+    #[test]
+    fn test_hand_is_high_card(){}
 
     #[test]
     fn tit_works() {
