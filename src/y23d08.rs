@@ -19,6 +19,7 @@
 
 use regex::Regex;
 use std::collections::HashMap;
+use crate::util;
 
 /// The solution for the day eight challenge.
 ///
@@ -29,15 +30,15 @@ use std::collections::HashMap;
 /// # use aoc::y23d08::y23d08;
 /// // probably read this from the input file...
 /// let input = "";
-/// assert_eq!(y23d08(input), 0);
+/// assert_eq!(y23d08(input, 1), 0);
 /// ```
-pub fn y23d08(input: &str) -> u32 {
+pub fn y23d08(input: &str, part: u32) -> u64 {
     let lines: Vec<_> = input.lines().collect();
-    let room_regex = Regex::new(r"^([A-Z]{3}) = \(([A-Z]{3}), ([A-Z]{3})\)$").unwrap();
+    let room_regex = Regex::new(r"^([A-Z0-9]{3}) = \(([A-Z0-9]{3}), ([A-Z0-9]{3})\)$").unwrap();
     let mut instructions = lines[0].chars().cycle();
     let mut rooms = HashMap::new();
-    let mut steps = 0;
-    let mut current_room = "AAA".to_string();
+    // let mut steps = 0;
+
 
     for (i, line) in lines.iter().enumerate() {
         if i <= 1 {
@@ -49,24 +50,64 @@ pub fn y23d08(input: &str) -> u32 {
         }
     }
 
+    let mut starting_rooms: Vec<&String> = if part ==1 {
+        // vec!["AAA".to_string()]
+        rooms.keys().filter(|r| *r == "AAA").collect()
+    } else {
+        // rooms.keys().filter(|r| r.chars().next().unwrap() == 'A').collect()
+        rooms.keys().filter(|r| r.chars().last().unwrap() == 'A').collect()
+    };
+
     // println!("{:?}", instructions);
     // println!("{:?}", rooms);
+    // println!("{:?}", current_rooms);
+    // return 0;
 
+    let mut all_steps = Vec::new();
+    for starting_room in starting_rooms {
+        let mut steps = 0;
+        let mut current_room = starting_room;
     loop {
-        if current_room == "ZZZ" {
+        if (part == 1 && current_room == "ZZZ") || (part == 2 && current_room.chars().last().unwrap() == 'Z') {
             break;
         }
+        // if part == 1 && current_rooms[0] == "ZZZ" {
+        //     break;
+        // } else if part == 2 && current_rooms.iter().all(|r| r.chars().last().unwrap() == 'Z') {
+        //     break;
+        // }
 
         steps += 1;
-        let (left, right) = rooms.get(&current_room).unwrap();
+        // let mut new_current_rooms = Vec::new();
+        // let instruction = instructions.next().unwrap();
+        // // for room in current_rooms {
+        //     let (left, right) = rooms.get(room).unwrap();
+        //     match instruction {
+        //         'L' => new_current_rooms.push(left),
+        //         'R' => new_current_rooms.push(right),
+        //         _ => panic!("invalid instruction"),
+        //     }
+        // }
+        let (left, right) = rooms.get(current_room).unwrap();
         match instructions.next().unwrap() {
-            'L' => current_room = left.clone(),
-            'R' => current_room = right.clone(),
+            'L' => current_room = left,
+            'R' => current_room = right,
             _ => panic!("invalid instruction"),
         };
+        // current_rooms = new_current_rooms;
+    }
+    all_steps.push(steps);
     }
 
-    steps
+    // println!("{:?}", all_steps);
+
+    let mut lcm = 1;
+    for steps in all_steps {
+        lcm = util::lcm(steps, lcm);
+    }
+
+    lcm
+    // steps
 }
 
 #[cfg(test)]
@@ -76,35 +117,49 @@ mod tests {
 
     #[test]
     fn tit_works() {
-        let mut input = concat!(
-            "RL\n",
+        // let mut input = concat!(
+        //     "RL\n",
+        //     "\n",
+        //     "AAA = (BBB, CCC)\n",
+        //     "BBB = (DDD, EEE)\n",
+        //     "CCC = (ZZZ, GGG)\n",
+        //     "DDD = (DDD, DDD)\n",
+        //     "EEE = (EEE, EEE)\n",
+        //     "GGG = (GGG, GGG)\n",
+        //     "ZZZ = (ZZZ, ZZZ)\n",
+        // );
+        // assert_eq!(y23d08(input, 1), 2);
+
+        // input = concat!(
+        //     "LLR\n",
+        //     "\n",
+        //     "AAA = (BBB, BBB)\n",
+        //     "BBB = (AAA, ZZZ)\n",
+        //     "ZZZ = (ZZZ, ZZZ)\n",
+        // );
+        // assert_eq!(y23d08(input, 1), 6);
+
+        // input = concat!(
+        let input = concat!(
+            "LR\n",
             "\n",
-            "AAA = (BBB, CCC)\n",
-            "BBB = (DDD, EEE)\n",
-            "CCC = (ZZZ, GGG)\n",
-            "DDD = (DDD, DDD)\n",
-            "EEE = (EEE, EEE)\n",
-            "GGG = (GGG, GGG)\n",
-            "ZZZ = (ZZZ, ZZZ)\n",
+            "11A = (11B, XXX)\n",
+            "11B = (XXX, 11Z)\n",
+            "11Z = (11B, XXX)\n",
+            "22A = (22B, XXX)\n",
+            "22B = (22C, 22C)\n",
+            "22C = (22Z, 22Z)\n",
+            "22Z = (22B, 22B)\n",
+            "XXX = (XXX, XXX)\n",
         );
-
-        assert_eq!(y23d08(input), 2);
-
-        input = concat!(
-            "LLR\n",
-            "\n",
-            "AAA = (BBB, BBB)\n",
-            "BBB = (AAA, ZZZ)\n",
-            "ZZZ = (ZZZ, ZZZ)\n",
-        );
-
-        assert_eq!(y23d08(input), 6);
+        assert_eq!(y23d08(input, 2), 6);
     }
 
     #[test]
     fn the_solution() {
         let contents = fs::read_to_string("input/2023/day08.txt").unwrap();
 
-        assert_eq!(y23d08(&contents), 19783);
+        assert_eq!(y23d08(&contents, 1), 19783);
+        assert_eq!(y23d08(&contents, 2), 9177460370549);
     }
 }
