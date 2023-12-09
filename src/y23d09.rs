@@ -27,14 +27,17 @@
 /// // probably read this from the input file...
 /// let input = "";
 /// assert_eq!(y23d09(input, 1), 1);
+/// assert_eq!(y23d09(input, 2), 1);
 /// ```
-pub fn y23d09(input: &str) -> i32 {
+pub fn y23d09(input: &str, part: u32) -> i32 {
+    let mut first_numbers = Vec::new();
     let mut next_numbers = Vec::new();
 
     for line in input.lines() {
         let numbers: Vec<i32> = line.split_whitespace().map(|n| n.parse().unwrap()).collect();
 
-        let next_number = *numbers.last().unwrap();
+        let first_number = numbers[0];
+        let next_number = numbers[numbers.len() -1];
         let mut check = numbers;
         let mut all_diffs = Vec::new();
         loop {
@@ -52,15 +55,22 @@ pub fn y23d09(input: &str) -> i32 {
             check = diffs;
         }
 
+        let mut first_value = 0;
         let mut last_value = 0;
         for diff in all_diffs.iter().rev() {
+            first_value = diff[0] - first_value;
             last_value = diff.last().unwrap() + last_value;
         }
 
         next_numbers.push(next_number + last_value);
+        first_numbers.push(first_number - first_value);
     }
 
-    next_numbers.iter().sum()
+    if part == 1 {
+        next_numbers.iter().sum()
+    } else {
+        first_numbers.iter().sum()
+    }
 }
 
 #[cfg(test)]
@@ -72,13 +82,15 @@ mod tests {
     fn it_works() {
         let input = "0 3 6 9 12 15\n1 3 6 10 15 21\n10 13 16 21 30 45\n";
 
-        assert_eq!(y23d09(input), 114);
+        assert_eq!(y23d09(input, 1), 114);
+        assert_eq!(y23d09(input, 2), 2);
     }
 
     #[test]
     fn the_solution() {
         let contents = fs::read_to_string("input/2023/day09.txt").unwrap();
 
-        assert_eq!(y23d09(&contents), 1901217887);
+        assert_eq!(y23d09(&contents, 1), 1901217887);
+        assert_eq!(y23d09(&contents, 2), 905);
     }
 }
