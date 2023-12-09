@@ -15,7 +15,14 @@
 
 //! Advent of Code 2023 Day 8: <https://adventofcode.com/2023/day/8>
 //!
-//! TODO
+//! Today's challenge part one was fairly easy. Part two was not that much
+//! more difficult to extend but the long cycles meant that the brute-force
+//! answer would take too long to compute. Instead, knowing that there are
+//! cycles (because of the way that the Advent of Code inputs are crafted,
+//! this wouldn't necessarily work on an arbitrary input) we can instead just
+//! compute the length of each cycle and then least-common-multiple them all
+//! together to get the total number of steps (this is the point where all of
+//! the cycles have synced-up and are all on a room ending in "Z").
 
 use crate::util;
 use regex::Regex;
@@ -23,7 +30,17 @@ use std::collections::HashMap;
 
 /// The solution for the day eight challenge.
 ///
-/// TODO
+/// We take the input as a string and the part we're solving as an integer.
+/// The solution otherwise remains the same, we just use a single starting room
+/// in our vector of starting rooms if we're in part one (the room `AAA`) and
+/// otherwise all of the rooms that end in `A`. We start by parsing the input
+/// and build a [`std::collections::HashMap`] of the rooms and their left and
+/// right connections. Then, for each of our starting rooms we loop until we're
+/// in the ending room (in part one the room `ZZZ` and in part two the room
+/// ending in `Z`). If we're not in the ending room then we take the next
+/// instruction and change to the next room, keeping track of how many steps
+/// we've taken. Once we've computed the steps for all of the starting rooms we
+/// LCM them together to get our final answer.
 ///
 /// # Example
 /// ```rust
