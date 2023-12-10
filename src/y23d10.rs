@@ -31,7 +31,7 @@ use std::collections::HashMap;
 /// assert_eq!(y23d10(input, 1), 0);
 /// assert_eq!(y23d10(input, 2), 0);
 /// ```
-pub fn y23d10(input: &str, part: u32) -> u32 {
+pub fn y23d10(input: &str, part: u32) -> u64 {
     let mut grid: HashMap<(i32, i32), char> = HashMap::new();
     let mut start = None;
 
@@ -50,153 +50,134 @@ pub fn y23d10(input: &str, part: u32) -> u32 {
 
     let start = start.unwrap();
 
-    // println!("{:?}", grid);
-    // println!("{:?}", start);
-
-    // let mut count = 0;
-
-    // count
     let path = find_loop(&grid, start);
     if part == 1 {
-        let len: u32 = path.len().try_into().unwrap();
-        len/2
+        let len: u64 = path.len().try_into().unwrap();
+        len / 2
     } else {
-        let verticies: Vec<_> = path.iter().filter(|p| {
-            let pipe = grid.get(p).unwrap();
-            // TODO: this assumes that S is a corner
-            ['J', '7', 'L', 'F', 'S'].contains(pipe)
-        }).collect();
-        let area = shoelace(&verticies);
-        // println!("{:?}", area);
+        let verticies: Vec<_> = path
+            .iter()
+            .filter(|p| {
+                let pipe = grid.get(p).unwrap();
+                // TODO: this assumes that S is a corner
+                ['J', '7', 'L', 'F', 'S'].contains(pipe)
+            })
+            .collect();
 
-        // println!("{:?}", verticies);
-        //
+        let area = shoelace(&verticies);
         let len = path.len() as f64;
-        let points = (area*2.0 - len +2.0)/2.0;
-        if points.fract()  != 0.0 {
+        let points = (area * 2.0 - len + 2.0) / 2.0;
+        if points.fract() != 0.0 {
             panic!("got non-whole-number");
         }
 
-
-
-
-
-
-
-        points as u32
+        points as u64
     }
 }
 
-fn find_loop(grid: &HashMap<(i32, i32), char>, start: (i32,i32)) -> Vec<(i32, i32)> {
-    let path_starts = vec![(start.0-1, start.1), (start.0+1, start.1), (start.0, start.1-1), (start.0,start.1+1)];
+fn find_loop(
+    grid: &HashMap<(i32, i32), char>,
+    start: (i32, i32),
+) -> Vec<(i32, i32)> {
+    let path_starts = vec![
+        (start.0 - 1, start.1),
+        (start.0 + 1, start.1),
+        (start.0, start.1 - 1),
+        (start.0, start.1 + 1),
+    ];
 
     for path_start in path_starts {
         let mut current = path_start;
-        // let mut count = 0;
         let mut path = Vec::new();
         path.push(start);
 
-        let mut dir = if current.0 == start.0 && current.1 == start.1-1 {
+        let mut dir = if current.0 == start.0 && current.1 == start.1 - 1 {
             'U'
-        } else if current.0 == start.0 && current.1 == start.1+1 {
+        } else if current.0 == start.0 && current.1 == start.1 + 1 {
             'D'
-        } else if current.0 == start.0-1 && current.1 == start.1 {
+        } else if current.0 == start.0 - 1 && current.1 == start.1 {
             'L'
-        } else if current.0 == start.0+1 && current.1 == start.1 {
+        } else if current.0 == start.0 + 1 && current.1 == start.1 {
             'R'
         } else {
             panic!("invalid starting direction")
         };
 
-        // println!("starting path check: {:?}, direction: {}", current, dir);
-
         loop {
             match grid.get(&current) {
                 None => break,
                 Some(pipe) => {
-                    // count += 1;
-                    // println!("checking: {:?}, dir: {}", pipe, dir);
-
                     if *pipe != 'S' {
                         path.push(current);
                     }
 
                     match pipe {
                         '.' => break,
-                        // 'S' => return count/2,
                         'S' => return path,
                         '|' => {
                             if dir == 'U' {
-                                current = (current.0, current.1-1);
+                                current = (current.0, current.1 - 1);
                             } else if dir == 'D' {
-                                current = (current.0, current.1+1);
+                                current = (current.0, current.1 + 1);
                             } else {
-                                // panic!("wrong direction");
                                 break;
                             }
                         }
                         '-' => {
                             if dir == 'L' {
-                                current = (current.0-1, current.1);
+                                current = (current.0 - 1, current.1);
                             } else if dir == 'R' {
-                                current = (current.0+1, current.1);
+                                current = (current.0 + 1, current.1);
                             } else {
-                                // panic!("wrong direction");
                                 break;
                             }
                         }
                         'L' => {
                             if dir == 'L' {
                                 dir = 'U';
-                                current = (current.0, current.1-1);
+                                current = (current.0, current.1 - 1);
                             } else if dir == 'D' {
                                 dir = 'R';
-                                current = (current.0+1, current.1);
+                                current = (current.0 + 1, current.1);
                             } else {
-                                // panic!("wrong direction");
                                 break;
                             }
                         }
                         'J' => {
                             if dir == 'R' {
                                 dir = 'U';
-                                current = (current.0, current.1-1);
+                                current = (current.0, current.1 - 1);
                             } else if dir == 'D' {
                                 dir = 'L';
-                                current = (current.0-1, current.1);
+                                current = (current.0 - 1, current.1);
                             } else {
-                                // panic!("wrong direction");
                                 break;
                             }
                         }
                         '7' => {
                             if dir == 'R' {
                                 dir = 'D';
-                                current = (current.0, current.1+1);
+                                current = (current.0, current.1 + 1);
                             } else if dir == 'U' {
                                 dir = 'L';
-                                current = (current.0-1,current.1);
+                                current = (current.0 - 1, current.1);
                             } else {
-                                // panic!("wrong direction");
                                 break;
                             }
                         }
                         'F' => {
                             if dir == 'U' {
                                 dir = 'R';
-                                current = (current.0+1, current.1);
+                                current = (current.0 + 1, current.1);
                             } else if dir == 'L' {
                                 dir = 'D';
-                                current = (current.0, current.1+1);
+                                current = (current.0, current.1 + 1);
                             } else {
-                                // panic!("wrong direction");
                                 break;
                             }
                         }
                         _ => panic!("unrecognized pipe"),
                     };
-
-                    // println!("new current: {:?}, new dir: {}", current, dir);
                 }
             };
         }
@@ -207,17 +188,19 @@ fn find_loop(grid: &HashMap<(i32, i32), char>, start: (i32,i32)) -> Vec<(i32, i3
 
 fn shoelace(points: &Vec<&(i32, i32)>) -> f64 {
     let mut sum = 0.0;
-    let mut p0 = points[points.len()-1];
+    let mut p0 = points[points.len() - 1];
+
     for p1 in points {
         let p0x: f64 = p0.0.into();
         let p0y: f64 = p0.1.into();
         let p1x: f64 = p1.0.into();
         let p1y: f64 = p1.1.into();
 
-        sum += p0y*p1x-p0x*p1y;
-        p0=*p1
+        sum += p0y * p1x - p0x * p1y;
+        p0 = *p1
     }
-    (sum/2.0).abs()
+
+    (sum / 2.0).abs()
 }
 
 #[cfg(test)]
@@ -226,7 +209,7 @@ mod tests {
     use std::fs;
 
     #[test]
-    fn test_find_loop(){}
+    fn test_find_loop() {}
 
     #[test]
     fn test_shoelace() {
