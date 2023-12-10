@@ -28,9 +28,10 @@ use std::collections::HashMap;
 /// # use aoc::y23d10::y23d10;
 /// // probably read this from the input file...
 /// let input = "";
-/// assert_eq!(y23d10(input), 0);
+/// assert_eq!(y23d10(input, 1), 0);
+/// assert_eq!(y23d10(input, 2), 0);
 /// ```
-pub fn y23d10(input: &str) -> u32 {
+pub fn y23d10(input: &str, part: u32) -> u32 {
     let mut grid: HashMap<(i32, i32), char> = HashMap::new();
     let mut start = None;
 
@@ -53,11 +54,47 @@ pub fn y23d10(input: &str) -> u32 {
     // println!("{:?}", start);
 
     // let mut count = 0;
+
+    // count
+    let path = find_loop(&grid, start);
+    if part == 1 {
+        let len: u32 = path.len().try_into().unwrap();
+        len/2
+    } else {
+        let verticies: Vec<_> = path.iter().filter(|p| {
+            let pipe = grid.get(p).unwrap();
+            // TODO: this assumes that S is a corner
+            ['J', '7', 'L', 'F', 'S'].contains(pipe)
+        }).collect();
+        let area = shoelace(&verticies);
+        // println!("{:?}", area);
+
+        // println!("{:?}", verticies);
+        //
+        let len = path.len() as f64;
+        let points = (area*2.0 - len +2.0)/2.0;
+        if points.fract()  != 0.0 {
+            panic!("got non-whole-number");
+        }
+
+
+
+
+
+
+
+        points as u32
+    }
+}
+
+fn find_loop(grid: &HashMap<(i32, i32), char>, start: (i32,i32)) -> Vec<(i32, i32)> {
     let path_starts = vec![(start.0-1, start.1), (start.0+1, start.1), (start.0, start.1-1), (start.0,start.1+1)];
 
     for path_start in path_starts {
         let mut current = path_start;
-        let mut count = 0;
+        // let mut count = 0;
+        let mut path = Vec::new();
+        path.push(start);
 
         let mut dir = if current.0 == start.0 && current.1 == start.1-1 {
             'U'
@@ -77,12 +114,17 @@ pub fn y23d10(input: &str) -> u32 {
             match grid.get(&current) {
                 None => break,
                 Some(pipe) => {
-                    count += 1;
+                    // count += 1;
                     // println!("checking: {:?}, dir: {}", pipe, dir);
+
+                    if *pipe != 'S' {
+                        path.push(current);
+                    }
 
                     match pipe {
                         '.' => break,
-                        'S' => return count/2,
+                        // 'S' => return count/2,
+                        'S' => return path,
                         '|' => {
                             if dir == 'U' {
                                 current = (current.0, current.1-1);
@@ -160,8 +202,22 @@ pub fn y23d10(input: &str) -> u32 {
         }
     }
 
-    // count
-    0
+    Vec::new()
+}
+
+fn shoelace(points: &Vec<&(i32, i32)>) -> f64 {
+    let mut sum = 0.0;
+    let mut p0 = points[points.len()-1];
+    for p1 in points {
+        let p0x: f64 = p0.0.into();
+        let p0y: f64 = p0.1.into();
+        let p1x: f64 = p1.0.into();
+        let p1y: f64 = p1.1.into();
+
+        sum += p0y*p1x-p0x*p1y;
+        p0=*p1
+    }
+    (sum/2.0).abs()
 }
 
 #[cfg(test)]
@@ -170,18 +226,82 @@ mod tests {
     use std::fs;
 
     #[test]
+    fn test_find_loop(){}
+
+    #[test]
+    fn test_shoelace() {
+        let points = vec![&(3, 4), &(5, 11), &(12, 8), &(9, 5), &(5, 6)];
+        assert_eq!(shoelace(&points), 30.0);
+    }
+
+    #[test]
     fn it_works() {
         let mut input = "-L|F7\n7S-7|\nL|7||\n-L-J|\nL|-JF\n";
-        assert_eq!(y23d10(input), 4);
+        assert_eq!(y23d10(input, 1), 4);
 
         input = "7-F7-\n.FJ|7\nSJLL7\n|F--J\nLJ.LJ\n";
-        assert_eq!(y23d10(input), 8);
+        assert_eq!(y23d10(input, 1), 8);
+
+        input = concat!(
+            "...........\n",
+            ".S-------7.\n",
+            ".|F-----7|.\n",
+            ".||.....||.\n",
+            ".||.....||.\n",
+            ".|L-7.F-J|.\n",
+            ".|..|.|..|.\n",
+            ".L--J.L--J.\n",
+            "...........\n",
+        );
+        assert_eq!(y23d10(input, 2), 4);
+
+        input = concat!(
+            "..........\n",
+            ".S------7.\n",
+            ".|F----7|.\n",
+            ".||....||.\n",
+            ".||....||.\n",
+            ".|L-7F-J|.\n",
+            ".|..||..|.\n",
+            ".L--JL--J.\n",
+            "..........\n",
+        );
+        assert_eq!(y23d10(input, 2), 4);
+
+        input = concat!(
+            ".F----7F7F7F7F-7....\n",
+            ".|F--7||||||||FJ....\n",
+            ".||.FJ||||||||L7....\n",
+            "FJL7L7LJLJ||LJ.L-7..\n",
+            "L--J.L7...LJS7F-7L7.\n",
+            "....F-J..F7FJ|L7L7L7\n",
+            "....L7.F7||L7|.L7L7|\n",
+            ".....|FJLJ|FJ|F7|.LJ\n",
+            "....FJL-7.||.||||...\n",
+            "....L---J.LJ.LJLJ...\n",
+        );
+        assert_eq!(y23d10(input, 2), 8);
+
+        input = concat!(
+            "FF7FSF7F7F7F7F7F---7\n",
+            "L|LJ||||||||||||F--J\n",
+            "FL-7LJLJ||||||LJL-77\n",
+            "F--JF--7||LJLJ7F7FJ-\n",
+            "L---JF-JLJ.||-FJLJJ7\n",
+            "|F|F-JF---7F7-L7L|7|\n",
+            "|FFJF7L7F-JF7|JL---7\n",
+            "7-L-JL7||F7|L7F-7F7|\n",
+            "L.L7LFJ|||||FJL7||LJ\n",
+            "L7JLJL-JLJLJL--JLJ.L\n",
+        );
+        assert_eq!(y23d10(input, 2), 10);
     }
 
     #[test]
     fn the_solution() {
         let contents = fs::read_to_string("input/2023/day10.txt").unwrap();
 
-        assert_eq!(y23d10(&contents), 0);
+        assert_eq!(y23d10(&contents, 1), 6927);
+        assert_eq!(y23d10(&contents, 2), 467);
     }
 }
