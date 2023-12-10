@@ -15,21 +15,51 @@
 
 //! Advent of Code 2023 Day 10: <https://adventofcode.com/2023/day/10>
 //!
-//! TODO
+//! Today's challenge part one was rather straightforward if time-consuming.
+//! To solve part two I didn't have any idea how to approach a solution, but
+//! the Advent of Code subreddit led me to discover the [shoelace
+//! formula](https://en.wikipedia.org/wiki/Shoelace_formula) and [Pick's
+//! Theorem](https://en.wikipedia.org/wiki/Pick%27s_theorem) which I was able
+//! to use to great success to get the answer.
 
 use std::collections::HashMap;
 
 /// The solution for the day ten challenge.
 ///
-/// TODO
+/// We take the input as a string and an integer to denote the part that we're
+/// solving. In part `1` we just need to get the farthest point from the start.
+/// In part `2` we need to calculate the number of spaces enclosed by the loop
+/// of pipes. We start by parsing the input into a
+/// [`std::collections::HashMap`] of points pointing to the section of pipe.
+/// We also note down the starting point which we'll need to calculate the
+/// loop. We then collect the vector of points in the loop. If we're in part
+/// `1` then we can calculate the farthest point by simply dividing the length
+/// of the points vector by two. In part `2` we instead pull out all of the
+/// corners to compute the area of the loop using the shoelace formula.
+/// Importantly, we assume that the starting point is a corner, which may or
+/// may not be the case for all inputs but is the case for all of the example
+/// inputs as well as my puzzle input. Provided an input where that was not the
+/// case we would first need to figure out if that start was a corner or not
+/// and then adjust accordingly. Then we use Pick's theorem to calculate the
+/// number of points inside the loop (because we already have the area and the
+/// number of points along the border).
 ///
 /// # Example
 /// ```rust
 /// # use aoc::y23d10::y23d10;
 /// // probably read this from the input file...
-/// let input = "";
-/// assert_eq!(y23d10(input, 1), 0);
-/// assert_eq!(y23d10(input, 2), 0);
+/// let input = concat!(
+///     ".........\n",
+///     ".S--7....\n",
+///     ".|..L--7.\n",
+///     ".|.....|.\n",
+///     ".|.F-7.|.\n",
+///     ".|.|.L-J.\n",
+///     ".L-J.....\n",
+///     ".........",
+/// );
+/// assert_eq!(y23d10(input, 1), 12);
+/// assert_eq!(y23d10(input, 2), 10);
 /// ```
 pub fn y23d10(input: &str, part: u32) -> u64 {
     let mut grid: HashMap<(i32, i32), char> = HashMap::new();
@@ -59,7 +89,7 @@ pub fn y23d10(input: &str, part: u32) -> u64 {
             .iter()
             .filter(|p| {
                 let pipe = grid.get(p).unwrap();
-                // TODO: this assumes that S is a corner
+                // this assumes that S is a corner
                 ['J', '7', 'L', 'F', 'S'].contains(pipe)
             })
             .collect();
@@ -75,6 +105,8 @@ pub fn y23d10(input: &str, part: u32) -> u64 {
     }
 }
 
+/// This function takes the grid and starting location to find the loop of
+/// pipes which is returns as a vector of the points of each section of pipe.
 fn find_loop(
     grid: &HashMap<(i32, i32), char>,
     start: (i32, i32),
@@ -186,6 +218,8 @@ fn find_loop(
     Vec::new()
 }
 
+/// This function computes the area of the enclosed pipe-loop using the
+/// shoelace formula.
 fn shoelace(points: &Vec<&(i32, i32)>) -> f64 {
     let mut sum = 0.0;
     let mut p0 = points[points.len() - 1];
@@ -209,7 +243,21 @@ mod tests {
     use std::fs;
 
     #[test]
-    fn test_find_loop() {}
+    fn test_find_loop() {
+        let mut grid = HashMap::from([]);
+        assert_eq!(find_loop(&grid, (0, 0)), vec![]);
+
+        grid = HashMap::from([
+            ((0, 0), 'S'),
+            ((1, 0), '7'),
+            ((1, 1), 'J'),
+            ((0, 1), 'L'),
+        ]);
+        assert_eq!(
+            find_loop(&grid, (0, 0)),
+            vec![(0, 0), (1, 0), (1, 1), (0, 1)]
+        );
+    }
 
     #[test]
     fn test_shoelace() {
