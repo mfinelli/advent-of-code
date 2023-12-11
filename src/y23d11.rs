@@ -29,15 +29,22 @@ use itertools::Itertools;
 /// # use aoc::y23d11::y23d11;
 /// // probably read this from the input file...
 /// let input = "";
-/// assert_eq!(y23d11(input), 0);
+/// assert_eq!(y23d11(input, 1), 0);
+/// assert_eq!(y23d11(input, 10), 0);
 /// ```
-pub fn y23d11(input: &str) -> i32 {
-    let mut galaxies: Vec<(i32, i32)> = Vec::new();
+pub fn y23d11(input: &str, modifier: i64) -> i64 {
+    let mut galaxies: Vec<(i64, i64)> = Vec::new();
     // let lines: Vec<_> = input.lines().collect();
     // let size = lines.len();
-    let mut empty_rows: Vec<i32> = Vec::new();
-    let mut empty_cols: Vec<i32> = Vec::new();
+    let mut empty_rows: Vec<i64> = Vec::new();
+    let mut empty_cols: Vec<i64> = Vec::new();
     let mut sum = 0;
+
+    let modifier = if modifier == 1 {
+        1
+    } else {
+        modifier - 1
+    };
 
     for (y, line) in input.lines().enumerate() {
         empty_rows.push(y.try_into().unwrap());
@@ -84,13 +91,13 @@ pub fn y23d11(input: &str) -> i32 {
 
         for row in &empty_rows {
             if yrange.contains(&row) {
-                md += 1;
+                md += modifier;
             }
         }
 
         for col in &empty_cols {
             if xrange.contains(&col) {
-                md += 1;
+                md += modifier;
             }
         }
 
@@ -121,13 +128,16 @@ mod tests {
             "#...#.....\n",
         );
 
-        assert_eq!(y23d11(input), 374);
+        assert_eq!(y23d11(input, 1), 374);
+        assert_eq!(y23d11(input, 10), 1030);
+        assert_eq!(y23d11(input, 100), 8410);
     }
 
     #[test]
     fn the_solution() {
         let contents = fs::read_to_string("input/2023/day11.txt").unwrap();
 
-        assert_eq!(y23d11(&contents), 9608724);
+        assert_eq!(y23d11(&contents, 1), 9608724);
+        assert_eq!(y23d11(&contents, 1000000), 904633799472);
     }
 }
