@@ -52,7 +52,7 @@ pub fn print_answer(
     stdout.reset().unwrap();
 
     if separate {
-        write!(stdout, "\n").unwrap();
+        writeln!(stdout).unwrap();
     } else {
         write!(stdout, " ").unwrap();
     }
@@ -60,7 +60,7 @@ pub fn print_answer(
     stdout.set_color(&bold_white).unwrap();
     write!(stdout, "{}", answer).unwrap();
     stdout.reset().unwrap();
-    write!(stdout, "\n").unwrap();
+    writeln!(stdout).unwrap();
 }
 
 /// Prints the solving stats (elapsed time and allocated memory).
@@ -73,7 +73,7 @@ pub fn print_stats(
     let dimmed_white = dimmed_white_colorspec();
     let time = duration.as_micros();
 
-    write!(stdout, "\n").unwrap();
+    writeln!(stdout).unwrap();
 
     stdout.set_color(&dimmed_white).unwrap();
     write!(stdout, "Elapsed time: ").unwrap();
@@ -91,7 +91,7 @@ pub fn print_stats(
     }
 
     stdout.reset().unwrap();
-    write!(stdout, "\n").unwrap();
+    writeln!(stdout).unwrap();
 
     stdout.set_color(&dimmed_white).unwrap();
     write!(stdout, "Allocated memory: ").unwrap();
@@ -109,7 +109,7 @@ pub fn print_stats(
     }
 
     stdout.reset().unwrap();
-    write!(stdout, "\n").unwrap();
+    writeln!(stdout).unwrap();
 }
 
 /// Returns the title of the puzzle for the given year and day.

@@ -45,8 +45,8 @@ fn main() {
     let mut stdout = StandardStream::stdout(color_choice);
     title::print_title(&mut stdout, &args[1]);
 
-    let mut part1 = "".to_string();
-    let mut part2 = "".to_string();
+    let part1: String;
+    let part2: String;
     let part1_sep = false;
     let mut part2_sep = false;
 
@@ -92,8 +92,8 @@ fn main() {
             part2 = format!("{}", y15d10::y15d10(&input, 50));
         }
         "y15d11" => {
-            part1 = format!("{}", y15d11::y15d11(&input, 1));
-            part2 = format!("{}", y15d11::y15d11(&input, 2));
+            part1 = y15d11::y15d11(&input, 1).to_string();
+            part2 = y15d11::y15d11(&input, 2).to_string();
         }
         "y15d12" => {
             part1 = format!("{}", y15d12::y15d12(&input, false));
@@ -144,8 +144,8 @@ fn main() {
             part2 = format!("{}", y22d04::y22d04(&input, 2));
         }
         "y22d05" => {
-            part1 = format!("{}", y22d05::y22d05(&input, 1));
-            part2 = format!("{}", y22d05::y22d05(&input, 2));
+            part1 = y22d05::y22d05(&input, 1).to_string();
+            part2 = y22d05::y22d05(&input, 2).to_string();
         }
         "y22d06" => {
             part1 = format!("{}", y22d06::y22d06(&input, 4).unwrap());
@@ -165,7 +165,7 @@ fn main() {
         }
         "y22d10" => {
             part1 = format!("{}", y22d10::y22d10p1(&input));
-            part2 = format!("{}", y22d10::y22d10p2(&input));
+            part2 = y22d10::y22d10p2(&input).to_string();
             part2_sep = true;
         }
         "y22d11" => {
