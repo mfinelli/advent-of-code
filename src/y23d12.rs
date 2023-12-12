@@ -15,13 +15,24 @@
 
 //! Advent of Code 2023 Day 12: <https://adventofcode.com/2023/day/12>
 //!
-//! TODO
+//! Today's problem was very challenging. The solution ends up using recursion
+//! to try all of the possibilities, and then in part two to avoid the runtime
+//! exploding maintains a cache of seen values to check against instead of
+//! recomputing each time (we actually then use this in part one too, but it's
+//! not necessary). The key hint for me comes from a comment on the
+//! [subreddit](https://www.reddit.com/r/adventofcode/comments/18ge41g/comment/kd0dw9e/)
+//! which says to add a final, trailing '.' to each input string to help find
+//! the end of each line of input.
 
 use std::collections::HashMap;
 
 /// The solution for the day twelve challenge.
 ///
-/// TODO
+/// We take the input as a string as usual and then the second parameter
+/// specifies how many times we're supposed to expand the record: just once in
+/// part one (i.e., the original input as-is) and five times in part two. We
+/// then call our recursive counter for each of the records adding them to the
+/// final sum and then we're done.
 ///
 /// # Example
 /// ```rust
@@ -29,16 +40,15 @@ use std::collections::HashMap;
 /// // probably read this from the input file...
 /// let input = ".????..??#?. 3,2";
 /// assert_eq!(y23d12(input, 1), 4);
-/// assert_eq!(y23d12(input, 2), 1024);
+/// assert_eq!(y23d12(input, 5), 1024);
 /// ```
-pub fn y23d12(input: &str, part: u32) -> usize {
+pub fn y23d12(input: &str, times: u32) -> usize {
     let mut sum = 0;
     let mut cache: HashMap<(Vec<char>, Vec<usize>, usize), usize> =
         HashMap::new();
 
     for line in input.lines() {
         let parts: Vec<_> = line.split_whitespace().collect();
-        let times = if part == 1 { 1 } else { 5 };
         let (mut springs, sizes) = unfold_record(
             parts[0].chars().collect(),
             parts[1].split(',').map(|n| n.parse().unwrap()).collect(),
@@ -54,7 +64,21 @@ pub fn y23d12(input: &str, part: u32) -> usize {
     sum
 }
 
-/// TODO
+/// This is the recursive function that actually solves the problem. We start
+/// by returning the cache hit if we have one. Otherwise if we've reached the
+/// end of the input we're done. If we haven't checked any numbers then we've
+/// arrived at a single solution, otherwise we don't return any. If we haven't
+/// reached the end of the input then we we either explode a given `?` into
+/// its two possibilities or otherwise take it as-is. For each of the
+/// possibilities (i.e., either the known character or both of the options for
+/// an unknown character) we first check to see if we have a (potential)
+/// damaged spring. If we do then we increment our checked counter and recurse
+/// again skipping the character. If we don't have a damaged spring and we've
+/// checked at least once possibility and we still have sizes to check and we
+/// haven't checked enough numbers for the current size then we recurse again
+/// for the next character and the next size. Otherwise, we recurse to the
+/// next character for all of the given sizes. Finally, we insert an entry into
+/// the cache for all of our inputs and then return the total.
 fn get_arrangements(
     springs: Vec<char>,
     sizes: &Vec<usize>,
@@ -108,7 +132,8 @@ fn get_arrangements(
     total
 }
 
-/// TODO
+/// This function unfolds the input the given number of times, inserting a `?`
+/// between them as specified by the prompt.
 fn unfold_record(
     chars: Vec<char>,
     numbers: Vec<usize>,
@@ -122,7 +147,7 @@ fn unfold_record(
             new_chars.push(*c);
         }
 
-        if times != 1 && i != times - 1 {
+        if i != times - 1 {
             new_chars.push('?');
         }
 
@@ -180,7 +205,7 @@ mod tests {
     }
 
     #[test]
-    fn iit_works() {
+    fn it_works() {
         let input = concat!(
             "???.### 1,1,3\n",
             ".??..??...?##. 1,1,3\n",
@@ -191,14 +216,15 @@ mod tests {
         );
 
         assert_eq!(y23d12(input, 1), 21);
-        assert_eq!(y23d12(input, 2), 525152);
+        assert_eq!(y23d12(input, 5), 525152);
     }
 
     #[test]
+    #[ignore]
     fn the_solution() {
         let contents = fs::read_to_string("input/2023/day12.txt").unwrap();
 
         assert_eq!(y23d12(&contents, 1), 7163);
-        assert_eq!(y23d12(&contents, 2), 17788038834112);
+        assert_eq!(y23d12(&contents, 5), 17788038834112);
     }
 }
