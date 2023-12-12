@@ -14,12 +14,15 @@
  */
 
 use aoc::*;
-use std::{env, fs, io, io::Read, time::Instant};
+use peak_alloc::PeakAlloc;
+use std::{env, fs, io, io::IsTerminal, io::Read, time::Instant};
+use termcolor::{ColorChoice, StandardStream};
 
 #[global_allocator]
 static PEAK_ALLOC: PeakAlloc = PeakAlloc;
 
 fn main() {
+    let start = Instant::now();
     let args: Vec<String> = env::args().collect();
 
     if args.len() != 3 {
@@ -33,208 +36,216 @@ fn main() {
         fs::read_to_string(&args[2]).unwrap()
     };
 
-    let start = Instant::now();
+    let color_choice = if !io::stdout().is_terminal() {
+        ColorChoice::Never
+    } else {
+        ColorChoice::Auto
+    };
+
+    let mut stdout = StandardStream::stdout(color_choice);
+    title::print_title(&mut stdout, &args[1]);
+
+    let mut part1 = "".to_string();
+    let mut part2 = "".to_string();
+    let part1_sep = false;
+    let mut part2_sep = false;
 
     match args[1].as_str() {
         "y15d01" => {
-            println!("Part 1: {}", y15d01::y15d01p1(&input));
-            println!("Part 2: {}", y15d01::y15d01p2(&input).unwrap());
+            part1 = format!("{}", y15d01::y15d01p1(&input));
+            part2 = format!("{}", y15d01::y15d01p2(&input).unwrap());
         }
         "y15d02" => {
-            println!("Part 1: {}", y15d02::y15d02(&input, 1));
-            println!("Part 2: {}", y15d02::y15d02(&input, 2));
+            part1 = format!("{}", y15d02::y15d02(&input, 1));
+            part2 = format!("{}", y15d02::y15d02(&input, 2));
         }
         "y15d03" => {
-            println!("Part 1: {}", y15d03::y15d03(&input, 1));
-            println!("Part 2: {}", y15d03::y15d03(&input, 2));
+            part1 = format!("{}", y15d03::y15d03(&input, 1));
+            part2 = format!("{}", y15d03::y15d03(&input, 2));
         }
         "y15d04" => {
-            println!("Part 1: {}", y15d04::y15d04(input.clone(), 5).unwrap());
-            println!("Part 2: {}", y15d04::y15d04(input, 6).unwrap());
+            part1 = format!("{}", y15d04::y15d04(input.clone(), 5).unwrap());
+            part2 = format!("{}", y15d04::y15d04(input, 6).unwrap());
         }
         "y15d05" => {
-            println!("Part 1: {}", y15d05::y15d05(&input, 1));
-            println!("Part 2: {}", y15d05::y15d05(&input, 2));
+            part1 = format!("{}", y15d05::y15d05(&input, 1));
+            part2 = format!("{}", y15d05::y15d05(&input, 2));
         }
         "y15d06" => {
-            println!("Part 1: {}", y15d06::y15d06p1(&input));
-            println!("Part 2: {}", y15d06::y15d06p2(&input));
+            part1 = format!("{}", y15d06::y15d06p1(&input));
+            part2 = format!("{}", y15d06::y15d06p2(&input));
         }
         "y15d07" => {
-            println!("Part 1: {}", y15d07::y15d07(&input, "a", 1));
-            println!("Part 2: {}", y15d07::y15d07(&input, "a", 2));
+            part1 = format!("{}", y15d07::y15d07(&input, "a", 1));
+            part2 = format!("{}", y15d07::y15d07(&input, "a", 2));
         }
         "y15d08" => {
-            println!("Part 1: {}", y15d08::y15d08p1(&input));
-            println!("Part 2: {}", y15d08::y15d08p2(&input));
+            part1 = format!("{}", y15d08::y15d08p1(&input));
+            part2 = format!("{}", y15d08::y15d08p2(&input));
         }
         "y15d09" => {
-            println!("Part 1: {}", y15d09::y15d09(&input, 1));
-            println!("Part 2: {}", y15d09::y15d09(&input, 2));
+            part1 = format!("{}", y15d09::y15d09(&input, 1));
+            part2 = format!("{}", y15d09::y15d09(&input, 2));
         }
         "y15d10" => {
-            println!("Part 1: {}", y15d10::y15d10(&input, 40));
-            println!("Part 2: {}", y15d10::y15d10(&input, 50));
+            part1 = format!("{}", y15d10::y15d10(&input, 40));
+            part2 = format!("{}", y15d10::y15d10(&input, 50));
         }
         "y15d11" => {
-            println!("Part 1: {}", y15d11::y15d11(&input, 1));
-            println!("Part 2: {}", y15d11::y15d11(&input, 2));
+            part1 = format!("{}", y15d11::y15d11(&input, 1));
+            part2 = format!("{}", y15d11::y15d11(&input, 2));
         }
         "y15d12" => {
-            println!("Part 1: {}", y15d12::y15d12(&input, false));
-            println!("Part 2: {}", y15d12::y15d12(&input, true));
+            part1 = format!("{}", y15d12::y15d12(&input, false));
+            part2 = format!("{}", y15d12::y15d12(&input, true));
         }
         "y15d13" => {
-            println!("Part 1: {}", y15d13::y15d13(&input, false));
-            println!("Part 2: {}", y15d13::y15d13(&input, true));
+            part1 = format!("{}", y15d13::y15d13(&input, false));
+            part2 = format!("{}", y15d13::y15d13(&input, true));
         }
         "y15d14" => {
-            println!("Part 1: {}", y15d14::y15d14(&input, 2503, 1));
-            println!("Part 2: {}", y15d14::y15d14(&input, 2503, 2));
+            part1 = format!("{}", y15d14::y15d14(&input, 2503, 1));
+            part2 = format!("{}", y15d14::y15d14(&input, 2503, 2));
         }
         "y15d15" => {
-            println!("Part 1: {}", y15d15::y15d15(&input, 1));
-            println!("Part 2: {}", y15d15::y15d15(&input, 2));
+            part1 = format!("{}", y15d15::y15d15(&input, 1));
+            part2 = format!("{}", y15d15::y15d15(&input, 2));
         }
         "y15d16" => {
-            println!("Part 1: {}", y15d16::y15d16(&input, 1));
-            println!("Part 2: {}", y15d16::y15d16(&input, 2));
+            part1 = format!("{}", y15d16::y15d16(&input, 1));
+            part2 = format!("{}", y15d16::y15d16(&input, 2));
         }
         "y15d17" => {
-            println!("Part 1: {}", y15d17::y15d17(&input, 150, 1));
-            println!("Part 2: {}", y15d17::y15d17(&input, 150, 2));
+            part1 = format!("{}", y15d17::y15d17(&input, 150, 1));
+            part2 = format!("{}", y15d17::y15d17(&input, 150, 2));
         }
         "y15d18" => {
-            println!("Part 1: {}", y15d18::y15d18(&input, 100, 1));
-            println!("Part 2: {}", y15d18::y15d18(&input, 100, 2));
+            part1 = format!("{}", y15d18::y15d18(&input, 100, 1));
+            part2 = format!("{}", y15d18::y15d18(&input, 100, 2));
         }
         "y15d19" => {
-            println!("Part 1: {}", y15d19::y15d19p1(&input));
-            println!("Part 2: {}", y15d19::y15d19p2(&input));
+            part1 = format!("{}", y15d19::y15d19p1(&input));
+            part2 = format!("{}", y15d19::y15d19p2(&input));
         }
         "y22d01" => {
-            println!("Part 1: {}", y22d01::y22d01(&input, 1));
-            println!("Part 2: {}", y22d01::y22d01(&input, 3));
+            part1 = format!("{}", y22d01::y22d01(&input, 1));
+            part2 = format!("{}", y22d01::y22d01(&input, 3));
         }
         "y22d02" => {
-            println!("Part 1: {}", y22d02::y22d02(&input, 1));
-            println!("Part 2: {}", y22d02::y22d02(&input, 2));
+            part1 = format!("{}", y22d02::y22d02(&input, 1));
+            part2 = format!("{}", y22d02::y22d02(&input, 2));
         }
         "y22d03" => {
-            println!("Part 1: {}", y22d03::y22d03(&input, 1));
-            println!("Part 2: {}", y22d03::y22d03(&input, 2));
+            part1 = format!("{}", y22d03::y22d03(&input, 1));
+            part2 = format!("{}", y22d03::y22d03(&input, 2));
         }
         "y22d04" => {
-            println!("Part 1: {}", y22d04::y22d04(&input, 1));
-            println!("Part 2: {}", y22d04::y22d04(&input, 2));
+            part1 = format!("{}", y22d04::y22d04(&input, 1));
+            part2 = format!("{}", y22d04::y22d04(&input, 2));
         }
         "y22d05" => {
-            println!("Part 1: {}", y22d05::y22d05(&input, 1));
-            println!("Part 2: {}", y22d05::y22d05(&input, 2));
+            part1 = format!("{}", y22d05::y22d05(&input, 1));
+            part2 = format!("{}", y22d05::y22d05(&input, 2));
         }
         "y22d06" => {
-            println!("Part 1: {}", y22d06::y22d06(&input, 4).unwrap());
-            println!("Part 2: {}", y22d06::y22d06(&input, 14).unwrap());
+            part1 = format!("{}", y22d06::y22d06(&input, 4).unwrap());
+            part2 = format!("{}", y22d06::y22d06(&input, 14).unwrap());
         }
         "y22d07" => {
-            println!("Part 1: {}", y22d07::y22d07(&input, 1));
-            println!("Part 2: {}", y22d07::y22d07(&input, 2));
+            part1 = format!("{}", y22d07::y22d07(&input, 1));
+            part2 = format!("{}", y22d07::y22d07(&input, 2));
         }
         "y22d08" => {
-            println!("Part 1: {}", y22d08::y22d08(&input, 1));
-            println!("Part 2: {}", y22d08::y22d08(&input, 2));
+            part1 = format!("{}", y22d08::y22d08(&input, 1));
+            part2 = format!("{}", y22d08::y22d08(&input, 2));
         }
         "y22d09" => {
-            println!("Part 1: {}", y22d09::y22d09(&input, 2));
-            println!("Part 2: {}", y22d09::y22d09(&input, 10));
+            part1 = format!("{}", y22d09::y22d09(&input, 2));
+            part2 = format!("{}", y22d09::y22d09(&input, 10));
         }
         "y22d10" => {
-            println!("Part 1: {}", y22d10::y22d10p1(&input));
-            println!("Part 2:\n{}", y22d10::y22d10p2(&input));
+            part1 = format!("{}", y22d10::y22d10p1(&input));
+            part2 = format!("{}", y22d10::y22d10p2(&input));
+            part2_sep = true;
         }
         "y22d11" => {
-            println!("Part 1: {}", y22d11::y22d11(&input, 20, true));
-            println!("Part 2: {}", y22d11::y22d11(&input, 10000, false));
+            part1 = format!("{}", y22d11::y22d11(&input, 20, true));
+            part2 = format!("{}", y22d11::y22d11(&input, 10000, false));
         }
         "y22d12" => {
-            println!("Part 1: {}", y22d12::y22d12(&input, 1).unwrap());
-            println!("Part 2: {}", y22d12::y22d12(&input, 2).unwrap());
+            part1 = format!("{}", y22d12::y22d12(&input, 1).unwrap());
+            part2 = format!("{}", y22d12::y22d12(&input, 2).unwrap());
         }
         "y22d13" => {
-            println!("Part 1: {}", y22d13::y22d13(&input, 1));
-            println!("Part 2: {}", y22d13::y22d13(&input, 2));
+            part1 = format!("{}", y22d13::y22d13(&input, 1));
+            part2 = format!("{}", y22d13::y22d13(&input, 2));
         }
         "y22d14" => {
-            println!("Part 1: {}", y22d14::y22d14(&input, 1));
-            println!("Part 2: {}", y22d14::y22d14(&input, 2));
+            part1 = format!("{}", y22d14::y22d14(&input, 1));
+            part2 = format!("{}", y22d14::y22d14(&input, 2));
         }
         "y22d15" => {
-            println!("Part 1: {}", y22d15::y22d15p1(&input, 2000000));
-            println!("Part 2: {}", y22d15::y22d15p2(&input, 4000000));
+            part1 = format!("{}", y22d15::y22d15p1(&input, 2000000));
+            part2 = format!("{}", y22d15::y22d15p2(&input, 4000000));
         }
         "y22d16" => {
-            println!("Part 1: {}", y22d16::y22d16(&input, 1));
-            println!("Part 2: {}", y22d16::y22d16(&input, 2));
+            part1 = format!("{}", y22d16::y22d16(&input, 1));
+            part2 = format!("{}", y22d16::y22d16(&input, 2));
         }
         "y23d01" => {
-            println!("Part 1: {}", y23d01::y23d01(&input, 1));
-            println!("Part 2: {}", y23d01::y23d01(&input, 2));
+            part1 = format!("{}", y23d01::y23d01(&input, 1));
+            part2 = format!("{}", y23d01::y23d01(&input, 2));
         }
         "y23d02" => {
-            println!("Part 1: {}", y23d02::y23d02(&input, 1));
-            println!("Part 2: {}", y23d02::y23d02(&input, 2));
+            part1 = format!("{}", y23d02::y23d02(&input, 1));
+            part2 = format!("{}", y23d02::y23d02(&input, 2));
         }
         "y23d03" => {
-            println!("Part 1: {}", y23d03::y23d03p1(&input));
-            println!("Part 2: {}", y23d03::y23d03p2(&input));
+            part1 = format!("{}", y23d03::y23d03p1(&input));
+            part2 = format!("{}", y23d03::y23d03p2(&input));
         }
         "y23d04" => {
-            println!("Part 1: {}", y23d04::y23d04(&input, 1));
-            println!("Part 2: {}", y23d04::y23d04(&input, 2));
+            part1 = format!("{}", y23d04::y23d04(&input, 1));
+            part2 = format!("{}", y23d04::y23d04(&input, 2));
         }
         "y23d05" => {
-            println!("Part 1: {}", y23d05::y23d05(&input, 1));
-            println!("Part 2: {}", y23d05::y23d05(&input, 2));
+            part1 = format!("{}", y23d05::y23d05(&input, 1));
+            part2 = format!("{}", y23d05::y23d05(&input, 2));
         }
         "y23d06" => {
-            println!("Part 1: {}", y23d06::y23d06(&input, 1));
-            println!("Part 2: {}", y23d06::y23d06(&input, 2));
+            part1 = format!("{}", y23d06::y23d06(&input, 1));
+            part2 = format!("{}", y23d06::y23d06(&input, 2));
         }
         "y23d07" => {
-            println!("Part 1: {}", y23d07::y23d07(&input, 1));
-            println!("Part 2: {}", y23d07::y23d07(&input, 2));
+            part1 = format!("{}", y23d07::y23d07(&input, 1));
+            part2 = format!("{}", y23d07::y23d07(&input, 2));
         }
         "y23d08" => {
-            println!("Part 1: {}", y23d08::y23d08(&input, 1));
-            println!("Part 2: {}", y23d08::y23d08(&input, 2));
+            part1 = format!("{}", y23d08::y23d08(&input, 1));
+            part2 = format!("{}", y23d08::y23d08(&input, 2));
         }
         "y23d09" => {
-            println!("Part 1: {}", y23d09::y23d09(&input, 1));
-            println!("Part 2: {}", y23d09::y23d09(&input, 2));
+            part1 = format!("{}", y23d09::y23d09(&input, 1));
+            part2 = format!("{}", y23d09::y23d09(&input, 2));
         }
         "y23d10" => {
-            println!("Part 1: {}", y23d10::y23d10(&input, 1));
-            println!("Part 2: {}", y23d10::y23d10(&input, 2));
+            part1 = format!("{}", y23d10::y23d10(&input, 1));
+            part2 = format!("{}", y23d10::y23d10(&input, 2));
         }
         "y23d11" => {
-            println!("Part 1: {}", y23d11::y23d11(&input, 1));
-            println!("Part 1: {}", y23d11::y23d11(&input, 1000000));
+            part1 = format!("{}", y23d11::y23d11(&input, 1));
+            part2 = format!("{}", y23d11::y23d11(&input, 1000000));
+        }
         }
         _ => panic!("Unable to find year/day match."),
     };
 
-    println!("\nRun time: {}μs", start.elapsed().as_micros());
+    title::print_answer(&mut stdout, 1, &part1, part1_sep);
+    title::print_answer(&mut stdout, 2, &part2, part2_sep);
 
+    let elapsed = start.elapsed();
     let peak_usage = PEAK_ALLOC.peak_usage();
-    if peak_usage <= 1500 {
-        println!("{}B", peak_usage);
-    } else if peak_usage <= 1048576 {
-        println!("{:.2}KB", peak_usage as f32 / 1024.0);
-    } else if peak_usage <= 1073741824 {
-        println!("{:.2}MB", peak_usage as f32 / 1048576.0);
-    } else {
-        println!("{:.2}GB", peak_usage as f32 / 1073741824.0);
-    }
+    title::print_stats(&mut stdout, elapsed, peak_usage);
 }
 
 fn read_from_stdin() -> String {

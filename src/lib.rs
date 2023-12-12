@@ -17,6 +17,7 @@
 
 //! Advent of Code solutions
 
+pub mod title;
 pub mod util;
 
 pub mod y15d01;
