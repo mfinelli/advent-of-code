@@ -16,6 +16,9 @@
 use aoc::*;
 use std::{env, fs, io, io::Read, time::Instant};
 
+#[global_allocator]
+static PEAK_ALLOC: PeakAlloc = PeakAlloc;
+
 fn main() {
     let args: Vec<String> = env::args().collect();
 
@@ -221,6 +224,17 @@ fn main() {
     };
 
     println!("\nRun time: {}μs", start.elapsed().as_micros());
+
+    let peak_usage = PEAK_ALLOC.peak_usage();
+    if peak_usage <= 1500 {
+        println!("{}B", peak_usage);
+    } else if peak_usage <= 1048576 {
+        println!("{:.2}KB", peak_usage as f32 / 1024.0);
+    } else if peak_usage <= 1073741824 {
+        println!("{:.2}MB", peak_usage as f32 / 1048576.0);
+    } else {
+        println!("{:.2}GB", peak_usage as f32 / 1073741824.0);
+    }
 }
 
 fn read_from_stdin() -> String {

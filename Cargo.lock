@@ -17,6 +17,7 @@ version = "2023.0.0"
 dependencies = [
  "itertools",
  "md-5",
+ "peak_alloc",
  "rand",
  "regex",
  "serde_json",
@@ -120,6 +121,12 @@ name = "memchr"
 version = "2.6.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f665ee40bc4a3c5590afb1e9677db74a508659dfd71e126420da8274909a0167"
+
+[[package]]
+name = "peak_alloc"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "84d3978b0aa7d46c34452384c28264ac859c652b67635f6acfd598e1b6608de5"
 
 [[package]]
 name = "ppv-lite86"
