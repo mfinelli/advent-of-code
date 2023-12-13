@@ -51,6 +51,7 @@ fn main() {
     let mut part2_sep = false;
 
     match args[1].as_str() {
+        // 2015
         "y15d01" => {
             part1 = format!("{}", y15d01::y15d01p1(&input));
             part2 = format!("{}", y15d01::y15d01p2(&input).unwrap());
@@ -127,6 +128,8 @@ fn main() {
             part1 = format!("{}", y15d19::y15d19p1(&input));
             part2 = format!("{}", y15d19::y15d19p2(&input));
         }
+
+        // 2022
         "y22d01" => {
             part1 = format!("{}", y22d01::y22d01(&input, 1));
             part2 = format!("{}", y22d01::y22d01(&input, 3));
@@ -192,6 +195,8 @@ fn main() {
             part1 = format!("{}", y22d16::y22d16(&input, 1));
             part2 = format!("{}", y22d16::y22d16(&input, 2));
         }
+
+        // 2023
         "y23d01" => {
             part1 = format!("{}", y23d01::y23d01(&input, 1));
             part2 = format!("{}", y23d01::y23d01(&input, 2));
@@ -240,6 +245,11 @@ fn main() {
             part1 = format!("{}", y23d12::y23d12(&input, 1));
             part2 = format!("{}", y23d12::y23d12(&input, 5));
         }
+        "y23d13" => {
+            part1 = format!("{}", y23d13::y23d13(&input));
+            part2 = "".to_string();
+        }
+
         _ => panic!("Unable to find year/day match."),
     };
 
