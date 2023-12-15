@@ -25,122 +25,103 @@
 /// ```rust
 /// # use aoc::y23d13::y23d13;
 /// // probably read this from the input file...
-/// let input = "";
-/// assert_eq!(y23d13(input), 0);
+/// let input = concat!(
+///     ".#.##.#.#\n",
+///     ".##..##..\n",
+///     ".#.##.#..\n",
+///     "#......##\n",
+///     "#......##\n",
+///     ".#.##.#..\n",
+///     ".##..##.#\n",
+/// );
+/// assert_eq!(y23d13(input, 1), 4);
+/// assert_eq!(y23d13(input, 2), 400);
 /// ```
 pub fn y23d13(input: &str, part: u32) -> u32 {
     let mut total = 0;
 
     for puzzle in input.split("\n\n") {
-        let mut found = false;
         let puzzle = puzzle.trim();
-        // println!("puzzle: {:?}", puzzle);
-        let rows: Vec<Vec<char>> = puzzle.lines().map(|l| l.chars().collect()).collect();
-        // println!("rows: {:?}", rows);
+        let rows: Vec<Vec<char>> =
+            puzzle.lines().map(|l| l.chars().collect()).collect();
         let mut cols: Vec<Vec<char>> = Vec::new();
+
         for i in 0..rows[0].len() {
             let mut col = Vec::new();
 
-            for j in 0..rows.len() {
-                col.push(rows[j][i]);
+            for row in &rows {
+                col.push(row[i]);
             }
 
             cols.push(col);
         }
 
-        let rows: Vec<String> = rows.iter().map(|r| r.iter().collect()).collect();
-        let cols: Vec<String> = cols.iter().map(|c| c.iter().collect()).collect();
+        let rows: Vec<String> =
+            rows.iter().map(|r| r.iter().collect()).collect();
+        let cols: Vec<String> =
+            cols.iter().map(|c| c.iter().collect()).collect();
 
-        // println!("puzzle:\n{}", puzzle);
-        // println!("rows: {:?}", rows);
-        // println!("cols: {:?}", cols);
+        let half = rows.len() / 2;
+        let is_even = rows.len() % 2 == 0;
 
-        // for i in 1..rows.len() {
-        //     // println!("checking: {:?}, {:?}", vec![rows[i]], vec![rows[i-1]]);
-        //     let right = vec![&rows[i]];
-        //     let left = vec![&rows[i-1]];
-
-
-        //     println!("left: {:?}, right: {:?}", left, right);
-        // }
-
-        let half = rows.len()/2;
-        let is_even = if rows.len()%2 == 0 { true } else { false};
         for i in 1..rows.len() {
-            let len =  if i <= half { i*2} else { (rows.len()-i)*2};
-            let offset = if is_even && i>half {
-                (i-half)*2
-            } else if !is_even && i>half {
-                (i-half)*2-1
+            let len = if i <= half {
+                i * 2
+            } else {
+                (rows.len() - i) * 2
+            };
+
+            let offset = if is_even && i > half {
+                (i - half) * 2
+            } else if !is_even && i > half {
+                (i - half) * 2 - 1
             } else {
                 0
             };
-            // let lstart = if i <= half { 0 } else { (i-half)*2 + offset};
+
             let lstart = offset;
             let lend = i;
             let rstart = i;
             let rend = if i > half { rows.len() } else { len };
-            // if i == 6 || i == 7 || i ==8 {
-            // println!("i: {}, len: {}, offset: {}, left: {}..{}, right: {}..{}", i, len, offset, lstart, lend, rstart, rend);
-            // }
-            //
             let left = rows[lstart..lend].to_vec();
             let right = rows[rstart..rend].to_vec();
 
-            if left.len() != right.len() {
-                println!("length mismatch on ^^");
-            }
-
-            // println!("comparing: {:?}, {:?}", left, right);
-            if are_equal(&left, &right, part-1) {
-                found = true;
-                // println!("rows are equal at index: {}", i);
+            if are_equal(&left, &right, part - 1) {
                 let index: u32 = i.try_into().unwrap();
-                total += index*100;
+                total += index * 100;
             }
-
-
         }
 
-        let half = cols.len()/2;
-        let is_even = if cols.len()%2 == 0 { true } else { false};
+        let half = cols.len() / 2;
+        let is_even = cols.len() % 2 == 0;
+
         for i in 1..cols.len() {
-            let len =  if i <= half { i*2} else { (cols.len()-i)*2};
-            let offset = if is_even && i>half {
-                (i-half)*2
-            } else if !is_even && i>half {
-                (i-half)*2-1
+            let len = if i <= half {
+                i * 2
+            } else {
+                (cols.len() - i) * 2
+            };
+
+            let offset = if is_even && i > half {
+                (i - half) * 2
+            } else if !is_even && i > half {
+                (i - half) * 2 - 1
             } else {
                 0
             };
-            // let lstart = if i <= half { 0 } else { (i-half)*2 + offset};
+
             let lstart = offset;
             let lend = i;
             let rstart = i;
             let rend = if i > half { cols.len() } else { len };
-            // println!("i: {}, len: {}, offset: {}, left: {}..{}, right: {}..{}", i, len, offset, lstart, lend, rstart, rend);
-            //
             let left = cols[lstart..lend].to_vec();
             let right = cols[rstart..rend].to_vec();
 
-            // println!("comparing: {:?}, {:?}", left, right);
-            if are_equal(&left, &right, part-1) {
-                found = true;
-                // println!("cols are equal at index: {}", i);
+            if are_equal(&left, &right, part - 1) {
                 let index: u32 = i.try_into().unwrap();
                 total += index;
             }
-
-
         }
-
-        // if !found {
-        //     println!("didn't find anything:\n{}", puzzle);
-        // }
-
-        // println!("");
-
-
     }
 
     total
@@ -151,11 +132,12 @@ fn are_equal(left: &Vec<String>, right: &Vec<String>, allowed: u32) -> bool {
     let mut diffs = 0;
 
     for i in 0..left.len() {
-        if left[i] != right[right.len()-1-i] {
-            // return false;
-            let lchars:Vec<char> = left[i].chars().collect();
-            let rchars:Vec<char> = right[right.len()-1-i].chars().collect();
-            for j in 0..left[i].len(){
+        if left[i] != right[right.len() - 1 - i] {
+            let lchars: Vec<char> = left[i].chars().collect();
+            let rchars: Vec<char> =
+                right[right.len() - 1 - i].chars().collect();
+
+            for j in 0..left[i].len() {
                 if lchars[j] != rchars[j] {
                     diffs += 1;
                 }
@@ -176,10 +158,15 @@ mod tests {
     use std::fs;
 
     #[test]
-    fn test_are_equal(){}
+    fn test_are_equal() {
+        let l = vec!["#...##..#".to_string()];
+        let r = vec!["#....#..#".to_string()];
+        assert!(!are_equal(&l, &r, 0));
+        assert!(are_equal(&l, &r, 1));
+    }
 
     #[test]
-    fn tit_works() {
+    fn it_works() {
         let input = concat!(
             "#.##..##.\n",
             "..#.##.#.\n",
