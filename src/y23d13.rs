@@ -15,11 +15,24 @@
 
 //! Advent of Code 2023 Day 13: <https://adventofcode.com/2023/day/13>
 //!
-//! TODO
+//! Today's problem was fairly challenging and I spent quite a bit of time
+//! figuring out exactly how to loop through all of the possible valid windows.
+//! In part two the key insight is that compared to part one when checking the
+//! equality of the rows/columns where there should be zero differences in
+//! part two there should be exactly one (which means that we _shouldn't_ count
+//! the old path from part one).
 
 /// The solution for the day thirteen challenge.
 ///
-/// TODO
+/// We take the input as a string and a variable for the part that we're
+/// solving (which we ultimately transform into the number of expected
+/// differences when checking to see if we've found the path: `0` in part `1`
+/// and `1` in part `2`). Then we split the input for each puzzle and parse it
+/// into a vector of its rows and columns. We then loop through each set of
+/// valid rows (i.e., that makes a valid path) and calculate all of the
+/// parameters necessary to split the puzzle and compare the equality along the
+/// dividing line. If we find the path then we increase the total accordingly.
+/// Then we do the same process again for the columns.
 ///
 /// # Example
 /// ```rust
@@ -127,7 +140,12 @@ pub fn y23d13(input: &str, part: u32) -> u32 {
     total
 }
 
-/// TODO
+/// This function takes the left and right halves (or top and bottom) of the
+/// puzzle at the divided line and compares them to see if they're equal or
+/// not. Because we need to find the smudge on the mirror in part two we
+/// actually count the number of differences that we find if a particular line
+/// is not equal and then return the equality based on the total number of
+/// differences that we found.
 fn are_equal(left: &Vec<String>, right: &Vec<String>, allowed: u32) -> bool {
     let mut diffs = 0;
 
