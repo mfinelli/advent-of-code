@@ -32,6 +32,7 @@ pub fn y23d13(input: &str) -> u32 {
     let mut total = 0;
 
     for puzzle in input.split("\n\n") {
+        let mut found = false;
         let puzzle = puzzle.trim();
         // println!("puzzle: {:?}", puzzle);
         let rows: Vec<Vec<char>> = puzzle.lines().map(|l| l.chars().collect()).collect();
@@ -67,73 +68,90 @@ pub fn y23d13(input: &str) -> u32 {
         let is_even = if rows.len()%2 == 0 { true } else { false};
         for i in 1..rows.len() {
             let len =  if i <= half { i*2} else { (rows.len()-i)*2};
-            let offset = if is_even && i>half { 
+            let offset = if is_even && i>half {
                 (i-half)*2
             } else if !is_even && i>half {
                 (i-half)*2-1
-        } else {
-            0
-        };
+            } else {
+                0
+            };
             // let lstart = if i <= half { 0 } else { (i-half)*2 + offset};
             let lstart = offset;
             let lend = i;
             let rstart = i;
-            let rend = if i >= half { rows.len() } else { len };
+            let rend = if i > half { rows.len() } else { len };
+            // if i == 6 || i == 7 || i ==8 {
             // println!("i: {}, len: {}, offset: {}, left: {}..{}, right: {}..{}", i, len, offset, lstart, lend, rstart, rend);
+            // }
             //
             let left = rows[lstart..lend].to_vec();
             let right = rows[rstart..rend].to_vec();
 
+            if left.len() != right.len() {
+                println!("length mismatch on ^^");
+            }
+
             // println!("comparing: {:?}, {:?}", left, right);
-            if are_equal(&left, &right) {
-                // println!("are equal at index: {}", i);
+            if are_equal(&left, &right, false) {
+                found = true;
+                // println!("rows are equal at index: {}", i);
                 let index: u32 = i.try_into().unwrap();
                 total += index*100;
             }
 
-            
+
         }
 
         let half = cols.len()/2;
         let is_even = if cols.len()%2 == 0 { true } else { false};
         for i in 1..cols.len() {
             let len =  if i <= half { i*2} else { (cols.len()-i)*2};
-            let offset = if is_even && i>half { 
+            let offset = if is_even && i>half {
                 (i-half)*2
             } else if !is_even && i>half {
                 (i-half)*2-1
-        } else {
-            0
-        };
+            } else {
+                0
+            };
             // let lstart = if i <= half { 0 } else { (i-half)*2 + offset};
             let lstart = offset;
             let lend = i;
             let rstart = i;
-            let rend = if i >= half { cols.len() } else { len };
+            let rend = if i > half { cols.len() } else { len };
             // println!("i: {}, len: {}, offset: {}, left: {}..{}, right: {}..{}", i, len, offset, lstart, lend, rstart, rend);
             //
             let left = cols[lstart..lend].to_vec();
             let right = cols[rstart..rend].to_vec();
 
             // println!("comparing: {:?}, {:?}", left, right);
-            if are_equal(&left, &right) {
-                // println!("are equal at index: {}", i);
+            if are_equal(&left, &right, false) {
+                found = true;
+                // println!("cols are equal at index: {}", i);
                 let index: u32 = i.try_into().unwrap();
                 total += index;
             }
 
-            
+
         }
+
+        // if !found {
+        //     println!("didn't find anything:\n{}", puzzle);
+        // }
+
+        // println!("");
 
 
     }
-    
+
     total
 }
 
 /// TODO
-fn are_equal(left: &Vec<String>, right: &Vec<String>) -> bool {
+fn are_equal(left: &Vec<String>, right: &Vec<String>, debug: bool) -> bool {
     for i in 0..left.len() {
+        if debug {
+            println!("checking {:?} against {:?}", left[i], right[right.len()-1-i]);
+        }
         if left[i] != right[right.len()-1-i] {
             return false;
         }
@@ -189,6 +207,6 @@ mod tests {
     fn the_solution() {
         let contents = fs::read_to_string("input/2023/day13.txt").unwrap();
 
-        assert_eq!(y23d13(&contents), 0);
+        assert_eq!(y23d13(&contents), 32035);
     }
 }
