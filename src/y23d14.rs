@@ -59,76 +59,24 @@ pub fn y23d14(input: &str, part: u32) -> i32 {
         tilt('N', rows, cols, &mut map);
     } else {
         let cycles = 1000000000;
-        // let mut additional_cycles_to_do = 0;
-
-        for cycle in 1..cycles+1{
-            // if cycle % 100 == 0 {
-            //     println!("{}", cycle);
-            // }
-
+        for cycle in 1..cycles + 1 {
             tilt('N', rows, cols, &mut map);
             tilt('W', rows, cols, &mut map);
             tilt('S', rows, cols, &mut map);
             tilt('E', rows, cols, &mut map);
 
-
-
-
             let grid = map_to_string(rows, cols, &map);
-            // if cycle == 0 || cycle == 1 || cycle == 2 {
-            //     println!("{}", grid);
-            // }
-            // println!("{}", grid);
-            // if seen.contains(&grid) {
             if let Some(seen_at) = seen.insert(grid, cycle) {
                 if (cycles - cycle) % (cycle - seen_at) == 0 {
                     break;
                 }
-                // let remaining = cycles - 1 - cycle;
-                // additional_cycles_to_do = remaining % cycle;
-                // println!("found cycle after {}", cycle);
-                // additional_cycles_to_do = cycles % cycle;
-                // println!("must do more {}", additional_cycles_to_do);
-                // break;
-            // } else {
-            //     // seen.push(grid);
-            //     seen.insert(grid, cycle);
             }
         }
-
-        // for _ in 0..additional_cycles_to_do {
-        //     tilt('N', rows, cols, &mut map);
-        //     tilt('W', rows, cols, &mut map);
-        //     tilt('S', rows, cols, &mut map);
-        //     tilt('E', rows, cols, &mut map);
-        // }
-
-        // println!("{}", map.get(&(0,0)).unwrap());
-        // println!("{}", map.get(&(0,1)).unwrap());
-        // println!("{}", map.get(&(0,2)).unwrap());
-        // println!("{}", map.get(&(0,3)).unwrap());
-        // println!("{}", map.get(&(0,4)).unwrap());
-        // println!("{}", map.get(&(0,5)).unwrap());
-        // println!("{}", map.get(&(0,6)).unwrap());
-        // println!("{}", map.get(&(0,7)).unwrap());
-        // println!("{}", map.get(&(0,8)).unwrap());
-        // println!("{}", map.get(&(0,9)).unwrap());
-
-        // print!("{}", map.get(&(0,0)).unwrap());
-        // print!("{}", map.get(&(1,0)).unwrap());
-        // print!("{}", map.get(&(2,0)).unwrap());
-        // print!("{}", map.get(&(3,0)).unwrap());
-        // print!("{}", map.get(&(4,0)).unwrap());
-        // print!("{}", map.get(&(5,0)).unwrap());
-        // print!("{}", map.get(&(6,0)).unwrap());
-        // print!("{}", map.get(&(7,0)).unwrap());
-        // print!("{}", map.get(&(8,0)).unwrap());
-        // println!("{}", map.get(&(9,0)).unwrap());
     }
 
-    for ((_,y), c) in map {
+    for ((_, y), c) in map {
         if c == 'O' {
-            total += rows-y;
+            total += rows - y;
         }
     }
 
@@ -136,27 +84,27 @@ pub fn y23d14(input: &str, part: u32) -> i32 {
 }
 
 /// TODO
-fn tilt(dir: char, rows: i32, cols: i32, map: &mut HashMap<(i32,i32), char>) {
+fn tilt(dir: char, rows: i32, cols: i32, map: &mut HashMap<(i32, i32), char>) {
     if dir == 'N' {
         for x in 0..cols {
             for y in 0..rows {
-                let c = map.get(&(x,y)).unwrap();
+                let c = map.get(&(x, y)).unwrap();
 
                 if *c == 'O' {
                     let mut current = y;
 
                     loop {
-                        match map.get(&(x, current-1)) {
+                        match map.get(&(x, current - 1)) {
                             None => break,
                             Some(above) => {
                                 if *above == 'O' || *above == '#' {
                                     break;
                                 }
 
-                                map.insert((x, current-1), 'O');
+                                map.insert((x, current - 1), 'O');
                                 map.insert((x, current), '.');
 
-                                current -=1;
+                                current -= 1;
                             }
                         }
                     }
@@ -167,23 +115,23 @@ fn tilt(dir: char, rows: i32, cols: i32, map: &mut HashMap<(i32,i32), char>) {
         for x in 0..cols {
             for y in 0..rows {
                 let y = rows - 1 - y;
-                let c = map.get(&(x,y)).unwrap();
+                let c = map.get(&(x, y)).unwrap();
 
                 if *c == 'O' {
                     let mut current = y;
 
                     loop {
-                        match map.get(&(x, current+1)) {
+                        match map.get(&(x, current + 1)) {
                             None => break,
                             Some(below) => {
                                 if *below == 'O' || *below == '#' {
                                     break;
                                 }
 
-                                map.insert((x, current+1), 'O');
+                                map.insert((x, current + 1), 'O');
                                 map.insert((x, current), '.');
 
-                                current +=1;
+                                current += 1;
                             }
                         }
                     }
@@ -194,49 +142,49 @@ fn tilt(dir: char, rows: i32, cols: i32, map: &mut HashMap<(i32,i32), char>) {
         for y in 0..rows {
             for x in 0..cols {
                 let x = cols - 1 - x;
-                let c = map.get(&(x,y)).unwrap();
+                let c = map.get(&(x, y)).unwrap();
 
                 if *c == 'O' {
                     let mut current = x;
 
                     loop {
-                        match map.get(&(current+1, y)) {
+                        match map.get(&(current + 1, y)) {
                             None => break,
                             Some(right) => {
                                 if *right == 'O' || *right == '#' {
                                     break;
                                 }
 
-                                map.insert((current+1, y), 'O');
+                                map.insert((current + 1, y), 'O');
                                 map.insert((current, y), '.');
 
-                                current +=1;
+                                current += 1;
                             }
                         }
                     }
                 }
             }
         }
-    } else { // dir == 'W'
+    } else {
         for y in 0..rows {
             for x in 0..cols {
-                let c = map.get(&(x,y)).unwrap();
+                let c = map.get(&(x, y)).unwrap();
 
                 if *c == 'O' {
                     let mut current = x;
 
                     loop {
-                        match map.get(&(current-1, y)) {
+                        match map.get(&(current - 1, y)) {
                             None => break,
                             Some(left) => {
                                 if *left == 'O' || *left == '#' {
                                     break;
                                 }
 
-                                map.insert((current-1, y), 'O');
+                                map.insert((current - 1, y), 'O');
                                 map.insert((current, y), '.');
 
-                                current -=1;
+                                current -= 1;
                             }
                         }
                     }
@@ -247,12 +195,16 @@ fn tilt(dir: char, rows: i32, cols: i32, map: &mut HashMap<(i32,i32), char>) {
 }
 
 /// TODO
-fn map_to_string(rows: i32, cols: i32, map: &HashMap<(i32, i32), char>) -> String {
+fn map_to_string(
+    rows: i32,
+    cols: i32,
+    map: &HashMap<(i32, i32), char>,
+) -> String {
     let mut s = "".to_string();
 
     for y in 0..rows {
         for x in 0..cols {
-            s = format!("{}{}", s, map.get(&(x,y)).unwrap());
+            s = format!("{}{}", s, map.get(&(x, y)).unwrap());
         }
 
         s = format!("{}\n", s);
@@ -270,7 +222,7 @@ mod tests {
     fn test_map_to_string() {}
 
     #[test]
-    fn test_tilt(){}
+    fn test_tilt() {}
 
     #[test]
     fn it_works() {
