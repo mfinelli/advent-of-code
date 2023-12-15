@@ -28,7 +28,7 @@
 /// let input = "";
 /// assert_eq!(y23d13(input), 0);
 /// ```
-pub fn y23d13(input: &str) -> u32 {
+pub fn y23d13(input: &str, part: u32) -> u32 {
     let mut total = 0;
 
     for puzzle in input.split("\n\n") {
@@ -92,7 +92,7 @@ pub fn y23d13(input: &str) -> u32 {
             }
 
             // println!("comparing: {:?}, {:?}", left, right);
-            if are_equal(&left, &right, false) {
+            if are_equal(&left, &right, part-1) {
                 found = true;
                 // println!("rows are equal at index: {}", i);
                 let index: u32 = i.try_into().unwrap();
@@ -124,7 +124,7 @@ pub fn y23d13(input: &str) -> u32 {
             let right = cols[rstart..rend].to_vec();
 
             // println!("comparing: {:?}, {:?}", left, right);
-            if are_equal(&left, &right, false) {
+            if are_equal(&left, &right, part-1) {
                 found = true;
                 // println!("cols are equal at index: {}", i);
                 let index: u32 = i.try_into().unwrap();
@@ -147,17 +147,27 @@ pub fn y23d13(input: &str) -> u32 {
 }
 
 /// TODO
-fn are_equal(left: &Vec<String>, right: &Vec<String>, debug: bool) -> bool {
+fn are_equal(left: &Vec<String>, right: &Vec<String>, allowed: u32) -> bool {
+    let mut diffs = 0;
+
     for i in 0..left.len() {
-        if debug {
-            println!("checking {:?} against {:?}", left[i], right[right.len()-1-i]);
-        }
         if left[i] != right[right.len()-1-i] {
+            // return false;
+            let lchars:Vec<char> = left[i].chars().collect();
+            let rchars:Vec<char> = right[right.len()-1-i].chars().collect();
+            for j in 0..left[i].len(){
+                if lchars[j] != rchars[j] {
+                    diffs += 1;
+                }
+            }
+        }
+
+        if diffs > allowed {
             return false;
         }
     }
 
-    true
+    diffs == allowed
 }
 
 #[cfg(test)]
@@ -171,17 +181,6 @@ mod tests {
     #[test]
     fn tit_works() {
         let input = concat!(
-            // "#.##..##..\n",
-            // "..#.##.#..\n",
-            // "##......#.\n",
-            // "##......#.\n",
-            // "..#.##.#..\n",
-            // "..##..##..\n",
-            // "#.#.##.#..\n",
-            // "..........\n",
-
-
-
             "#.##..##.\n",
             "..#.##.#.\n",
             "##......#\n",
@@ -197,16 +196,17 @@ mod tests {
             "#####.##.\n",
             "..##..###\n",
             "#....#..#\n",
-
         );
 
-        assert_eq!(y23d13(input), 405);
+        assert_eq!(y23d13(input, 1), 405);
+        assert_eq!(y23d13(input, 2), 400);
     }
 
     #[test]
     fn the_solution() {
         let contents = fs::read_to_string("input/2023/day13.txt").unwrap();
 
-        assert_eq!(y23d13(&contents), 32035);
+        assert_eq!(y23d13(&contents, 1), 32035);
+        assert_eq!(y23d13(&contents, 2), 24847);
     }
 }
