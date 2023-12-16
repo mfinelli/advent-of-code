@@ -15,27 +15,35 @@
 
 //! Advent of Code 2023 Day 15: <https://adventofcode.com/2023/day/15>
 //!
-//! TODO
+//! Today is a very straightforward challenge that just requires following the
+//! instructions exactly as they're defined in the prompt.
 
 use std::collections::HashMap;
 
 /// The solution for the day fifteen challenge.
 ///
-/// TODO
+/// We take the input as usual along with the normal integer to determine part
+/// `1` or part `2`. In part one we just split the input by "," and then
+/// calculate the hash for each string. For part two we instead build two
+/// vectors to keep track of the current values of each label (using
+/// [`std::collections::HashMap`]) as well as the orders of the labels in a
+/// separate vector. This could probably be simplified to use just a single
+/// vector with a tuple value. After we process the input step-by-step all that
+/// is left is to calculate the power based on the prompt instructions.
 ///
 /// # Example
 /// ```rust
 /// # use aoc::y23d15::y23d15;
 /// // probably read this from the input file...
-/// let input = "";
-/// assert_eq!(y23d15(input, 1), 0);
-/// assert_eq!(y23d15(input, 2), 0);
+/// let input = "ab=1,cd=2,ef=3,cd-,ab=4";
+/// assert_eq!(y23d15(input, 1), 746);
+/// assert_eq!(y23d15(input, 2), 628);
 /// ```
 pub fn y23d15(input: &str, part: u32) -> u32 {
     let mut total = 0;
 
     if part == 1 {
-        for step in input.trim().split(",") {
+        for step in input.trim().split(',') {
             total += hash(step);
         }
 
@@ -53,9 +61,9 @@ pub fn y23d15(input: &str, part: u32) -> u32 {
         orders.push(o);
     }
 
-    for step in input.trim().split(",") {
-        if step.contains("=") {
-            let parts: Vec<_> = step.split("=").collect();
+    for step in input.trim().split(',') {
+        if step.contains('=') {
+            let parts: Vec<_> = step.split('=').collect();
             let label = parts[0];
             let focal_length: u32 = parts[1].parse().unwrap();
 
@@ -66,7 +74,7 @@ pub fn y23d15(input: &str, part: u32) -> u32 {
                 orders[b].push(label);
             }
         } else {
-            let parts: Vec<_> = step.split("-").collect();
+            let parts: Vec<_> = step.split('-').collect();
             let label = parts[0];
 
             let b: usize = hash(label).try_into().unwrap();
@@ -74,29 +82,20 @@ pub fn y23d15(input: &str, part: u32) -> u32 {
         }
     }
 
-    // println!("{:?}", orders);
-    // println!("{:?}", boxes);
-
     for (b, order) in orders.iter().enumerate() {
         let i: u32 = b.try_into().unwrap();
 
-        // let mut power = i+1;
         for (j, label) in order.iter().enumerate() {
             let j: u32 = j.try_into().unwrap();
-            // power *= j+1;
-            // power *= boxes[b].get(label).unwrap();
-
-            // println!("power for {} ({} * {} * {}): {}", label, i+1, j+1, boxes[b].get(label).unwrap(), power);
-            total += (i+1) * (j+1) * boxes[b].get(label).unwrap();
+            total += (i + 1) * (j + 1) * boxes[b].get(label).unwrap();
         }
-
-        // total += power;
     }
 
     total
 }
 
-/// TODO
+/// This function computes the hash for a given string based on the
+/// instructions in the prompt
 fn hash(step: &str) -> u32 {
     let mut val = 0;
 
