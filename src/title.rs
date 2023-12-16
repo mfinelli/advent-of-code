@@ -170,6 +170,7 @@ fn title(yd: &str) -> &str {
         "y23d12" => "Hot Springs",
         "y23d13" => "Point of Incidence",
         "y23d14" => "Parabolic Reflector Dish",
+        "y23d15" => "Lens Library",
 
         _ => panic!("unknown puzzle title"),
     }
