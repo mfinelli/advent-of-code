@@ -15,20 +15,33 @@
 
 //! Advent of Code 2023 Day 14: <https://adventofcode.com/2023/day/14>
 //!
-//! TODO
+//! Today's challenge was not terribly difficult. After a relatively easy part
+//! one, part two is a classic Advent of Code problem where in order to avoid
+//! needing to run one billion (expensive) iterations of a loop we can instead
+//! find a cycle that we are sure that there will be because of the way that
+//! the input is crafted.
 
 use std::collections::HashMap;
 
 /// The solution for the day fourteen challenge.
 ///
-/// TODO
+/// We take the input as a string and an integer for the part which changes
+/// whether we do a single tilt or 1,000,000,000 cycles of tilt north, west,
+/// south, and then east. We start by parsing the input into a
+/// [`std::collections::HashMap`] grid of, cube-shaped rocks, rounded rocks,
+/// and empty spaces. Then, in part one we just run a single north tilt and
+/// then count the load. In part two we do one billion cycles but we keep track
+/// of the end states that we've seen and at which count in the cycle so that
+/// when we find the loop, we can short-circuit the loop and then we count the
+/// load.
 ///
 /// # Example
 /// ```rust
 /// # use aoc::y23d14::y23d14;
 /// // probably read this from the input file...
-/// let input = "";
-/// assert_eq!(y23d14(input), 0);
+/// let input = "...\n.#.\nO..";
+/// assert_eq!(y23d14(input, 1), 3);
+/// assert_eq!(y23d14(input, 2), 1);
 /// ```
 pub fn y23d14(input: &str, part: u32) -> i32 {
     let mut total = 0;
@@ -83,7 +96,12 @@ pub fn y23d14(input: &str, part: u32) -> i32 {
     total
 }
 
-/// TODO
+/// This function is responsible for modifying given map to its state after
+/// applying a tilt in the desired direction. It basically works by going
+/// row-by-row or column-by-column depending on the direction and then checking
+/// each space until we find a boulder and then attempting to move it as far
+/// as possible (either until we reach an edge, or another boulder) based on
+/// what is currently in its adjacent tile.
 fn tilt(dir: char, rows: i32, cols: i32, map: &mut HashMap<(i32, i32), char>) {
     if dir == 'N' {
         for x in 0..cols {
@@ -194,7 +212,9 @@ fn tilt(dir: char, rows: i32, cols: i32, map: &mut HashMap<(i32, i32), char>) {
     }
 }
 
-/// TODO
+/// This function returns the grid as its string representation which is useful
+/// for debugging but also used to store in our list of seen states when we're
+/// trying to find a cycle.
 fn map_to_string(
     rows: i32,
     cols: i32,
@@ -219,10 +239,47 @@ mod tests {
     use std::fs;
 
     #[test]
-    fn test_map_to_string() {}
+    fn test_map_to_string() {
+        let grid = HashMap::from([
+            ((0, 0), '.'),
+            ((1, 0), '#'),
+            ((2, 0), '#'),
+            ((0, 1), '.'),
+            ((1, 1), 'O'),
+            ((2, 1), '.'),
+            ((0, 2), '.'),
+            ((1, 2), 'O'),
+            ((2, 2), '.'),
+        ]);
+        assert_eq!(map_to_string(3, 3, &grid), ".##\n.O.\n.O.\n");
+    }
 
     #[test]
-    fn test_tilt() {}
+    fn test_tilt() {
+        let mut grid = HashMap::from([
+            ((0, 0), '.'),
+            ((1, 0), '#'),
+            ((2, 0), '#'),
+            ((0, 1), '.'),
+            ((1, 1), '.'),
+            ((2, 1), 'O'),
+            ((0, 2), 'O'),
+            ((1, 2), '.'),
+            ((2, 2), '.'),
+        ]);
+
+        tilt('N', 3, 3, &mut grid);
+
+        assert_eq!(*grid.get(&(0, 0)).unwrap(), 'O');
+        assert_eq!(*grid.get(&(1, 0)).unwrap(), '#');
+        assert_eq!(*grid.get(&(2, 0)).unwrap(), '#');
+        assert_eq!(*grid.get(&(0, 1)).unwrap(), '.');
+        assert_eq!(*grid.get(&(1, 1)).unwrap(), '.');
+        assert_eq!(*grid.get(&(2, 1)).unwrap(), 'O');
+        assert_eq!(*grid.get(&(0, 2)).unwrap(), '.');
+        assert_eq!(*grid.get(&(1, 2)).unwrap(), '.');
+        assert_eq!(*grid.get(&(2, 2)).unwrap(), '.');
+    }
 
     #[test]
     fn it_works() {
