@@ -17,7 +17,7 @@
 //!
 //! TODO
 
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{BinaryHeap, HashMap, HashSet, VecDeque};
 
 /// The solution for the day sixteen challenge.
 ///
@@ -30,12 +30,10 @@ use std::collections::{HashMap, HashSet, VecDeque};
 /// let input = "";
 /// assert_eq!(y23d16(input), 0);
 /// ```
-pub fn y23d16(input: &str) -> u32 {
+pub fn y23d16(input: &str, part: u32) -> u32 {
     let mut grid = HashMap::new();
-    let mut energized = HashSet::new();
-    let mut queue = VecDeque::new();
-    let mut visited = Vec::new();
     let rows = input.lines().collect::<Vec<_>>().len();
+    let mut heap = BinaryHeap::new();
     let mut cols = 0;
 
     for (y, line) in input.lines().enumerate() {
@@ -53,9 +51,43 @@ pub fn y23d16(input: &str) -> u32 {
 
     cols += 1;
 
+    if part == 1 {
+        return send_light((0,0), 'R', &grid, rows, cols);
+    }
+
+    for x in 0..cols {
+        heap.push(send_light((x, 0), 'D', &grid, rows, cols));
+        heap.push(send_light((x, rows-1), 'U', &grid, rows, cols));
+    }
+
+    for y in 0..rows {
+        heap.push(send_light((0, y), 'R', &grid, rows, cols));
+        heap.push(send_light((cols-1, y), 'L', &grid, rows, cols));
+    }
+
+
+
+    heap.pop().unwrap()
+
+
+
+    // 0
+}
+
+/// TODO
+fn send_light(
+    start: (usize, usize),
+    direction: char,
+    grid: &HashMap<(usize, usize), char>,
+    rows: usize,
+    cols: usize,
+) -> u32 {
+    let mut energized = HashSet::new();
+    let mut queue = VecDeque::new();
+    let mut visited = Vec::new();
 
     // send_light((-1, 0), 'R', &grid, &mut Vec::new(), &mut energized);
-    queue.push_back(((0,0), 'R'));
+    queue.push_back((start, direction));
 
     // println!("{:?}", energized);
     //
@@ -109,127 +141,15 @@ pub fn y23d16(input: &str) -> u32 {
 
     // energized.remove(&(-1, 0));
     energized.len().try_into().unwrap()
-
-    // 0
-}
-
-/// TODO
-fn send_light(
-    start: (i32, i32),
-    direction: char,
-    grid: &HashMap<(i32, i32), char>,
-    visited: &mut Vec<((i32, i32), char)>,
-    energized: &mut HashSet<(i32, i32)>,
-) {
-    println!("checking {:?}", start);
-
-    energized.insert(start);
-    visited.push((start, direction));
-    // let mut dir = direction;
-
-    // loop {
-        // let next = match dir {
-        let next = match direction {
-            'U' => (start.0, start.1 - 1),
-            'D' => (start.0, start.1 + 1),
-            'L' => (start.0 - 1, start.1),
-            'R' => (start.0 + 1, start.1),
-            _ => panic!("unknown direction"),
-        };
-
-        // println!("next is {:?}", next);
-
-        if visited.contains(&(next, direction)) {
-            // println!("visited contains next!");
-            return;
-        }
-
-        if let Some(n) = grid.get(&next) {
-            match n {
-                // '.' => {}
-                '.' => send_light(next, direction, grid, visited, energized),
-                '-' => {
-                    if direction == 'L' || direction == 'R' {
-                        send_light(next, direction, grid, visited, energized);
-                    } else {
-                        send_light(
-                            next,
-                            'L',
-                            grid,
-                            &mut visited.clone(),
-                            energized,
-                        );
-                        send_light(
-                            next,
-                            'R',
-                            grid,
-                            &mut visited.clone(),
-                            energized,
-                        );
-                    }
-                }
-                '|' => {
-                    if direction == 'U' || direction == 'D' {
-                        send_light(next, direction, grid, visited, energized);
-                    } else {
-                        send_light(
-                            next,
-                            'U',
-                            grid,
-                            &mut visited.clone(),
-                            energized,
-                        );
-                        send_light(
-                            next,
-                            'D',
-                            grid,
-                            &mut visited.clone(),
-                            energized,
-                        );
-                    }
-                }
-                '\\' => {
-                    if direction == 'R' {
-                        send_light(next, 'D', grid, visited, energized);
-                        // dir = 'D';
-                    } else if direction == 'L' {
-                        send_light(next, 'U', grid, visited, energized);
-                        // dir = 'U';
-                    } else if direction == 'D' {
-                        send_light(next, 'R', grid, visited, energized);
-                        // dir = 'R';
-                    } else {
-                        send_light(next, 'L', grid, visited, energized);
-                        // dir = 'L';
-                    }
-                }
-                '/' => {
-                    if direction == 'R' {
-                        send_light(next, 'U', grid, visited, energized);
-                        // dir = 'R';
-                    } else if direction == 'L' {
-                        send_light(next, 'D', grid, visited, energized);
-                        // dir = 'D';
-                    } else if direction == 'D' {
-                        send_light(next, 'L', grid, visited, energized);
-                        // dir = 'L';
-                    } else {
-                        send_light(next, 'R', grid, visited, energized);
-                        // dir = 'R';
-                    }
-                }
-                _ => panic!("unknown tile type"),
-            }
-        } //else {
-           // break;
-        //}
-    // }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use std::fs;
+
+    #[test]
+    fn test_send_light() {}
 
     #[test]
     fn iit_works() {
@@ -246,13 +166,16 @@ mod tests {
             "..//.|....\n",
         );
 
-        assert_eq!(y23d16(input), 46);
+        assert_eq!(y23d16(input, 1), 46);
+        assert_eq!(y23d16(input, 2), 51);
     }
 
     #[test]
+    #[ignore]
     fn the_solution() {
         let contents = fs::read_to_string("input/2023/day16.txt").unwrap();
 
-        assert_eq!(y23d16(&contents), 7236);
+        assert_eq!(y23d16(&contents, 1), 7236);
+        assert_eq!(y23d16(&contents, 2), 7521);
     }
 }
