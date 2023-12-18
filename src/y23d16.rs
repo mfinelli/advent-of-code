@@ -17,7 +17,7 @@
 //!
 //! TODO
 
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap, HashSet, VecDeque};
 
 /// The solution for the day sixteen challenge.
 ///
@@ -33,21 +33,81 @@ use std::collections::{HashMap, HashSet};
 pub fn y23d16(input: &str) -> u32 {
     let mut grid = HashMap::new();
     let mut energized = HashSet::new();
+    let mut queue = VecDeque::new();
+    let mut visited = Vec::new();
+    let rows = input.lines().collect::<Vec<_>>().len();
+    let mut cols = 0;
 
     for (y, line) in input.lines().enumerate() {
-        let y: i32 = y.try_into().unwrap();
+        // let y: i32 = y.try_into().unwrap();
 
         for (x, c) in line.chars().enumerate() {
-            let x: i32 = x.try_into().unwrap();
+            if y == 0 {
+                cols = x;
+            }
+
+            // let x: i32 = x.try_into().unwrap();
             grid.insert((x, y), c);
         }
     }
 
-    send_light((-1, 0), 'R', &grid, &mut Vec::new(), &mut energized);
+    cols += 1;
 
-    println!("{:?}", energized);
 
-    energized.remove(&(-1, 0));
+    // send_light((-1, 0), 'R', &grid, &mut Vec::new(), &mut energized);
+    queue.push_back(((0,0), 'R'));
+
+    // println!("{:?}", energized);
+    //
+    loop {
+        match queue.pop_front() {
+            None => break,
+            Some(((x,y), direction)) => {
+                // let ((x,y), direction) = item;
+                println!("visiting {}, {} ({})", x,y,direction);
+                let tile = grid.get(&(x,y)).unwrap();
+                energized.insert((x,y));
+
+                if y < rows-1 && !visited.contains(&((x,y), 'R')) &&
+                    ((direction == 'R' && (*tile == '.' || *tile == '-')) ||
+                     (direction == 'U' && (*tile == '/' || *tile == '-')) ||
+                     (direction == 'D' && (*tile == '\\' || *tile == '-'))) {
+                        println!("sending light {},{} ({})", x, y+1, 'R');
+                        queue.push_back(((x, y+1), 'R'));
+                        visited.push(((x, y+1), 'R'));
+                }
+
+                if x > 0 && !visited.contains(&((x-1, y), 'U')) &&
+                    ((direction == 'U' && (*tile == '.' || *tile == '|')) ||
+                     (direction == 'R' && (*tile == '/' || *tile == '|')) ||
+                     (direction == 'L' && (*tile == '\\' || *tile == '|'))) {
+                        println!("sending light {},{} ({})", x-1, y, 'U');
+                        queue.push_back(((x-1,y), 'U'));
+                        visited.push(((x-1,y), 'U'));
+                }
+
+                if y > 0 && !visited.contains(&((x, y-1), 'L')) &&
+                    ((direction == 'L' && (*tile == '.' || *tile == '-')) ||
+                     (direction == 'U' && (*tile == '\\' || *tile == '-')) ||
+                     (direction == 'D' && (*tile == '/' || *tile == '-'))) {
+                        println!("sending light {},{} ({})", x, y-1, 'L');
+                        queue.push_back(((x,y-1), 'L'));
+                        visited.push(((x,y-1), 'L'));
+                }
+
+                if x < cols-1 && !visited.contains(&((x+1, y), 'D')) &&
+                    ((direction == 'D' && (*tile == '.' || *tile == '|')) ||
+                     (direction == 'R' && (*tile == '\\' || *tile == '|')) ||
+                     (direction == 'L' && (*tile == '/' || *tile == '|'))) {
+                        println!("sending light {},{} ({})", x+1, y, 'D');
+                        queue.push_back(((x+1, y), 'D'));
+                        visited.push(((x+1,y), 'D'));
+                }
+            },
+        }
+    }
+
+    // energized.remove(&(-1, 0));
     energized.len().try_into().unwrap()
 
     // 0
