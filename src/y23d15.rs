@@ -54,7 +54,7 @@ pub fn y23d15(input: &str, part: u32) -> u32 {
     let mut orders = Vec::new();
 
     for _ in 0..256 {
-        let o: Vec<&str> = Vec::new();
+        let o = Vec::new();
         let b = HashMap::new();
 
         boxes.push(b);
