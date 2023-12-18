@@ -64,44 +64,44 @@ pub fn y23d16(input: &str) -> u32 {
             None => break,
             Some(((x,y), direction)) => {
                 // let ((x,y), direction) = item;
-                println!("visiting {}, {} ({})", x,y,direction);
+                // println!("visiting {}, {} ({})", x,y,direction);
                 let tile = grid.get(&(x,y)).unwrap();
                 energized.insert((x,y));
 
-                if y < rows-1 && !visited.contains(&((x,y), 'R')) &&
+                if x < cols-1 && !visited.contains(&((x+1,y), 'R')) &&
                     ((direction == 'R' && (*tile == '.' || *tile == '-')) ||
                      (direction == 'U' && (*tile == '/' || *tile == '-')) ||
                      (direction == 'D' && (*tile == '\\' || *tile == '-'))) {
-                        println!("sending light {},{} ({})", x, y+1, 'R');
-                        queue.push_back(((x, y+1), 'R'));
-                        visited.push(((x, y+1), 'R'));
+                        // println!("1: sending light {},{} ({})", x+1, y, 'R');
+                        queue.push_back(((x+1, y), 'R'));
+                        visited.push(((x+1, y), 'R'));
                 }
 
-                if x > 0 && !visited.contains(&((x-1, y), 'U')) &&
+                if y > 0 && !visited.contains(&((x, y-1), 'U')) &&
                     ((direction == 'U' && (*tile == '.' || *tile == '|')) ||
                      (direction == 'R' && (*tile == '/' || *tile == '|')) ||
                      (direction == 'L' && (*tile == '\\' || *tile == '|'))) {
-                        println!("sending light {},{} ({})", x-1, y, 'U');
-                        queue.push_back(((x-1,y), 'U'));
-                        visited.push(((x-1,y), 'U'));
+                        // println!("2: sending light {},{} ({})", x, y-1, 'U');
+                        queue.push_back(((x,y-1), 'U'));
+                        visited.push(((x,y-1), 'U'));
                 }
 
-                if y > 0 && !visited.contains(&((x, y-1), 'L')) &&
+                if x > 0 && !visited.contains(&((x-1, y), 'L')) &&
                     ((direction == 'L' && (*tile == '.' || *tile == '-')) ||
                      (direction == 'U' && (*tile == '\\' || *tile == '-')) ||
                      (direction == 'D' && (*tile == '/' || *tile == '-'))) {
-                        println!("sending light {},{} ({})", x, y-1, 'L');
-                        queue.push_back(((x,y-1), 'L'));
-                        visited.push(((x,y-1), 'L'));
+                        // println!("3: sending light {},{} ({})", x-1, y, 'L');
+                        queue.push_back(((x-1,y), 'L'));
+                        visited.push(((x-1,y), 'L'));
                 }
 
-                if x < cols-1 && !visited.contains(&((x+1, y), 'D')) &&
+                if y < rows-1 && !visited.contains(&((x, y+1), 'D')) &&
                     ((direction == 'D' && (*tile == '.' || *tile == '|')) ||
                      (direction == 'R' && (*tile == '\\' || *tile == '|')) ||
                      (direction == 'L' && (*tile == '/' || *tile == '|'))) {
-                        println!("sending light {},{} ({})", x+1, y, 'D');
-                        queue.push_back(((x+1, y), 'D'));
-                        visited.push(((x+1,y), 'D'));
+                        // println!("4: sending light {},{} ({})", x, y+1, 'D');
+                        queue.push_back(((x, y+1), 'D'));
+                        visited.push(((x,y+1), 'D'));
                 }
             },
         }
@@ -232,7 +232,7 @@ mod tests {
     use std::fs;
 
     #[test]
-    fn tit_works() {
+    fn iit_works() {
         let input = concat!(
             ".|...\\....\n",
             "|.-.\\.....\n",
@@ -253,6 +253,6 @@ mod tests {
     fn the_solution() {
         let contents = fs::read_to_string("input/2023/day16.txt").unwrap();
 
-        assert_eq!(y23d16(&contents), 0);
+        assert_eq!(y23d16(&contents), 7236);
     }
 }
