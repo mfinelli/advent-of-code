@@ -19,22 +19,50 @@ use std::io::Write;
 use std::time::Duration;
 use termcolor::{Color, ColorSpec, StandardStream, WriteColor};
 
+/// Determines if we also output the year/day combination (Because I can't
+/// decide if I like how it looks or not).
+const PRINT_DATE: bool = true;
+
 /// Prints our Advent of Code header with the puzzle name.
-pub fn print_title(stdout: &mut StandardStream, yd: &str) {
+pub fn print_title(stdout: &mut StandardStream, year: &str, day: &str) {
     let green = green_colorspec();
     let dimmed_white = dimmed_white_colorspec();
     let bold_white = bold_white_colorspec();
+    let bold_red = bold_red_colorspec();
+
+    let short_year = {
+        let split_pos = year.char_indices().nth_back(1).unwrap().0;
+        &year[split_pos..]
+    };
 
     stdout.set_color(&green).unwrap();
     write!(stdout, "🎄 Advent of Code").unwrap();
     stdout.reset().unwrap();
+
     stdout.set_color(&dimmed_white).unwrap();
     write!(stdout, ": ").unwrap();
     stdout.reset().unwrap();
+
     stdout.set_color(&bold_white).unwrap();
-    write!(stdout, "{}", title(yd)).unwrap();
+    write!(stdout, "{}", title(&format!("y{}d{}", short_year, day))).unwrap();
     stdout.reset().unwrap();
-    writeln!(stdout, " 🎄\n").unwrap();
+    writeln!(stdout, " 🎄").unwrap();
+
+    if PRINT_DATE {
+        stdout.set_color(&bold_red).unwrap();
+        write!(stdout, "                   🎅 {}", year).unwrap();
+        stdout.reset().unwrap();
+
+        stdout.set_color(&dimmed_white).unwrap();
+        write!(stdout, " / ").unwrap();
+        stdout.reset().unwrap();
+
+        stdout.set_color(&bold_red).unwrap();
+        writeln!(stdout, "{}", day).unwrap();
+        stdout.reset().unwrap();
+    }
+
+    writeln!(stdout).unwrap();
 }
 
 /// Prints the answer to an Advent of Code puzzle.
@@ -69,7 +97,7 @@ pub fn print_stats(
     duration: Duration,
     usage: usize,
 ) {
-    let dimmed_yellow = dimmed_yellow_colorspec();
+    let dimmed_red = dimmed_red_colorspec();
     let dimmed_white = dimmed_white_colorspec();
     let time = duration.as_micros();
 
@@ -78,7 +106,7 @@ pub fn print_stats(
     stdout.set_color(&dimmed_white).unwrap();
     write!(stdout, "Elapsed time: ").unwrap();
     stdout.reset().unwrap();
-    stdout.set_color(&dimmed_yellow).unwrap();
+    stdout.set_color(&dimmed_red).unwrap();
 
     if time < 10000 {
         write!(stdout, "{}μs", time).unwrap();
@@ -96,7 +124,7 @@ pub fn print_stats(
     stdout.set_color(&dimmed_white).unwrap();
     write!(stdout, "Allocated memory: ").unwrap();
     stdout.reset().unwrap();
-    stdout.set_color(&dimmed_yellow).unwrap();
+    stdout.set_color(&dimmed_red).unwrap();
 
     if usage <= 1500 {
         write!(stdout, "{}b", usage).unwrap();
@@ -177,6 +205,14 @@ fn title(yd: &str) -> &str {
     }
 }
 
+/// Returns a [`termcolor::ColorSpec`] for a bolded, red foreground.
+fn bold_red_colorspec() -> ColorSpec {
+    let mut spec = ColorSpec::new();
+    spec.set_fg(Some(Color::Red));
+    spec.set_bold(true);
+    spec
+}
+
 /// Returns a [`termcolor::ColorSpec`] for a bolded, white foreground.
 fn bold_white_colorspec() -> ColorSpec {
     let mut spec = ColorSpec::new();
@@ -193,9 +229,9 @@ fn green_colorspec() -> ColorSpec {
 }
 
 /// Returns a [`termcolor::ColorSpec`] for a dimmed, yellow foreground.
-fn dimmed_yellow_colorspec() -> ColorSpec {
+fn dimmed_red_colorspec() -> ColorSpec {
     let mut spec = ColorSpec::new();
-    spec.set_fg(Some(Color::Yellow));
+    spec.set_fg(Some(Color::Red));
     spec.set_dimmed(true);
     spec
 }
