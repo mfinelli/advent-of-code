@@ -25,15 +25,15 @@ fn main() {
     let start = Instant::now();
     let args: Vec<String> = env::args().collect();
 
-    if args.len() != 3 {
-        println!("usage: {} yXXdYY ./path/to/input", args[0]);
+    if args.len() != 4 {
+        println!("usage: {} YYYY DD ./path/to/input", args[0]);
         return;
     }
 
-    let input = if args[2] == "-" {
+    let input = if args[3] == "-" {
         read_from_stdin()
     } else {
-        fs::read_to_string(&args[2]).unwrap()
+        fs::read_to_string(&args[3]).unwrap()
     };
 
     let color_choice = if !io::stdout().is_terminal() {
@@ -43,14 +43,21 @@ fn main() {
     };
 
     let mut stdout = StandardStream::stdout(color_choice);
-    title::print_title(&mut stdout, &args[1]);
+    let day: u8 = args[2].parse().unwrap();
+    title::print_title(&mut stdout, &args[1], &format!("{:02}", day));
 
     let part1: String;
     let part2: String;
     let part1_sep = false;
     let mut part2_sep = false;
 
-    match args[1].as_str() {
+    let problem_lookup = {
+        let split_pos = args[1].char_indices().nth_back(1).unwrap().0;
+        let yr = &args[1][split_pos..];
+        format!("y{}d{:02}", yr, day)
+    };
+
+    match problem_lookup.as_str() {
         // 2015
         "y15d01" => {
             part1 = format!("{}", y15d01::y15d01p1(&input));

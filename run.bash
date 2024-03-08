@@ -16,7 +16,7 @@ if [[ ! -f $INPUT ]]; then
   exit 1
 fi
 
-echo "+ cargo run --release -- y${YEAR:2}d${DAY} $INPUT"
-cargo run --release -- "y${YEAR:2}d${DAY}" "$INPUT"
+echo "+ cargo run --release -- ${YEAR} ${DAY} $INPUT"
+cargo run --release -- "${YEAR}" "${DAY}" "$INPUT"
 
 exit 0
