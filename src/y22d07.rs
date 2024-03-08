@@ -1,4 +1,4 @@
-/* Copyright 2022 Mario Finelli
+/* Copyright 2022-2024 Mario Finelli
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,7 +90,7 @@ pub fn y22d07(input: &str, part: u32) -> u32 {
     let lines: Vec<_> = input.lines().collect();
 
     // we assume that the first line/command is to change into the root
-    let mut current_path = PathBuf::new().join("/");
+    let mut current_path = PathBuf::from("/");
     let mut sizes = HashMap::new();
     let mut visited = Vec::new();
     sizes.insert(current_path.to_str().unwrap().to_string(), 0);

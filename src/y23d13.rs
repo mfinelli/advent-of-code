@@ -1,4 +1,4 @@
-/* Copyright 2023 Mario Finelli
+/* Copyright 2023-2024 Mario Finelli
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -146,7 +146,7 @@ pub fn y23d13(input: &str, part: u32) -> u32 {
 /// actually count the number of differences that we find if a particular line
 /// is not equal and then return the equality based on the total number of
 /// differences that we found.
-fn are_equal(left: &Vec<String>, right: &Vec<String>, allowed: u32) -> bool {
+fn are_equal(left: &[String], right: &[String], allowed: u32) -> bool {
     let mut diffs = 0;
 
     for i in 0..left.len() {

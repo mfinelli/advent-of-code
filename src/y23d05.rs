@@ -34,9 +34,9 @@ use std::collections::BinaryHeap;
 /// ```
 pub fn y23d05(input: &str, part: u8) -> i64 {
     if part == 1 {
-        return y23d05p1(input);
+        y23d05p1(input)
     } else {
-        return y23d05p2(input);
+        y23d05p2(input)
     }
 }
 
@@ -130,53 +130,44 @@ fn y23d05p2(input: &str) -> i64 {
     }
     conversions.push(current);
 
-    loop {
-        match intervals.pop() {
-            Some(interval) => {
-                let (mut x1, mut x2, level) = interval;
-                if level == 8 {
-                    locations.push(Reverse(x1));
-                    continue;
-                }
+    while let Some(interval) = intervals.pop() {
+        let (mut x1, mut x2, level) = interval;
+        if level == 8 {
+            locations.push(Reverse(x1));
+            continue;
+        }
 
-                let mut did_something = false;
-                for conversion in &conversions[level - 1] {
-                    let (z, y1, dy) = conversion;
-                    let y2 = y1 + dy;
-                    let diff = z - y1;
+        let mut did_something = false;
+        for conversion in &conversions[level - 1] {
+            let (z, y1, dy) = conversion;
+            let y2 = y1 + dy;
+            let diff = z - y1;
 
-                    if x2 <= *y1 || y2 <= x1 {
-                        // no overlap
-                        continue;
-                    }
-
-                    if x1 < *y1 {
-                        // split original interval at y1
-                        intervals.push((x1, *y1, level));
-                        x1 = *y1;
-                    }
-
-                    if y2 < x2 {
-                        // split original interval at y2
-                        intervals.push((y2, x2, level));
-                        x2 = y2;
-                    }
-
-                    // perfect overlap -> make conversion and let pass to next
-                    // level
-                    intervals.push((x1 + diff, x2 + diff, level + 1));
-                    did_something = true;
-                    break;
-                }
-
-                if !did_something {
-                    intervals.push((x1, x2, level + 1));
-                }
+            if x2 <= *y1 || y2 <= x1 {
+                // no overlap
+                continue;
             }
 
-            None => {
-                break;
+            if x1 < *y1 {
+                // split original interval at y1
+                intervals.push((x1, *y1, level));
+                x1 = *y1;
             }
+
+            if y2 < x2 {
+                // split original interval at y2
+                intervals.push((y2, x2, level));
+                x2 = y2;
+            }
+
+            // perfect overlap -> make conversion and let pass to next level
+            intervals.push((x1 + diff, x2 + diff, level + 1));
+            did_something = true;
+            break;
+        }
+
+        if !did_something {
+            intervals.push((x1, x2, level + 1));
         }
     }
 
@@ -236,6 +227,6 @@ mod tests {
         let contents = fs::read_to_string("input/2023/day05.txt").unwrap();
 
         assert_eq!(y23d05(&contents, 1), 324724204);
-        assert_eq!(y23d05(&contents, 2), 150985364);
+        assert_eq!(y23d05(&contents, 2), 104070862);
     }
 }
