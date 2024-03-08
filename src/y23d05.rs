@@ -1,4 +1,4 @@
-/* Copyright 2023 Mario Finelli
+/* Copyright 2023-2024 Mario Finelli
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,71 @@ use std::ops::Range;
 use std::cmp::Reverse;
 use std::collections::BinaryHeap;
 
+pub fn y23d05(input: &str, part: u8) -> i64 {
+    if part == 2 {
+        return 0
+    }
+
+    let mut locations = BinaryHeap::new();
+    let mut seeds: Vec<i64> = Vec::new();
+
+    let lines: Vec<_> = input.lines().collect();
+    for number in lines[0].split_whitespace().skip(1) {
+        seeds.push(number.parse().unwrap());
+    }
+
+    let mut conversions: Vec<Vec<(i64, i64, i64)>> = Vec::new();
+    let mut current = Vec::new();
+    for line in lines.iter().skip(3) {
+        if  line == &"" {
+            continue;
+        }
+
+        let parts: Vec<_> = line.split_whitespace().collect();
+        if parts.len() != 3 {
+            conversions.push(current);
+            current = Vec::new();
+            continue;
+        }
+
+        let destination: i64 = parts[0].parse().unwrap();
+        let start: i64 = parts[1].parse().unwrap();
+        let delta: i64 = parts[2].parse().unwrap();
+
+        current.push((destination, start, delta));
+    }
+    conversions.push(current);
+
+    // println!("{:?}", conversions);
+    // return 0;
+
+    for seed in seeds {
+        let mut f = seed;
+        for conversion in &conversions {
+            for (destination, start, delta) in conversion {
+                // println!("{}, {}, {}", destination, start, delta);
+                let range = *start..*start+*delta;
+                if range.contains(&f) {
+                    let diff = destination - start;
+                    // println!("{} is in {}, {}", f, *start, *start+*delta);
+                    // println!("adding {}", diff);
+                    f += diff;
+                    // println!("new f {}", f);
+                    break;
+                }
+            }
+        }
+
+        locations.push(Reverse(f));
+        // break;
+    }
+
+
+
+    let Reverse(shortest) = locations.pop().unwrap();
+    shortest
+}
+
 /// The solution for the day five challenge.
 ///
 /// TODO
@@ -34,7 +99,7 @@ use std::collections::BinaryHeap;
 /// assert_eq!(y23d05(input, 1), 0);
 /// assert_eq!(y23d05(input, 2), 0);
 /// ```
-pub fn y23d05(input: &str, part: u32) -> u64 {
+pub fn y23d05old(input: &str, part: u32) -> u64 {
     let mut locations = BinaryHeap::new();
     let mut seeds: Vec<u64> = Vec::new();
     let mut seed_ranges: Vec<Range<u64>> = Vec::new();
