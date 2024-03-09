@@ -28,9 +28,32 @@ use std::collections::BinaryHeap;
 /// ```rust
 /// # use aoc::y23d05::y23d05;
 /// // probably read this from the input file...
-/// let input = "";
-/// assert_eq!(y23d05(input, 1), 0);
-/// assert_eq!(y23d05(input, 2), 0);
+/// let input = concat!(
+///     "seeds: 1 5\n",
+///     "\n",
+///     "seed-to-soil map:\n",
+///     "1 2 3\n",
+///     "\n",
+///     "soil-to-fertalizer map:\n",
+///     "2 3 4\n",
+///     "\n",
+///     "fertailizer-to-water map:\n",
+///     "3 4 5\n",
+///     "\n",
+///     "water-to-light map:\n",
+///     "4 5 6\n",
+///     "\n",
+///     "light-to-temperature map:\n",
+///     "5 6 7\n",
+///     "\n",
+///     "temperature-to-humidity map:\n",
+///     "6 7 8\n",
+///     "\n",
+///     "humidity-to-location map:\n",
+///     "7 8 9",
+/// );
+/// assert_eq!(y23d05(input, 1), 1);
+/// assert_eq!(y23d05(input, 2), 1);
 /// ```
 pub fn y23d05(input: &str, part: u8) -> i64 {
     if part == 1 {
