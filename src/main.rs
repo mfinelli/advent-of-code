@@ -269,6 +269,12 @@ fn main() {
             part2 = format!("{}", y23d16::y23d16(&input, 2));
         }
 
+        // 2024
+        "y24d01" => {
+            part1 = format!("{}", y24d01::y24d01(&input));
+            part2 = format!("");
+        }
+
         _ => panic!("Unable to find year/day match."),
     };
 
