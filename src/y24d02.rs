@@ -29,15 +29,31 @@
 /// );
 /// assert_eq!(y24d02(input), 0);
 /// ```
-pub fn y24d02(input: &str) -> u32 {
+pub fn y24d02(input: &str, part: u32) -> u32 {
     let mut safe = 0;
 
     let lines: Vec<_> = input.lines().collect();
     for line in lines {
-        let parts: Vec<u32> = line.split_whitespace().map(|p| p.parse().unwrap()).collect();
+        let parts: Vec<u32> = line
+            .split_whitespace()
+            .map(|p| p.parse().unwrap())
+            .collect();
 
-        if is_safe(&parts) {
+        if part == 1 && is_safe(&parts) {
             safe += 1;
+        } else if part == 2 {
+            if is_safe(&parts) {
+                safe += 1;
+            } else {
+                for i in 0..parts.len() {
+                    let mut n = parts.to_vec();
+                    n.remove(i);
+                    if is_safe(&n) {
+                        safe += 1;
+                        break;
+                    }
+                }
+            }
         }
     }
 
@@ -81,8 +97,7 @@ mod tests {
     use std::fs;
 
     #[test]
-    fn test_is_safe() {
-    }
+    fn test_is_safe() {}
 
     #[test]
     fn it_works() {
@@ -95,13 +110,15 @@ mod tests {
             "1 3 6 7 9\n",
         );
 
-        assert_eq!(y24d02(input), 2);
+        assert_eq!(y24d02(input, 1), 2);
+        assert_eq!(y24d02(input, 2), 4);
     }
 
     #[test]
     fn the_solution() {
         let contents = fs::read_to_string("input/2024/day02.txt").unwrap();
 
-        assert_eq!(y24d02(&contents), 390);
+        assert_eq!(y24d02(&contents, 1), 390);
+        assert_eq!(y24d02(&contents, 2), 439);
     }
 }
