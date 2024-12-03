@@ -29,17 +29,49 @@ use regex::Regex;
 /// // probably read this from the input file...
 /// let input = concat!(
 /// );
-/// assert_eq!(y24d03(input), 0);
+/// assert_eq!(y24d03(input, 1), 0);
 /// ```
-pub fn y24d03(input: &str) -> u32 {
+pub fn y24d03(input: &str, part: u32) -> u32 {
+    let s = Regex::new(r"(do\(\))|(don't\(\))").unwrap();
     let re = Regex::new(r"mul\((\d{1,3}),(\d{1,3})\)").unwrap();
     let mut sum = 0;
 
-    for (_, [l, r]) in re.captures_iter(input).map(|c| c.extract()) {
-        let left: u32 = l.parse().unwrap();
-        let right: u32 = r.parse().unwrap();
+    let mut actions: Vec<bool> = Vec::new();
+    actions.push(true); // start with instructions enabled
 
-        sum += left * right;
+    if part == 2 {
+        for (_, [action]) in s.captures_iter(input).map(|c| c.extract()) {
+            if action == "do()" {
+                actions.push(true);
+            } else {
+                actions.push(false);
+            }
+        }
+
+        let mut i = 0;
+        let mut blocks = s.split(input);
+        while let Some(block) = blocks.next() {
+            if !actions[i] {
+                i += 1;
+                continue;
+            }
+
+            for (_, [l, r]) in re.captures_iter(block).map(|c| c.extract()) {
+                let left: u32 = l.parse().unwrap();
+                let right: u32 = r.parse().unwrap();
+
+                sum += left * right;
+            }
+
+            i += 1;
+        }
+    } else {
+        for (_, [l, r]) in re.captures_iter(input).map(|c| c.extract()) {
+            let left: u32 = l.parse().unwrap();
+            let right: u32 = r.parse().unwrap();
+
+            sum += left * right;
+        }
     }
 
     sum
@@ -52,18 +84,24 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let input = concat!(
+        let mut input = concat!(
             "xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)",
             "+mul(32,64]then(mul(11,8)mul(8,5))",
         );
+        assert_eq!(y24d03(input, 1), 161);
 
-        assert_eq!(y24d03(input), 161);
+        input = concat!(
+            "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+",
+            "mul(32,64](mul(11,8)undo()?mul(8,5))",
+        );
+        assert_eq!(y24d03(input, 2), 48);
     }
 
     #[test]
     fn the_solution() {
         let contents = fs::read_to_string("input/2024/day03.txt").unwrap();
 
-        assert_eq!(y24d03(&contents), 180233229);
+        assert_eq!(y24d03(&contents, 1), 180233229);
+        assert_eq!(y24d03(&contents, 2), 95411583);
     }
 }
