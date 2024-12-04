@@ -17,7 +17,7 @@
 //!
 //! TODO
 
-/// The solution for the day four challenge.
+/// The solution for part one of the day four challenge.
 ///
 /// TODO
 ///
@@ -32,9 +32,9 @@
 ///     "XMAS.S\n",
 ///     ".X....\n",
 /// );
-/// assert_eq!(y24d04(input), 0);
+/// assert_eq!(y24d04p1(input), 0);
 /// ```
-pub fn y24d04(input: &str) -> u32 {
+pub fn y24d04p1(input: &str) -> u32 {
     let mut grid: Vec<Vec<char>> = Vec::new();
     let lines: Vec<_> = input.lines().collect();
     for line in lines {
@@ -93,6 +93,59 @@ pub fn y24d04(input: &str) -> u32 {
     sum
 }
 
+/// The solution for part two of the day four challenge.
+///
+/// TODO
+///
+/// # Example
+/// ```rust
+/// # use aoc::y24d04::y24d04;
+/// // probably read this from the input file...
+/// let input = concat!(
+///     "M.S\n",
+///     ".A.\n",
+///     "M.S\n",
+/// );
+/// assert_eq!(y24d04p1(input), 1);
+/// ```
+pub fn y24d04p2(input: &str) -> u32 {
+    let mut grid: Vec<Vec<char>> = Vec::new();
+    let lines: Vec<_> = input.lines().collect();
+    for line in lines {
+        let chars: Vec<_> = line.chars().collect();
+        grid.push(chars);
+    }
+
+    let mut sum = 0;
+    for y in 1..grid.len() - 1 {
+        for x in 1..grid[y].len() -1 {
+            if grid[y][x] == 'A' {
+                if grid[y-1][x-1] == 'M' && grid[y+1][x+1] == 'S' && grid[y+1][x-1] == 'M' && grid[y-1][x+1] == 'S' {
+                    // top-left to bottom-right && bottom-left to top-right
+                    sum += 1;
+                }
+
+                if grid[y-1][x-1] == 'M' && grid[y+1][x+1] == 'S' && grid[y-1][x+1] == 'M' && grid[y+1][x-1] == 'S' {
+                    // top-left to bottom-right && top-right to bottom-left
+                    sum += 1;
+                }
+
+                if grid[y+1][x+1] == 'M' && grid[y-1][x-1] == 'S' && grid[y+1][x-1] == 'M' && grid[y-1][x+1] == 'S' {
+                    // bottom-right to top-left && bottom-left to top-right
+                    sum += 1;
+                }
+
+                if grid[y+1][x+1] == 'M' && grid[y-1][x-1] == 'S' && grid[y-1][x+1] == 'M' && grid[y+1][x-1] == 'S' {
+                    // bottom-right to top-left && top-right to bottom-left
+                    sum += 1;
+                }
+            }
+        }
+    }
+
+    sum
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -118,13 +171,20 @@ mod tests {
         //     "..A.\n",
         //     "...S\n",
         // );
-        assert_eq!(y24d04(input), 18);
+        // let input = concat!(
+        //     "S.M\n",
+        //     ".A.\n",
+        //     "S.M\n",
+        // );
+        assert_eq!(y24d04p1(input), 18);
+        assert_eq!(y24d04p2(input), 9);
     }
 
     #[test]
     fn the_solution() {
         let contents = fs::read_to_string("input/2024/day04.txt").unwrap();
 
-        assert_eq!(y24d04(&contents), 0);
+        assert_eq!(y24d04p1(&contents), 2530);
+        assert_eq!(y24d04p2(&contents), 1921);
     }
 }
