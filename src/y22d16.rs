@@ -51,10 +51,10 @@ pub fn y22d16(input: &str, part: u32) -> u32 {
         connections.insert(parts[1].to_string(), room_connections);
     }
 
-    for (room, _rate) in &rates {
+    for room in rates.keys() {
         let mut other_distances: HashMap<String, Option<i32>> = HashMap::new();
 
-        for (other_room, _other_rate) in &rates {
+        for other_room in rates.keys() {
             if room == other_room {
                 other_distances.insert(other_room.to_string(), Some(0));
             } else if connections[room].contains(other_room) {
@@ -68,9 +68,9 @@ pub fn y22d16(input: &str, part: u32) -> u32 {
     }
 
     // now compute the distance from every node to every other node
-    for (k, _) in &rates {
-        for (i, _) in &rates {
-            for (j, _) in &rates {
+    for k in rates.keys() {
+        for i in rates.keys() {
+            for j in rates.keys() {
                 let ij = distances[i][j];
                 let ik = distances[i][k];
                 let kj = distances[k][j];

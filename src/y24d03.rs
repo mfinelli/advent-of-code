@@ -49,8 +49,8 @@ pub fn y24d03(input: &str, part: u32) -> u32 {
         }
 
         let mut i = 0;
-        let mut blocks = s.split(input);
-        while let Some(block) = blocks.next() {
+        let blocks = s.split(input);
+        for block in blocks {
             if !actions[i] {
                 i += 1;
                 continue;

@@ -17,7 +17,6 @@
 //!
 //! TODO
 
-use std::cmp::Ordering;
 
 /// The solution for the day five challenge.
 ///
@@ -37,8 +36,8 @@ pub fn y24d05(input: &str, part: u32) -> usize {
     let mut seen_newline = false;
     let mut sum = 0;
 
-    for line in input.lines().into_iter() {
-        if line == "" {
+    for line in input.lines() {
+        if line.is_empty() {
             seen_newline = true;
             continue;
         }
@@ -46,14 +45,12 @@ pub fn y24d05(input: &str, part: u32) -> usize {
         if !seen_newline {
             let rule: Vec<_> = line
                 .split('|')
-                .into_iter()
                 .map(|i| i.parse().unwrap())
                 .collect();
             rules.push((rule[0], rule[1]));
         } else {
             jobs.push(
                 line.split(',')
-                    .into_iter()
                     .map(|i| i.parse().unwrap())
                     .collect(),
             );

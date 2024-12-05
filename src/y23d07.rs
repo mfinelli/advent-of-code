@@ -217,7 +217,7 @@ impl Hand {
             if counts.values().filter(|v| **v == 2).count() == 2 {
                 true
             } else {
-                return counts.values().any(|v| *v == 2) && jokers == 1;
+                counts.values().any(|v| *v == 2) && jokers == 1
             }
         }
     }
@@ -247,7 +247,7 @@ impl Hand {
             if counts.values().any(|v| *v == 2) {
                 true
             } else {
-                return counts.values().all(|v| *v == 1) && jokers == 1;
+                counts.values().all(|v| *v == 1) && jokers == 1
             }
         }
     }

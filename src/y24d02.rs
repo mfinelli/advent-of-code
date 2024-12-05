@@ -67,8 +67,8 @@ fn is_safe(nums: &Vec<u32>) -> bool {
         is_increasing = false;
     }
 
-    let mut windows = nums.windows(2);
-    while let Some(pair) = windows.next() {
+    let windows = nums.windows(2);
+    for pair in windows {
         if is_increasing && pair[0] > pair[1] {
             return false;
         } else if !is_increasing && pair[1] > pair[0] {
@@ -77,12 +77,12 @@ fn is_safe(nums: &Vec<u32>) -> bool {
 
         if is_increasing {
             let diff = pair[1] - pair[0];
-            if diff < 1 || diff > 3 {
+            if !(1..=3).contains(&diff) {
                 return false;
             }
         } else {
             let diff = pair[0] - pair[1];
-            if diff < 1 || diff > 3 {
+            if !(1..=3).contains(&diff) {
                 return false;
             }
         }
