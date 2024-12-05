@@ -287,8 +287,8 @@ fn main() {
             part2 = format!("{}", y24d04::y24d04p2(&input));
         }
         "y24d05" => {
-            part1 = format!("{}", y24d05::y24d05(&input));
-            part2 = format!("");
+            part1 = format!("{}", y24d05::y24d05(&input, 1));
+            part2 = format!("{}", y24d05::y24d05(&input, 2));
         }
 
         _ => panic!("Unable to find year/day match."),

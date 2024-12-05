@@ -17,6 +17,8 @@
 //!
 //! TODO
 
+use std::cmp::Ordering;
+
 /// The solution for the day five challenge.
 ///
 /// TODO
@@ -27,9 +29,9 @@
 /// // probably read this from the input file...
 /// let input = concat!(
 /// );
-/// assert_eq!(y24d05(input), 0);
+/// assert_eq!(y24d05(input, 1), 0);
 /// ```
-pub fn y24d05(input: &str) -> usize {
+pub fn y24d05(input: &str, part: u32) -> usize {
     let mut rules: Vec<(usize, usize)> = Vec::new();
     let mut jobs: Vec<Vec<usize>> = Vec::new();
     let mut seen_newline = false;
@@ -49,13 +51,21 @@ pub fn y24d05(input: &str) -> usize {
         }
     }
 
-    for job in jobs {
+    for mut job in jobs {
         // if is_safe(&rules, job) {
             // println!("{:?} is safe", job);
         // }
-        match is_safe(&rules, &job) {
-            Some(middle) => sum += middle,
-            None => continue,
+        // match is_safe(&rules, &job) {
+        //     Some(middle) => sum += middle,
+        //     None => continue,
+        // }
+        if job.is_sorted_by(|a, b| !rules.contains(&(*b,*a))) {
+            if part == 1 {
+                sum += job[job.len() /2];
+            }
+        } else if part == 2 {
+            job.sort_by(|a, b| (!rules.contains(&(*b, *a))).cmp(&true));
+            sum += job[job.len() / 2];
         }
     }
 
@@ -82,6 +92,10 @@ fn is_safe(rules: &Vec<(usize, usize)>, job: &Vec<usize>) -> Option<usize> {
 
     Some(job[job.len() / 2])
 }
+
+// fn cmp() -> Ordering {
+//     Ordering::Less
+// }
 
 #[cfg(test)]
 mod tests {
@@ -123,13 +137,15 @@ mod tests {
             "61,13,29\n",
             "97,13,75,29,47\n",
         );
-        assert_eq!(y24d05(input), 143);
+        assert_eq!(y24d05(input, 1), 143);
+        assert_eq!(y24d05(input, 2), 123);
     }
 
     #[test]
     fn the_solution() {
         let contents = fs::read_to_string("input/2024/day05.txt").unwrap();
 
-        assert_eq!(y24d05(&contents), 5064);
+        assert_eq!(y24d05(&contents, 1), 5064);
+        assert_eq!(y24d05(&contents, 2), 5152);
     }
 }
