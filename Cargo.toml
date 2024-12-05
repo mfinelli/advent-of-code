@@ -1,6 +1,6 @@
 [package]
 name = "aoc"
-version = "2023.0.0"
+version = "2024.0.0"
 authors = ["Mario Finelli"]
 description = "My advent of code solutions"
 documentation = "https://mfinelli.github.io/advent-of-code"
