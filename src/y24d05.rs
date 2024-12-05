@@ -17,7 +17,6 @@
 //!
 //! TODO
 
-
 /// The solution for the day five challenge.
 ///
 /// TODO
@@ -43,17 +42,11 @@ pub fn y24d05(input: &str, part: u32) -> usize {
         }
 
         if !seen_newline {
-            let rule: Vec<_> = line
-                .split('|')
-                .map(|i| i.parse().unwrap())
-                .collect();
+            let rule: Vec<_> =
+                line.split('|').map(|i| i.parse().unwrap()).collect();
             rules.push((rule[0], rule[1]));
         } else {
-            jobs.push(
-                line.split(',')
-                    .map(|i| i.parse().unwrap())
-                    .collect(),
-            );
+            jobs.push(line.split(',').map(|i| i.parse().unwrap()).collect());
         }
     }
 
