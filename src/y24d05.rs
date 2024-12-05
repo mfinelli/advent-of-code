@@ -44,24 +44,33 @@ pub fn y24d05(input: &str, part: u32) -> usize {
         }
 
         if !seen_newline {
-            let rule: Vec<_> = line.split('|').into_iter().map(|i| i.parse().unwrap()).collect();
+            let rule: Vec<_> = line
+                .split('|')
+                .into_iter()
+                .map(|i| i.parse().unwrap())
+                .collect();
             rules.push((rule[0], rule[1]));
         } else {
-            jobs.push(line.split(',').into_iter().map(|i| i.parse().unwrap()).collect());
+            jobs.push(
+                line.split(',')
+                    .into_iter()
+                    .map(|i| i.parse().unwrap())
+                    .collect(),
+            );
         }
     }
 
     for mut job in jobs {
         // if is_safe(&rules, job) {
-            // println!("{:?} is safe", job);
+        // println!("{:?} is safe", job);
         // }
         // match is_safe(&rules, &job) {
         //     Some(middle) => sum += middle,
         //     None => continue,
         // }
-        if job.is_sorted_by(|a, b| !rules.contains(&(*b,*a))) {
+        if job.is_sorted_by(|a, b| !rules.contains(&(*b, *a))) {
             if part == 1 {
-                sum += job[job.len() /2];
+                sum += job[job.len() / 2];
             }
         } else if part == 2 {
             job.sort_by(|a, b| (!rules.contains(&(*b, *a))).cmp(&true));
@@ -76,17 +85,15 @@ pub fn y24d05(input: &str, part: u32) -> usize {
 fn is_safe(rules: &Vec<(usize, usize)>, job: &Vec<usize>) -> Option<usize> {
     for (left_rule, right_rule) in rules {
         match job.iter().position(|i| i == left_rule) {
-            Some(left) => {
-                match job.iter().position(|i| i == right_rule) {
-                    Some(right) => {
-                        if right < left {
-                            return None;
-                        }
+            Some(left) => match job.iter().position(|i| i == right_rule) {
+                Some(right) => {
+                    if right < left {
+                        return None;
                     }
-                    None => continue
                 }
-            }
-            None => continue
+                None => continue,
+            },
+            None => continue,
         }
     }
 
