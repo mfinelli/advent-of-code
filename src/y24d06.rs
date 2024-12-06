@@ -29,12 +29,12 @@ use std::collections::HashSet;
 /// // probably read this from the input file...
 /// let input = concat!(
 /// );
-/// assert_eq!(y24d06(input), 0);
+/// assert_eq!(y24d06(input, 1), 0);
 /// ```
-pub fn y24d06(input: &str) -> usize {
+pub fn y24d06(input: &str, part: u32) -> usize {
     let mut obstacles = Vec::new();
-    let mut guard = (0,0);
-    let mut dir = 'N';
+    let mut guard = (0, 0, 'N');
+    let mut start = (0, 0);
     let max_y;
     let mut max_x = 0;
     let mut visited = HashSet::new();
@@ -45,7 +45,7 @@ pub fn y24d06(input: &str) -> usize {
     for (y, line) in input.lines().enumerate() {
         let chars: Vec<_> = line.chars().collect();
 
-        if y == 0{
+        if y == 0 {
             max_x = chars.len();
         }
 
@@ -55,70 +55,129 @@ pub fn y24d06(input: &str) -> usize {
             }
 
             if *c == '^' {
-                guard = (x, y);
+                start = (x, y);
+                guard = (x, y, 'N');
                 visited.insert((x, y));
             }
         }
     }
 
-    // println!("{:?}", obstacles);
-    // let mut i = 0;
     loop {
-        // if i == 40 {
-        //     break;
-        // }
-
-        let (x, y) = guard;
+        let (x, y, dir) = guard;
         visited.insert((x, y));
-        // println!("guard: {},{} {}", x, y, dir);
 
         if dir == 'N' {
             if y == 0 {
                 break;
             }
 
-            if obstacles.contains(&(x, y-1)) {
-                dir = 'E';
+            if obstacles.contains(&(x, y - 1)) {
+                guard = (x, y, 'E');
             } else {
-                guard = (x, y-1);
+                guard = (x, y - 1, dir);
             }
-        } else if dir == 'E'{
+        } else if dir == 'E' {
             if x + 1 == max_x {
                 break;
             }
 
-            if obstacles.contains(&(x+1, y)) {
-                dir = 'S';
+            if obstacles.contains(&(x + 1, y)) {
+                guard = (x, y, 'S');
             } else {
-                guard = (x+1, y);
+                guard = (x + 1, y, dir);
             }
-        } else if dir == 'S'{
-            if y+1 == max_y {
+        } else if dir == 'S' {
+            if y + 1 == max_y {
                 break;
             }
 
-            if obstacles.contains(&(x, y+1)) {
-                dir = 'W';
+            if obstacles.contains(&(x, y + 1)) {
+                guard = (x, y, 'W');
             } else {
-                guard = (x, y+1);
+                guard = (x, y + 1, dir);
             }
         } else if dir == 'W' {
             if x == 0 {
                 break;
             }
 
-            if obstacles.contains(&(x-1, y)) {
-                dir = 'N';
+            if obstacles.contains(&(x - 1, y)) {
+                guard = (x, y, 'N');
             } else {
-                guard = (x-1, y);
+                guard = (x - 1, y, dir);
             }
         }
-
-        // i += 1;
     }
 
+    if part == 1 {
+        return visited.len();
+    }
 
-    visited.len()
+    let mut sum = 0;
+    for loc in visited {
+        if loc == start {
+            continue;
+        }
+
+        let mut newobstacles = obstacles.clone();
+        newobstacles.push(loc);
+        let mut p2visited = Vec::new();
+        guard = (start.0, start.1, 'N');
+
+        loop {
+            let (x, y, dir) = guard;
+            if p2visited.contains(&guard) {
+                sum += 1;
+                break;
+            }
+
+            p2visited.push(guard);
+
+            if dir == 'N' {
+                if y == 0 {
+                    break;
+                }
+
+                if newobstacles.contains(&(x, y - 1)) {
+                    guard = (x, y, 'E');
+                } else {
+                    guard = (x, y - 1, dir);
+                }
+            } else if dir == 'E' {
+                if x + 1 == max_x {
+                    break;
+                }
+
+                if newobstacles.contains(&(x + 1, y)) {
+                    guard = (x, y, 'S');
+                } else {
+                    guard = (x + 1, y, dir);
+                }
+            } else if dir == 'S' {
+                if y + 1 == max_y {
+                    break;
+                }
+
+                if newobstacles.contains(&(x, y + 1)) {
+                    guard = (x, y, 'W');
+                } else {
+                    guard = (x, y + 1, dir);
+                }
+            } else if dir == 'W' {
+                if x == 0 {
+                    break;
+                }
+
+                if newobstacles.contains(&(x - 1, y)) {
+                    guard = (x, y, 'N');
+                } else {
+                    guard = (x - 1, y, dir);
+                }
+            }
+        }
+    }
+
+    sum
 }
 
 #[cfg(test)]
@@ -140,13 +199,16 @@ mod tests {
             "#.........\n",
             "......#...\n",
         );
-        assert_eq!(y24d06(input), 41);
+        assert_eq!(y24d06(input, 1), 41);
+        assert_eq!(y24d06(input, 2), 6);
     }
 
     #[test]
+    #[ignore]
     fn the_solution() {
         let contents = fs::read_to_string("input/2024/day06.txt").unwrap();
 
-        assert_eq!(y24d06(&contents), 5329);
+        assert_eq!(y24d06(&contents, 1), 5329);
+        assert_eq!(y24d06(&contents, 2), 2162);
     }
 }
