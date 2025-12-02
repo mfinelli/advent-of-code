@@ -28,39 +28,48 @@
 /// let input = concat!(
 ///     "R8\n",
 ///     "L58\n",
+///     "L10\n",
+///     "R20\n",
 /// );
-/// assert_eq!(y25d01(input), 1);
+/// assert_eq!(y25d01(input, 1), 1);
+/// assert_eq!(y25d01(input, 2), 2);
 /// ```
-pub fn y25d01(input: &str) -> u32 {
+pub fn y25d01(input: &str, part: u32) -> u32 {
     let mut pwd = 0;
     let mut pos = 50; // dial starts at 50
 
     let lines: Vec<_> = input.lines().collect();
     for line in lines {
-        println!("dial is starting at pos: {}", pos);
-
         let mut chars = line.chars();
         let dir = chars.next().unwrap();
         let mut num: i32 = chars.collect::<String>().parse().unwrap();
 
         while num > 100 {
             num -= 100;
+            if part == 2 {
+                pwd += 1;
+            }
         }
-        println!("moving {} {} places", dir, num);
 
         if dir == 'R' {
             pos += num;
             if pos > 99 {
+                if part == 2 && pos != 100 {
+                    pwd += 1;
+                }
                 pos -= 100;
             }
         } else {
+            let s = pos;
+
             pos -= num;
             if pos < 0 {
+                if part == 2  && s != 0 {
+                    pwd += 1;
+                }
                 pos += 100;
             }
         }
-
-        println!("dial arrives at {}", pos);
 
         if pos == 0 {
             pwd += 1;
@@ -78,13 +87,15 @@ mod tests {
     #[test]
     fn it_works() {
         let input = "L68\nL30\nR48\nL5\nR60\nL55\nL1\nL99\nR14\nL82";
-        assert_eq!(y25d01(input), 3);
+        assert_eq!(y25d01(input, 1), 3);
+        assert_eq!(y25d01(input, 2), 6);
     }
 
     #[test]
     fn the_solution() {
         let contents = fs::read_to_string("input/2025/day01.txt").unwrap();
 
-        assert_eq!(y25d01(&contents), 0);
+        assert_eq!(y25d01(&contents, 1), 1180);
+        assert_eq!(y25d01(&contents, 2), 6892);
     }
 }
