@@ -29,32 +29,43 @@
 /// );
 /// assert_eq!(y25d03(input), 1);
 /// ```
-pub fn y25d03(input: &str) -> u32 {
+pub fn y25d03(input: &str, size: usize) -> u64 {
     let mut sum = 0;
 
     let lines: Vec<_> = input.lines().collect();
     for line in lines {
         let chars: Vec<_> = line.chars().collect();
+
+        // println!("checking: {}", line);
+
         let mut index = 0;
-        let mut tens: u32 = chars[index].to_string().parse().unwrap();
+        for digit in 0..size {
+            let mut largest: u64 = chars[index].to_string().parse().unwrap();
 
-        for i in 0..chars.len()-1 {
-            let v: u32 = chars[i].to_string().parse().unwrap();
-            if v > tens {
-                tens = v;
-                index = i;
+            // println!("for digit {} current largest is {} index {}", size-digit, largest, index);
+
+            for i in index+1..chars.len()-(size-digit)+1{
+                let v: u64 = chars[i].to_string().parse().unwrap();
+                // println!("checking {}", v);
+                if v > largest {
+                    // println!("for digit {} current largest is {} index {}", size-digit, largest, index);
+                    largest = v;
+                    index = i;
+                }
+            }
+
+            // println!("definitive largest for digit {} is {} in index {}", size-digit, largest, index);
+
+            // let pow = 10 ^ u32::try_from(size-1-digit).unwrap();
+            let base: u64 = 10;
+            let pow: u64 = base.pow(u32::try_from(size-1-digit).unwrap());
+            // println!("adding {} to sum ({} * {})", largest * pow, pow, largest);
+            sum += largest * pow;
+
+            if digit != size-1 {
+                index += 1;
             }
         }
-
-        let mut ones: u32 = chars[index+1].to_string().parse().unwrap();
-        for i in index+1..chars.len() {
-            let v: u32 = chars[i].to_string().parse().unwrap();
-            if v > ones {
-                ones = v;
-            }
-        }
-
-        sum += tens * 10 + ones;
     }
 
     sum
@@ -73,13 +84,15 @@ mod tests {
             "234234234234278\n",
             "818181911112111\n",
         );
-        assert_eq!(y25d03(input), 357);
+        assert_eq!(y25d03(input, 2), 357);
+        assert_eq!(y25d03(input, 12), 3121910778619);
     }
 
     #[test]
     fn the_solution() {
         let contents = fs::read_to_string("input/2025/day03.txt").unwrap();
 
-        assert_eq!(y25d03(&contents), 17432);
+        assert_eq!(y25d03(&contents, 2), 17432);
+        assert_eq!(y25d03(&contents, 12), 173065202451341);
     }
 }
