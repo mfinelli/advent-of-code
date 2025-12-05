@@ -214,6 +214,7 @@ fn title(yd: &str) -> &str {
         "y25d02" => "Gift Shop",
         "y25d03" => "Lobby",
         "y25d04" => "Printing Department",
+        "y25d05" => "Cafeteria",
 
         _ => panic!("unknown puzzle title"),
     }

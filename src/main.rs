@@ -312,6 +312,10 @@ fn main() {
             part1 = format!("{}", y25d04::y25d04(&input, 1));
             part2 = format!("{}", y25d04::y25d04(&input, 2));
         }
+        "y25d05" => {
+            part1 = format!("{}", y25d05::y25d05(&input));
+            part2 = "".to_string();
+        }
 
         _ => panic!("Unable to find year/day match."),
     };
