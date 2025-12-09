@@ -1,4 +1,4 @@
-/* Copyright 2022-2024 Mario Finelli
+/* Copyright 2022-2025 Mario Finelli
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -315,6 +315,10 @@ fn main() {
         "y25d05" => {
             part1 = format!("{}", y25d05::y25d05p1(&input));
             part2 = format!("{}", y25d05::y25d05p2(&input));
+        }
+        "y25d06" => {
+            part1 = format!("{}", y25d06::y25d06(&input));
+            part2 = "".to_string();
         }
 
         _ => panic!("Unable to find year/day match."),

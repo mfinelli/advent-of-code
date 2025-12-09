@@ -86,3 +86,4 @@ pub mod y25d02;
 pub mod y25d03;
 pub mod y25d04;
 pub mod y25d05;
+pub mod y25d06;
